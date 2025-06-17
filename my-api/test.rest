@@ -36,10 +36,14 @@ Content-Type: application/json
 {
     "khoroo":"1-р хороо"
 }
+#### GET district data
+GET https://shdmonitoring.ub.gov.mn/api/khoroo/district
 
 #### GET khoroo data
+GET https://shdmonitoring.ub.gov.mn/api/khoroo
 
-GET http://localhost:4000/api/posts
+#### GET news data
+GET https://shdmonitoring.ub.gov.mn/api/posts
 
 ### TEST insert khoroo
 

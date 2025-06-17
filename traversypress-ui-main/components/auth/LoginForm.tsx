@@ -72,10 +72,10 @@ const LoginForm = () => {
         const token = result.token;
 
         // Токеныг хадгалах (жишээ нь localStorage-д)
-        localStorage.setItem('token', token);
+        // localStorage.setItem('token', token);
 
         // Амжилттай нэвтэрсэн бол dashboard хуудас руу чиглүүлэх
-        router.push('/');
+        router.push('/admin');
       }
 
 
@@ -167,13 +167,13 @@ const LoginForm = () => {
             />
 
             <Button className='w-full'>Үргэлжлүүлэх</Button>
-            <div className="text-center text-sm">
+            {/* <div className="text-center text-sm">
               Вэб сайтруу ?{" "}
               <a href="#" className="underline underline-offset-4">
                 shdmonitoring.ub.gov.mn
               </a>
 
-            </div>
+            </div> */}
           </form>
         </Form>
       </CardContent>

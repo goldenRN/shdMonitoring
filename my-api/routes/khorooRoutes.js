@@ -3,7 +3,23 @@ const router = express.Router();
 const pool = require('../db');
 
 
+// GET хорооны мэдээлэл авах
 
+router.get('/district', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT
+        distid
+        distname 
+      FROM district 
+    `);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Fetch district error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
 
 // GET хорооны мэдээлэл авах
 

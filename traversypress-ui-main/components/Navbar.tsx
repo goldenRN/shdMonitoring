@@ -28,13 +28,19 @@ const Navbar = () => {
       <div className='flex items-center'>
         <ThemeToggler />
         <DropdownMenu>
-          <DropdownMenuTrigger className='focus:outline-none'>
+          {/* <DropdownMenuTrigger className='focus:outline-none'>
             <Avatar>
               <AvatarImage src='https://github.com/shadcn.png' alt='@shadcn' />
               <AvatarFallback className='text-black'>BT</AvatarFallback>
             </Avatar>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
+          </DropdownMenuTrigger> */}
+
+          <Link href={`/auth`}>
+            <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-xs'>
+              Нэвтрэх
+            </button>
+          </Link>
+          {/* <DropdownMenuContent>
             <DropdownMenuLabel>Миний бүртгэл</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
@@ -43,7 +49,7 @@ const Navbar = () => {
             <DropdownMenuItem>
               <Link href='/auth'>Гарах</Link>
             </DropdownMenuItem>
-          </DropdownMenuContent>
+          </DropdownMenuContent> */}
         </DropdownMenu>
       </div>
     </div>
