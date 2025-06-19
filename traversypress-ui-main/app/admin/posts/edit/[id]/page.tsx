@@ -94,7 +94,7 @@ const [postsData, setPostsData] = useState<Posts[]>([])
   useEffect(() => {
     const fetchKhoroos = async () => {
       try {
-        const res = await fetch('http://localhost:4000/api/khoroo');
+        const res = await fetch('https://shdmonitoring.ub.gov.mn/api/khoroo');
         const data = await res.json();
         setKhoroos(data);
       } catch (err) {
@@ -105,7 +105,7 @@ const [postsData, setPostsData] = useState<Posts[]>([])
     fetchKhoroos();
     const fetchPosts = async () => {
       try {
-        const res = await fetch(`http://localhost:4000/api/posts`)
+        const res = await fetch(`https://shdmonitoring.ub.gov.mn/api/posts`)
         const json = await res.json()
         console.log("json", json)
         setPostsData(json.data)

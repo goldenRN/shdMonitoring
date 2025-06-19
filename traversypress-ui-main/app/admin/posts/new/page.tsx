@@ -72,7 +72,7 @@ const PostNewPage = ({ params }: PostNewPageProps) => {
   useEffect(() => {
     const fetchKhoroos = async () => {
       try {
-        const res = await fetch('http://localhost:4000/api/khoroo');
+        const res = await fetch('https://shdmonitoring.ub.gov.mn/api/khoroo');
         const data = await res.json();
         setKhoroos(data);
       } catch (err) {
@@ -124,7 +124,7 @@ const PostNewPage = ({ params }: PostNewPageProps) => {
     }
     console.log('body Амжилттай үүсгэгдлээ:', body);
     try {
-      const res = await fetch('http://localhost:4000/api/posts/create', {
+      const res = await fetch('https://shdmonitoring.ub.gov.mn/api/posts/create', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json; charset=utf-8',

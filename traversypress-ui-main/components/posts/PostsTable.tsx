@@ -40,7 +40,7 @@ const PostsTable = () => {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const res = await fetch(`http://localhost:4000/api/posts`)
+        const res = await fetch(`https://shdmonitoring.ub.gov.mn/api/posts`)
         const json = await res.json()
         console.log("json", json)
         setPostsData(json.data)

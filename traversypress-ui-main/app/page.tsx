@@ -8,8 +8,6 @@ import {
   CardTitle
 } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useEffect, useState } from 'react'
 import Link from 'next/link';
 
@@ -42,7 +40,7 @@ export default  function Home() {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const res = await fetch(`http://localhost:4000/api/posts`)
+        const res = await fetch(`https://shdmonitoring.ub.gov.mn/api/posts`)
         const json = await res.json()
         console.log("json", json)
         setPostsData(json.data)

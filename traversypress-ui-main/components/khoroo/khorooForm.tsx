@@ -23,7 +23,7 @@ export default function KhorooForm() {
   useEffect(() => {
     const fetchDistricts = async () => {
       try {
-        const res = await fetch('http://localhost:4000/api/khoroo/districts');
+        const res = await fetch('https://shdmonitoring.ub.gov.mn/api/khoroo/districts');
         const data = await res.json();
         setDistricts(data);
       } catch (err) {
@@ -40,7 +40,7 @@ export default function KhorooForm() {
 
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
-      const res = await fetch('http://localhost:4000/api/khoroo/create', {
+      const res = await fetch('https://shdmonitoring.ub.gov.mn/api/khoroo/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json; charset=utf-8' },
         body: JSON.stringify({ khoroo: data.khoroo }),

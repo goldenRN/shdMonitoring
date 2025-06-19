@@ -45,7 +45,7 @@ const Detail = ({ params }: { params: { id: string } }) => {
   useEffect(() => {
     const fetchpostsDatas = async () => {
       try {
-        const res = await fetch('http://localhost:4000/api/posts/detail', {
+        const res = await fetch('https://shdmonitoring.ub.gov.mn/api/posts/detail', {
           method: 'post',
           headers: {
             'Content-Type': 'application/json; charset=utf-8',

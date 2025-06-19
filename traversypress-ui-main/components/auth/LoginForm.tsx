@@ -51,7 +51,7 @@ const LoginForm = () => {
   // };
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
     try {
-      const response = await fetch('http://localhost:4000/api/auth/login', {
+      const response = await fetch('https://shdmonitoring.ub.gov.mn/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

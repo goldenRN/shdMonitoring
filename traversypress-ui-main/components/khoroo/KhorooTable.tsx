@@ -29,7 +29,7 @@ const KhorooTable = ({ limit, title }: KhorooTableProps) => {
   useEffect(() => {
     const fetchKhoroos = async () => {
       try {
-        const res = await fetch('http://localhost:4000/api/khoroo');
+        const res = await fetch('https://shdmonitoring.ub.gov.mn/api/khoroo');
         const data = await res.json();
         setKhoroos(limit ? data.slice(0, limit) : data);
       } catch (err) {
@@ -79,7 +79,30 @@ const KhorooTable = ({ limit, title }: KhorooTableProps) => {
               </TableCell>
               <TableCell>
                 <Link href={`/admin/khoroo/edit/${khoroo.id}?name=${khoroo.name}&dist=${khoroo.district}`}>
-                  <button className="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-xs">
+                  <button className="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-xs"
+                 
+                    onClick={async () => {
+                      const confirmed = window.confirm(`Та "${khoroo.name}" хороо-г устгахдаа итгэлтэй байна уу?`);
+                      if (!confirmed) return;
+
+                      try {
+                        const res = await fetch(`https://shdmonitoring.ub.gov.mn/api/khoroo/${khoroo.id}`, {
+                          method: 'DELETE',
+                        });
+
+                        if (res.ok) {
+                          setKhoroos(prev => prev.filter(k => k.id !== khoroo.id));
+                        } else {
+                          const errMsg = await res.text();
+                          alert(`Устгах үед алдаа гарлаа: ${errMsg}`);
+                        }
+                      } catch (err) {
+                        console.error('Устгах үед алдаа:', err);
+                        alert('Сервертэй холбогдож чадсангүй.');
+                      }
+                    }}
+                    // className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-xs"
+                  >
                     Устгах
                   </button>
                 </Link>

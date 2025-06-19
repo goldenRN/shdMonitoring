@@ -49,7 +49,7 @@ const KhorooEditPage = ({ params }: { params: { id: string } }) => {
   useEffect(() => {
     const fetchDistricts = async () => {
       try {
-        const res = await fetch('http://localhost:4000/api/khoroo/districts');
+        const res = await fetch('https://shdmonitoring.ub.gov.mn/api/khoroo/districts');
         const data = await res.json();
         console.log("data==", data);
         setDistricts(data);
@@ -72,7 +72,7 @@ const KhorooEditPage = ({ params }: { params: { id: string } }) => {
     const districtsId = districts.find((dist) => dist.name === data.dist)?.id;
     console.log("dataбббббб==", districtsId);
     try {
-      const res = await fetch('http://localhost:4000/api/khoroo/edit', {
+      const res = await fetch('https://shdmonitoring.ub.gov.mn/api/khoroo/edit', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

@@ -152,5 +152,22 @@ router.post('/search', async (req, res) => {
       res.status(500).json({ error: 'Server error' });
   }
 });
+router.delete('/khoroo/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await pool.query('DELETE FROM khoroo WHERE khid = $1', [id]);
+
+    if (result.rowCount === 0) {
+      return res.status(404).send('Хороо олдсонгүй');
+    }
+
+    res.status(204).send(); // Амжилттай, ямар ч body байхгүй
+  } catch (err) {
+    console.error('Хороо устгах алдаа:', err);
+    res.status(500).send('Серверийн алдаа');
+  }
+});
+
 
 module.exports = router;
