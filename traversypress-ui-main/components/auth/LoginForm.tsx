@@ -135,7 +135,7 @@ const LoginForm = () => {
                   <FormControl>
                     <Input
                       className='bg-slate-100 dark:bg-slate-500 border-0 focus-visible:ring-0 text-black dark:text-white focus-visible: ring-offset-0'
-                      placeholder=''
+                      placeholder='Нэвтрэх нэр'
                       {...field}
                     />
                   </FormControl>
@@ -156,7 +156,7 @@ const LoginForm = () => {
                     <Input
                       type='password'
                       className='bg-slate-100 dark:bg-slate-500 border-0 focus-visible:ring-0 text-black dark:text-white focus-visible: ring-offset-0'
-                      placeholder='Enter Password'
+                      placeholder='Нууц үг'
                       {...field}
                     />
                   </FormControl>
