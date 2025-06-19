@@ -10,15 +10,22 @@ import {
   type ControllerProps,
   type FieldPath,
   type FieldValues,
+  type FormProviderProps,
 } from "react-hook-form"
 
 import { cn } from "@/lib/utils"
 import { Label } from "@/components/ui/label"
 
-const Form = ({
+// const Form = ({
+//   children,
+//   ...props
+// }: React.PropsWithChildren<React.ComponentProps<typeof FormProvider>>) => {
+//   return <FormProvider {...props}>{children}</FormProvider>
+// }
+const Form = <TFieldValues extends FieldValues>({
   children,
   ...props
-}: React.PropsWithChildren<React.ComponentProps<typeof FormProvider>>) => {
+}: React.PropsWithChildren<FormProviderProps<TFieldValues>>) => {
   return <FormProvider {...props}>{children}</FormProvider>
 }
 
@@ -46,16 +53,43 @@ const FormField = <
   )
 }
 
+// const useFormField = () => {
+//   const fieldContext = React.useContext(FormFieldContext)
+//   const itemContext = React.useContext(FormItemContext)
+//   const { getFieldState, formState } = useFormContext()
+
+//   const fieldState = getFieldState(fieldContext.name, formState)
+
+//   if (!fieldContext) {
+//     throw new Error("useFormField should be used within <FormField>")
+//   }
+
+//   const { id } = itemContext
+
+//   return {
+//     id,
+//     name: fieldContext.name,
+//     formItemId: `${id}-form-item`,
+//     formDescriptionId: `${id}-form-item-description`,
+//     formMessageId: `${id}-form-item-message`,
+//     ...fieldState,
+//   }
+// }
 const useFormField = () => {
   const fieldContext = React.useContext(FormFieldContext)
   const itemContext = React.useContext(FormItemContext)
-  const { getFieldState, formState } = useFormContext()
-
-  const fieldState = getFieldState(fieldContext.name, formState)
+  const formContext = useFormContext()
 
   if (!fieldContext) {
     throw new Error("useFormField should be used within <FormField>")
   }
+
+  if (!formContext) {
+    throw new Error("useFormField should be used within <FormProvider>")
+  }
+
+  const { getFieldState, formState } = formContext
+  const fieldState = getFieldState(fieldContext.name, formState)
 
   const { id } = itemContext
 

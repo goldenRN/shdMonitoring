@@ -46,7 +46,7 @@ const KhorooTable = ({ limit, title }: KhorooTableProps) => {
         <h3 className='text-2xl mb-4 font-semibold'>
           {title ? title : 'Хороод'}
         </h3>
-        <Link href={`/khoroo/new`}>
+        <Link href={`/admin/khoroo/new`}>
           <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-xs'>
             Нэмэх
           </button>
@@ -59,7 +59,8 @@ const KhorooTable = ({ limit, title }: KhorooTableProps) => {
           <TableRow>
             <TableHead>Дүүрэг</TableHead>
             <TableHead className='hidden md:table-cell'>Хороо</TableHead>
-            <TableHead>Үйлдэл</TableHead>
+            <TableHead>Засах</TableHead>
+            <TableHead>Устгах</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -68,12 +69,20 @@ const KhorooTable = ({ limit, title }: KhorooTableProps) => {
               <TableCell>{khoroo.district}</TableCell>
               <TableCell>{khoroo.name}</TableCell>
               <TableCell>
-                <Link href={`/khoroo/edit/${khoroo.id}?name=${khoroo.name}&dist=${khoroo.district}`}>
+                <Link href={`/admin/khoroo/edit/${khoroo.id}?name=${khoroo.name}&dist=${khoroo.district}`}>
                   <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-xs">
                     Засах
                   </button>
                 </Link>
 
+
+              </TableCell>
+              <TableCell>
+                <Link href={`/admin/khoroo/edit/${khoroo.id}?name=${khoroo.name}&dist=${khoroo.district}`}>
+                  <button className="bg-orange-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-xs">
+                    Устгах
+                  </button>
+                </Link>
               </TableCell>
             </TableRow>
           ))}

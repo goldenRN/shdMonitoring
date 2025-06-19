@@ -1,59 +1,47 @@
+
+import logo from '../img/logo.png';
+import city from '../img/city.jpeg';
 import Image from 'next/image';
 import Link from 'next/link';
-import logo from '../img/logo.png';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import ThemeToggler from '@/components/ThemeToggler';
-import { CardTitle } from './ui/card';
-
 const Navbar = () => {
+
   return (
-    <div className='bg-slate-800 text-white py-2 px-5 flex justify-between border-b-2 border-zinc-600 flex justify-center items-center'>
-      <Link href='/'>
-        <Image src={logo} alt='TraversyPress' width={80} />
-      </Link>
-      <p className="text-align: justify">
-        СОНГИНО ХАЙРХАН ДҮҮРГИЙН  ЗАСАГ ДАРГЫН ТАМГЫН ГАЗАР
-      </p>
+    <header className="bg-blue-900 text-white border-b-2 border-zinc-600 ">
+      <div className="flex items-center justify-between px-4 py-2 text-sm">
+        <div className="flex items-center space-x-4">
+          <span>7017 3203</span>
+          <span>songinokhairkhandistrict@gmail.com</span>
 
 
-
-      <div className='flex items-center'>
-        <ThemeToggler />
-        <DropdownMenu>
-          {/* <DropdownMenuTrigger className='focus:outline-none'>
-            <Avatar>
-              <AvatarImage src='https://github.com/shadcn.png' alt='@shadcn' />
-              <AvatarFallback className='text-black'>BT</AvatarFallback>
-            </Avatar>
-          </DropdownMenuTrigger> */}
-
+        </div>
+        <div className="flex items-center space-x-3">
+          {/* <span>7017 3203</span>
+          <span>songinokhairkhandistrict@gmail.com</span> */}
           <Link href={`/auth`}>
-            <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-xs'>
+            <button className='bg-white hover:bg-blue-500 text-blue-900 font-bold py-2 px-4 rounded text-xs'>
               Нэвтрэх
             </button>
           </Link>
-          {/* <DropdownMenuContent>
-            <DropdownMenuLabel>Миний бүртгэл</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <Link href='/profile'>Хувийн мэдээлэл</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Link href='/auth'>Гарах</Link>
-            </DropdownMenuItem>
-          </DropdownMenuContent> */}
-        </DropdownMenu>
+        </div>
       </div>
-    </div>
-  );
-};
 
+      <div className="flex items-center justify-between bg-white px-6 py-4 text-blue-900">
+        <div className="flex items-center space-x-4">
+          <Image src={logo} alt="Logo" width={100} height={100} />
+          <div>
+            <h1 className="text-xl font-bold">СОНГИНОХАЙРХАН ДҮҮРГИЙН</h1>
+            <p className="text-lg">ЗАСАГ ДАРГЫН ТАМГЫН ГАЗАР</p>
+          </div>
+        </div>
+        <div className=" flex items-center justify-center">
+
+          <Image src={city} alt="City" width={500} height={40} className="object-contain" />
+        </div>
+
+      </div>
+
+
+    </header>
+  );
+}
 export default Navbar;

@@ -8,8 +8,6 @@ import {
   CardTitle
 } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useEffect, useState } from 'react'
 import Link from 'next/link';
 import { useToast } from '@/components/ui/use-toast';
@@ -69,13 +67,13 @@ const Detail = ({ params }: { params: { id: string } }) => {
       }
     }
     fetchpostsDatas()
-  }, [page])
+  }, [id])
   return (
     <main>
       {/* <div className="grid grid-cols-1 gap-5 ml-5 mt-5"> */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-6 gap-6">
         {/* Дунд 2 баганад байрлана: 2-р баганаас эхэлж 2 багана эзэлнэ */}
-        <div className="col-start-2 col-span-2 bg-gray-100 p-4 text-center">
+        <div className="col-start-2 col-span-4 bg-gray-100 p-4 text-center">
           <Card key={postsData?.newsid} className="flex flex-col justify-between">
             <CardHeader className="flex-row gap-4 items-center">
               <div>
@@ -84,9 +82,15 @@ const Detail = ({ params }: { params: { id: string } }) => {
                   {/* <Badge variant="secondary">{postsData?.title}</Badge> */}
                 </CardTitle>
                 <CardDescription>
-                  {postsData?.updatedat == null
+                  {postsData?.updatedat
+                    ? `Сүүлд шинэчлэгдсэн огноо: ${new Date(postsData.updatedat).toLocaleDateString()}`
+                    : postsData?.createdat
+                      ? `Бүртгэсэн огноо: ${new Date(postsData.createdat).toLocaleDateString()}`
+                      : 'Огноо олдсонгүй'}
+                  {/* </CardDescription> */}
+                  {/* {postsData?.updatedat == null
                     ? `Бүртгэсэн огноо: ${new Date(postsData?.createdat).toLocaleDateString()}`
-                    : `Сүүлд шинэчлэгдсэн огноо: ${new Date(postsData?.updatedat).toLocaleDateString()}`}
+                    : `Сүүлд шинэчлэгдсэн огноо: ${new Date(postsData?.updatedat).toLocaleDateString()}`} */}
                 </CardDescription>
               </div>
             </CardHeader>
@@ -143,7 +147,13 @@ const Detail = ({ params }: { params: { id: string } }) => {
             <CardContent className="flex justify-between items-center">
               {/* <span>Гэрээний хугацаа:</span> */}
               <Badge variant="secondary">Гэрээний хугацаа:</Badge>
-              <Badge variant="outline">{`${new Date(postsData?.startdate).toLocaleDateString()}-${new Date(postsData?.enddate).toLocaleDateString()}`}</Badge>
+              <Badge variant="outline">
+                {postsData?.startdate
+                  ? `${new Date(postsData.startdate).toLocaleDateString()} - ${postsData?.enddate ? new Date(postsData.enddate).toLocaleDateString() : '...'}`
+                  : 'Огноо байхгүй'}
+              </Badge>
+
+              {/* <Badge variant="outline">{`${new Date(postsData?.startdate).toLocaleDateString()}-${new Date(postsData?.enddate).toLocaleDateString()}`}</Badge> */}
             </CardContent>
             <CardContent className="flex justify-between items-center">
               <Badge variant="secondary">Хэрэгжилтийн үе шат:</Badge>

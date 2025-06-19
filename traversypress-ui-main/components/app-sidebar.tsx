@@ -1,6 +1,6 @@
 import * as React from "react"
 
-// import { SearchForm } from "@/components/search-form"
+import { SearchForm } from "@/components/search-form"
 import { VersionSwitcher } from "@/components/version-switcher"
 import {
   Sidebar,
@@ -14,152 +14,39 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
-
+import {
+  Command,
+  CommandDialog,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+  CommandShortcut,
+} from '@/components/ui/command';
+import {
+  LayoutDashboard,
+  Newspaper,
+  Folders,
+  User,
+  LogOut,
+} from 'lucide-react';
+import Link from 'next/link';
 // This is sample data.
-const data = {
-  versions: ["1.0.1", "1.1.0-alpha", "2.0.0-beta1"],
-  navMain: [
-    {
-      title: "Getting Started",
-      url: "#",
-      items: [
-        {
-          title: "Installation",
-          url: "#",
-        },
-        {
-          title: "Project Structure",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Building Your Application",
-      url: "#",
-      items: [
-        {
-          title: "Routing",
-          url: "#",
-        },
-        {
-          title: "Data Fetching",
-          url: "#",
-          isActive: true,
-        },
-        {
-          title: "Rendering",
-          url: "#",
-        },
-        {
-          title: "Caching",
-          url: "#",
-        },
-        {
-          title: "Styling",
-          url: "#",
-        },
-        {
-          title: "Optimizing",
-          url: "#",
-        },
-        {
-          title: "Configuring",
-          url: "#",
-        },
-        {
-          title: "Testing",
-          url: "#",
-        },
-        {
-          title: "Authentication",
-          url: "#",
-        },
-        {
-          title: "Deploying",
-          url: "#",
-        },
-        {
-          title: "Upgrading",
-          url: "#",
-        },
-        {
-          title: "Examples",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "API Reference",
-      url: "#",
-      items: [
-        {
-          title: "Components",
-          url: "#",
-        },
-        {
-          title: "File Conventions",
-          url: "#",
-        },
-        {
-          title: "Functions",
-          url: "#",
-        },
-        {
-          title: "next.config.js Options",
-          url: "#",
-        },
-        {
-          title: "CLI",
-          url: "#",
-        },
-        {
-          title: "Edge Runtime",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Architecture",
-      url: "#",
-      items: [
-        {
-          title: "Accessibility",
-          url: "#",
-        },
-        {
-          title: "Fast Refresh",
-          url: "#",
-        },
-        {
-          title: "Next.js Compiler",
-          url: "#",
-        },
-        {
-          title: "Supported Browsers",
-          url: "#",
-        },
-        {
-          title: "Turbopack",
-          url: "#",
-        },
-      ],
-    },
-  ],
-}
+
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar {...props}>
       <SidebarHeader>
         <VersionSwitcher
-          versions={data.versions}
-          defaultVersion={data.versions[0]}
         />
         {/* <SearchForm /> */}
       </SidebarHeader>
       <SidebarContent>
         {/* We create a SidebarGroup for each parent. */}
-        {data.navMain.map((item) => (
+        {/* {data.navMain.map((item) => (
           <SidebarGroup key={item.title}>
             <SidebarGroupLabel>{item.title}</SidebarGroupLabel>
             <SidebarGroupContent>
@@ -174,7 +61,48 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
-        ))}
+        ) */}
+        {/* )} */}
+        <Command >
+          <CommandInput placeholder='Хайлт...' />
+          <CommandList>
+            <CommandEmpty>Хайлт олдсонгүй.</CommandEmpty>
+            <CommandGroup heading='Нүүр хуудас'>
+              <CommandItem>
+                <LayoutDashboard className='mr-2 h-8 w-4' />
+                <Link href='/admin/dashboard'>Удирдлагын хэсэг</Link>
+              </CommandItem>
+              <CommandItem>
+                <Newspaper className='mr-2 h-8 w-4' />
+                <Link href='/admin/posts'>Мэдээлэл</Link>
+              </CommandItem>
+              {/* <CommandItem>
+            
+            <Link href='#'></Link>
+          </CommandItem> */}
+            </CommandGroup>
+            <CommandSeparator />
+            <CommandGroup heading='Бүртгэл'>
+              <CommandItem>
+                <Folders className='mr-2 h-8 w-4' />
+                <Link href='/admin/khoroo'>Хороо бүртгэл</Link>
+                {/* <CommandShortcut>⌘P</CommandShortcut> */}
+              </CommandItem>
+              <CommandItem>
+                <User className='mr-2 h-8 w-4' />
+
+                <span>Хувийн мэдээлэл</span>
+                {/* <CommandShortcut>⌘B</CommandShortcut> */}
+              </CommandItem>
+              <CommandItem>
+                <LogOut className='mr-2 h-8 w-4' />
+                <Link href='/auth'>Гарах</Link>
+                {/* <span>Гарах</span> */}
+                {/* <CommandShortcut>⌘S</CommandShortcut> */}
+              </CommandItem>
+            </CommandGroup>
+          </CommandList>
+        </Command>
       </SidebarContent>
       <SidebarRail />
     </Sidebar>

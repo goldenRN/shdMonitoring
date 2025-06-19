@@ -47,7 +47,7 @@ router.post('/register', async (req, res) => {
 // POST /api/auth/login
 router.post('/login', async (req, res) => {
     const { username, password } = req.body;
-
+console.log("namepass==",username ,password);
     try {
         const userResult = await pool.query(
             'SELECT * FROM admin_users WHERE username = $1',
@@ -55,7 +55,7 @@ router.post('/login', async (req, res) => {
         );
 
         const user = userResult.rows[0];
-
+        console.log("user==",user);
         if (!user) {
             return res.status(404).send({ message: 'User not found' });
         }

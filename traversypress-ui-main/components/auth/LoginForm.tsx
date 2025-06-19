@@ -2,7 +2,7 @@
 
 import BackButton from '@/components/BackButton';
 import * as z from 'zod';
-import { useForm } from 'react-hook-form';
+import {  useForm  } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Form,
@@ -50,7 +50,6 @@ const LoginForm = () => {
   //   router.push('/');
   // };
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
-    print()
     try {
       const response = await fetch('http://localhost:4000/api/auth/login', {
         method: 'POST',
@@ -75,7 +74,7 @@ const LoginForm = () => {
         // localStorage.setItem('token', token);
 
         // Амжилттай нэвтэрсэн бол dashboard хуудас руу чиглүүлэх
-        router.push('/admin');
+        router.push('/admin/dashboard');
       }
 
 

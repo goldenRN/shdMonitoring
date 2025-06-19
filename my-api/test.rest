@@ -20,12 +20,12 @@ Content-Type: application/json
 }
 
 ###TEST POST /api/data
-POST http://localhost:4000/api/auth/login
+POST https://shdmonitoring.ub.gov.mn/api/auth/login
 Content-Type: application/json
 
 {
-    "username":"hooson",
-    "password":"admin"
+    "username":"user",
+    "password":"user"
 }
 
 ### TEST insert khoroo
@@ -37,7 +37,7 @@ Content-Type: application/json
     "khoroo":"1-р хороо"
 }
 #### GET district data
-GET https://shdmonitoring.ub.gov.mn/api/khoroo/district
+GET http://183.81.170.62:4000/api/khoroo
 
 #### GET khoroo data
 GET https://shdmonitoring.ub.gov.mn/api/khoroo
@@ -51,19 +51,19 @@ POST http://localhost:4000/api/posts/create
 Content-Type: application/json
 
 {
-    "news": "aguulga",
-    "totalCost": 123,
-    "contractCost": 8888,
-    "endDate": "Sun, 08 Jun 2025 00:00:00 GMT",
-    "engener": "meneger",
-    "contractor": "guitsetgegch",
-    "khoroo": 6,
-    "orderNum": "zahramjiin dugaaar",
-    "impPercent": 70,
-    "source": "eh uusver",
-    "impPhase": "uyshat",
-    "startDate": "Sun, 01 Jun 2025 00:00:00 GMT",
-    "title": "garchig"
+    "news": "Усан спорт сургалтын төвийн барилга",
+    "totalCost": 11242.4,
+    "contractCost": 11242351000,
+    "endDate": "Sun, 31 Des 2025 00:00:00 GMT",
+    "engener": "хэвийн",
+    "contractor": "Ванхүү ХХК",
+    "khoroo": 1,
+    "orderNum": "Барилга",
+    "impPercent": 90,
+    "source": "Улсын төсөв",
+    "impPhase": "Захиалагчийн алба ОНӨААТҮГ",
+    "startDate": "Sun, 14 Apr 2022 00:00:00 GMT",
+    "title": "Усан спорт сургалтын төвийн барилга"
 }
 
 # {

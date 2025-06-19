@@ -2,13 +2,8 @@
 
 import * as React from "react"
 import { Check, ChevronsUpDown, GalleryVerticalEnd } from "lucide-react"
-
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import logo from '../img/logo.png';
+import Image from 'next/image';
 import {
   SidebarMenu,
   SidebarMenuButton,
@@ -16,35 +11,32 @@ import {
 } from "@/components/ui/sidebar"
 
 export function VersionSwitcher({
-  versions,
-  defaultVersion,
+  // versions,
 }: {
-  versions: string[]
-  defaultVersion: string
+  // versions: string[]
+  // defaultVersion: string
 }) {
-  const [selectedVersion, setSelectedVersion] = React.useState(defaultVersion)
+  // const [selectedVersion, setSelectedVersion] = React.useState(defaultVersion)
 
   return (
     <SidebarMenu>
-      <SidebarMenuItem>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+      {/* <SidebarMenuItem> */}
             <SidebarMenuButton
               size="lg"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-            >
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                <GalleryVerticalEnd className="size-4" />
+              className="bg-blue-500 data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+            > 
+              <div >
+                {/* <GalleryVerticalEnd className="size-4" /> */}
+                <Image src={logo} alt="Logo" width={50} height={0} />
               </div>
-              <div className="flex flex-col gap-0.5 leading-none">
-                <span className="font-semibold">Documentation</span>
-                <span className="">v{selectedVersion}</span>
+              <div className="flex flex-col gap-0.5 leading-none text-white">
+                <span className="font-medium">СХДЗДТГ</span>
+                {/* <span className="">v{selectedVersion}</span> */}
               </div>
-              <ChevronsUpDown className="ml-auto" />
+              {/* <ChevronsUpDown className="ml-auto" /> */}
             </SidebarMenuButton>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            className="w-[--radix-dropdown-menu-trigger-width]"
+          {/* <DropdownMenuContent
+            className="w-(--radix-dropdown-menu-trigger-width)"
             align="start"
           >
             {versions.map((version) => (
@@ -56,9 +48,8 @@ export function VersionSwitcher({
                 {version === selectedVersion && <Check className="ml-auto" />}
               </DropdownMenuItem>
             ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </SidebarMenuItem>
+          </DropdownMenuContent> */}
+      {/* </SidebarMenuItem> */}
     </SidebarMenu>
   )
 }

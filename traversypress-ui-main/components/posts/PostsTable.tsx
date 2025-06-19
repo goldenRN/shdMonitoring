@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/table';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { format } from 'date-fns';
 
 interface Posts {
   newsid: number
@@ -59,14 +60,10 @@ const PostsTable = () => {
   // const filteredPosts = limit ? sortedPosts.slice(0, limit) : sortedPosts;
 
   return (
-    <div className='mt-10'>
-      <div className='flex justify-between'>
-        <h3 className='text-2xl mb-4 font-semibold'>{'Мэдээлэл'}</h3>
-        <Link href={`/posts/new`}>
-          <button className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-xs'>
-            Нэмэх
-          </button>
-        </Link>
+    <div >
+      <div >
+        <h3 className='text-2xl mb-4 font-semibold'>Мэдээлэл</h3>
+        
       </div>
       <Table>
         <TableCaption>Сүүлд нэмэгдсэн</TableCaption>
@@ -74,14 +71,14 @@ const PostsTable = () => {
           <TableRow>
             <TableHead>Захирамжын дугаар</TableHead>
             <TableHead>Гарчиг</TableHead>
-            <TableHead>Агуулга</TableHead>
+            {/* <TableHead>Агуулга</TableHead> */}
             <TableHead className='hidden md:table-cell'>Хороо</TableHead>
             <TableHead>Сүүлд шинэчлэгдсэн огноо</TableHead>
             <TableHead>Гүйцэтгэгч</TableHead>
             <TableHead>Гэрээний дүн</TableHead>
             <TableHead>Эх үүсвэр</TableHead>
-            <TableHead>Төсөвт дүн</TableHead>
-            <TableHead>Хариуцсан инженер</TableHead>
+            {/* <TableHead>Төсөвт дүн</TableHead> */}
+            {/* <TableHead>Хариуцсан инженер</TableHead> */}
             <TableHead>Гүйцэтгэлийн үе шат</TableHead>
             <TableHead>Гүйцэтгэлийн хувь</TableHead>
             <TableHead className='hidden md:table-cell text-right'>
@@ -98,16 +95,17 @@ const PostsTable = () => {
                 <TableCell className="max-w-[250px] truncate font-semibold text-sm">
                   {post.title}
                 </TableCell>
-                <TableCell className="max-w-[250px] truncate font-semibold text-sm">
+                {/* <TableCell className="max-w-[250px] truncate font-semibold text-sm">
                   {post.news}
-                </TableCell>
+                </TableCell> */}
                 <TableCell>{post.khoroo}</TableCell>
-                <TableCell>{post.updatedat}</TableCell>
+                {/* <TableCell>{ format( {post.updatedat}) </TableCell> */}
+                <TableCell>{format(new Date(post.updatedat), 'yyyy-MM-dd')} </TableCell>
                 <TableCell>{post.contractor}</TableCell>
                 <TableCell>{post.totalcost}</TableCell>
                 <TableCell>{post.source}</TableCell>
-                <TableCell>{post.contractcost}</TableCell>
-                <TableCell>{post.engener}</TableCell>
+                {/* <TableCell>{post.contractcost}</TableCell>
+                <TableCell>{post.engener}</TableCell> */}
                 <TableCell>{post.impphase}</TableCell>
                 <TableCell className="text-right hidden md:table-cell">
                   {post.imppercent}%
@@ -127,8 +125,8 @@ const PostsTable = () => {
                     : 'Огноо байхгүй'}
                 </TableCell>
                 <TableCell>
-                  <Link href={`/posts/edit/${post.newsid}`}>
-                    <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-xs">
+                  <Link href={`/admin/posts/edit/${post.newsid}`}>
+                    <button className="bg-orange-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-xs">
                       Засах
                     </button>
                   </Link>
@@ -146,7 +144,7 @@ const PostsTable = () => {
 
       </Table>
 
-      <div className="flex gap-2 mt-4">
+      {/* <div className="flex gap-2 mt-4">
         <button
           onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
           disabled={page === 1}
@@ -162,7 +160,7 @@ const PostsTable = () => {
         >
           Дараах
         </button>
-      </div>
+      </div> */}
     </div>
   );
 };

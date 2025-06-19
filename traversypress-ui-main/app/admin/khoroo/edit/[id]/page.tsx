@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import BackButton from '@/components/BackButton';
 import * as z from 'zod';
-import { useForm } from 'react-hook-form';
+import {  useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useSearchParams } from 'next/navigation';
 import {
@@ -17,7 +17,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/components/ui/use-toast';2
+import { useToast } from '@/components/ui/use-toast'; 2
 
 const formSchema = z.object({
   dist: z.string().min(1, {
@@ -59,7 +59,7 @@ const KhorooEditPage = ({ params }: { params: { id: string } }) => {
     };
 
     fetchDistricts();
-    
+
   }, []);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -69,7 +69,7 @@ const KhorooEditPage = ({ params }: { params: { id: string } }) => {
     },
   });
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
-    const districtsId = districts.find((dist)=>dist.name ===data.dist)?.id;
+    const districtsId = districts.find((dist) => dist.name === data.dist)?.id;
     console.log("dataбббббб==", districtsId);
     try {
       const res = await fetch('http://localhost:4000/api/khoroo/edit', {
@@ -98,7 +98,7 @@ const KhorooEditPage = ({ params }: { params: { id: string } }) => {
 
   return (
     <>
-      <BackButton text='Буцах' link='/khoroo' />
+      <BackButton text='Буцах' link='/admin/khoroo' />
       <h3 className='text-2xl mb-4'>Мэдээлэл шинэчлэх</h3>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-8'>

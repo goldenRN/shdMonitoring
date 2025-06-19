@@ -142,7 +142,7 @@ const [postsData, setPostsData] = useState<Posts[]>([])
 
   return (
     <>
-      <BackButton text=' Буцах' link='/posts' />
+      <BackButton text=' Буцах' link='/admin/posts' />
       <h3 className='text-2xl mb-4'>Мэдээлэл оруулах</h3>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-8'>

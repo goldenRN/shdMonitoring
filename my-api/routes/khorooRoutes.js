@@ -139,7 +139,7 @@ router.post('/search', async (req, res) => {
       const result = await pool.query(query, values);
 
       if (result.rows.length === 0) {
-          return res.status(404).json({ error: 'Хороо олдсонгүй' });
+          return res.status(404).json({ error: 'Мэдээлэл олдсонгүй' });
       } else {
           res.json({
               data: result.rows,

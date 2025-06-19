@@ -34,7 +34,7 @@ interface Posts {
 
 
 
-export default async function Home() {
+export default  function Home() {
   const [postsData, setPostsData] = useState<Posts[]>([])
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
