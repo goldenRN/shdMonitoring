@@ -30,6 +30,7 @@ interface Posts {
   updatedat: Date
   khoroo: string
 }
+import { Pencil, Trash } from 'lucide-react';
 
 const PostsTable = () => {
 
@@ -63,7 +64,7 @@ const PostsTable = () => {
     <div >
       <div >
         <h3 className='text-2xl mb-4 font-semibold'>Мэдээлэл</h3>
-        
+
       </div>
       <Table>
         <TableCaption>Сүүлд нэмэгдсэн</TableCaption>
@@ -125,11 +126,23 @@ const PostsTable = () => {
                     : 'Огноо байхгүй'}
                 </TableCell>
                 <TableCell>
-                  <Link href={`/admin/posts/edit/${post.newsid}`}>
-                    <button className="bg-orange-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-xs">
-                      Засах
-                    </button>
-                  </Link>
+                  <div className='flex justify-between'><div>
+                    <Link href={`/admin/posts/edit/${post.newsid}`}>
+                      <button className="bg-orange-200 hover:bg-orange-500 text-white font-bold py-2 px-4 rounded text-xs">
+                        {/* Засах */}
+                        {<Pencil className='text-slate-800' size={20} />}
+                      </button>
+                    </Link>
+                    </div>
+                    <div className='ml-5'>
+                    <Link href={`/admin/posts/edit/${post.newsid}`}>
+                      <button className="bg-red-200 hover:bg-red-500 text-white font-bold py-2 px-4 rounded text-xs">
+                        {/* Засах */}
+                        <Trash className='text-slate-800' size={20} />
+                      </button>
+                    </Link>
+                    </div>
+                  </div>
                 </TableCell>
               </TableRow>
             ))

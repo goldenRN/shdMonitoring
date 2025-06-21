@@ -50,9 +50,9 @@ const AnalyticsChart = () => {
     <>
       <Card>
         <CardHeader>
-          <CardTitle>Analytics For This Year</CardTitle>
-          <CardDescription>Views Per Month</CardDescription>
-          <Select onValueChange={setSelection} defaultValue="pv">
+          <CardTitle>Дээрхи тооны утгын шинжилгээ</CardTitle>
+          <CardDescription>Жилээр</CardDescription>
+          {/* <Select onValueChange={setSelection} defaultValue="pv">
           <SelectTrigger className="w-96 h-8">
             <SelectValue placeholder="Select Account" />
           </SelectTrigger>
@@ -65,18 +65,18 @@ const AnalyticsChart = () => {
               ))}
             </SelectGroup>
           </SelectContent>
-        </Select>
+        </Select> */}
         </CardHeader>
         <CardContent>
           <div style={{ width: '100%', height: 300 }}>
-            {/* <ResponsiveContainer> */}
-              {/* <LineChart width={1100} height={300} data={data}>
+            <ResponsiveContainer>
+              <LineChart width={1100} height={300} data={["khdksd",2,3,4,5,5,6,7]}>
                 <Line type='monotone' dataKey={selection} stroke='#8884d8' />
                 <CartesianGrid stroke='#ccc' />
                 <XAxis dataKey='name' />
                 <YAxis />
-              </LineChart> */}
-            {/* </ResponsiveContainer> */}
+              </LineChart>
+            </ResponsiveContainer>
           </div>
         </CardContent>
       </Card>

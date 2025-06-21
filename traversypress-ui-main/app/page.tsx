@@ -32,7 +32,7 @@ interface Posts {
 
 
 
-export default  function Home() {
+export default function Home() {
   const [postsData, setPostsData] = useState<Posts[]>([])
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
@@ -52,89 +52,93 @@ export default  function Home() {
     fetchPosts()
   }, [page])
   return (
-    <main>
-      <div className="grid grid-cols-3 gap-5 ml-5 mt-5">
+    <>  
+    <main className="p-6 bg-gray-50 min-h-screen">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
         {postsData.map(post => (
-          <Card key={post.newsid} className="flex flex-col justify-between">
-            <CardHeader className="flex-row gap-4 items-center">
-
-              <div>
-                <CardTitle>
-                  {post.title}
-                  {/* <Badge variant="secondary">{post.title}</Badge> */}
-                </CardTitle>
-                <CardDescription>
-                  {post.updatedat == null
-                    ? `Бүртгэсэн огноо: ${new Date(post.createdat).toLocaleDateString()}`
-                    : `Сүүлд шинэчлэгдсэн огноо: ${new Date(post.updatedat).toLocaleDateString()}`}
-                </CardDescription>
-              </div>
+          <Card key={post.newsid} className="bg-white border border-gray-200 rounded-xl shadow-sm 
+             hover:shadow-lg hover:scale-[1.02] hover:border-blue-500 
+             transition-all duration-300 ease-in-out 
+             flex flex-col justify-between cursor-pointer">
+            <CardHeader className="pb-2 border-b border-gray-100">
+              <CardTitle className="text-base font-semibold text-blue-800">
+                {post.title}
+              </CardTitle>
+              <CardDescription className="text-sm text-gray-500 text-right">
+                {post.updatedat == null
+                  ? `Бүртгэсэн огноо: ${new Date(post.createdat).toLocaleDateString()}`
+                  : `Шинэчилсэн: ${new Date(post.updatedat).toLocaleDateString()}`}
+              </CardDescription>
             </CardHeader>
-            <CardContent className="flex justify-between items-center">
-              {/* <span>Захирамж №:</span> */}
-              <Badge variant="secondary">Захирамж №:</Badge>
-              <Badge variant="outline">{post.contractor}</Badge>
-            </CardContent>
-            <CardContent className="flex justify-between items-center">
-              {/* <span>Эх үүсвэр:</span> */}
-              <Badge variant="secondary">Эх үүсвэр:</Badge>
-              <Badge variant="outline">{post.source}</Badge>
-            </CardContent>
-            <CardContent className="flex justify-between items-center">
-              {/* <span>Хороо:</span> */}
-              <Badge variant="secondary">Хороо:</Badge>
-              <Badge variant="outline">{post.khoroo}</Badge>
-              {/* <span>{post.khoroo} </span> */}
-            </CardContent>
-            <CardContent className="flex justify-between items-center">
-              {/* <span>Төсөвт өртөг:</span> */}
-              <Badge variant="secondary">Төсөвт өртөг:</Badge>
-              <Badge variant="outline">{post.totalcost}</Badge>
-              {/* <span>{post.totalcost} </span> */}
-            </CardContent>
-            <CardContent className="flex justify-between items-center">
-              {/* <span>Гүйцэтгэгч:</span> */}
-              <Badge variant="secondary">Гүйцэтгэгч:</Badge>
-              <Badge variant="outline">{post.contractor}</Badge>
-              {/* <span>{post.contractor} </span> */}
-            </CardContent>
-            <CardContent className="flex justify-between items-center">
-              {/* <span>Гэрээний дүн (₮):</span> */}
-              <Badge variant="secondary">Гэрээний дүн (₮):</Badge>
-              <Badge variant="outline">{post.contractcost}</Badge>
-              {/* <span>{post.contractcost}₮ </span> */}
-            </CardContent>
-            <CardContent className="flex justify-between items-center">
-              {/* <span>Хариуцсан инженер:</span> */}
-              <Badge variant="secondary">Хариуцсан инженер:</Badge>
-              <Badge variant="outline">{post.engener}</Badge>
-              {/* <span>{post.engener} </span> */}
-            </CardContent>
-            <CardContent className="flex justify-between items-center">
-              {/* <span>Гэрээний хугацаа:</span> */}
-              <Badge variant="secondary">Гэрээний хугацаа:</Badge>
-              <Badge variant="outline">{`${new Date(post.startdate).toLocaleDateString()}-${new Date(post.enddate).toLocaleDateString()}`}</Badge>
-            </CardContent>
-            <CardContent className="flex justify-between items-center">
-              <Badge variant="secondary">Хэрэгжилтийн үе шат:</Badge>
-              <Badge variant="outline">{post.impphase}</Badge>
-              {/* <span>{post.impphase} </span> */}
-            </CardContent>
-            <CardContent className="flex justify-between items-center">
-              <Badge variant="secondary">Хэрэгжилтийн хувь:</Badge>
-              <Badge variant="outline">{post.imppercent}%</Badge>
-              {/* <span>{post.imppercent}% </span> */}
-            </CardContent>
-            <CardFooter className="flex justify-end">
-              <Link href={`/detail/${post.newsid}`}>
-                {/* <Button>Дэлгэрэнгүй харах</Button> */}
-                <Badge variant="default">Дэлгэрэнгүй</Badge>
 
+            <CardContent className="divide-y divide-gray-100 text-sm text-gray-700">
+              <div className="py-2 flex justify-between">
+                <span className="font-medium text-gray-600  ">Захирамж №</span>
+                <span>{post.ordernum}</span>
+              </div>
+              <div className="py-2 flex justify-between">
+                <span className="font-medium text-gray-600">Эх үүсвэр</span>
+                <span>{post.source}</span>
+              </div>
+              <div className="py-2 flex justify-between">
+                <span className="font-medium text-gray-600">Хороо</span>
+                <span>{post.khoroo}</span>
+              </div>
+              <div className="py-2 flex justify-between">
+                <span className="font-medium text-gray-600">Төсөвт өртөг</span>
+                <span>{Number(post.totalcost).toLocaleString()}₮</span>
+              </div>
+              <div className="py-2 flex justify-between">
+                <span className="font-medium text-gray-600 ">Гүйцэтгэгч</span>
+                <span className=" text-gray-600 text-right  break-words">{post.contractor}</span>
+              </div>
+              <div className="py-2 flex justify-between">
+                <span className="font-medium text-gray-600">Гэрээний дүн</span>
+                <span>{Number(post.contractcost).toLocaleString()}₮</span>
+              </div>
+              <div className="py-2 flex justify-between"> 
+                <span className="font-medium text-gray-600">Инженер</span>
+                <span>{post.engener}</span>
+              </div>
+              <div className="py-2 flex justify-between">
+                <span className="font-medium text-gray-600">Хугацаа</span>
+                <span>
+                  {new Date(post.startdate).toLocaleDateString()} - {new Date(post.enddate).toLocaleDateString()}
+                </span>
+              </div>
+              <div className="py-2 flex justify-between">
+                <span className="font-medium text-gray-600">Үе шат</span>
+                <span>{post.impphase}</span>
+              </div>
+              <div className="py-2 flex justify-between">
+                <span className="font-medium text-gray-600">Хувь</span>
+                <span>{post.imppercent}%</span>
+              </div>
+            </CardContent>
+
+            <CardFooter className="flex justify-end p-4 pt-2 border-t border-gray-100">
+              <Link href={`/detail/${post.newsid}`}>
+                <span className="text-sm font-medium text-blue-700 hover:underline hover:text-blue-900">
+                  Дэлгэрэнгүй →
+                </span>
               </Link>
             </CardFooter>
           </Card>
         ))}
       </div>
     </main>
-  )
+    
+    
+    <footer className="bg-blue-900 text-white py-6 mt-10">
+  <div className="max-w-7xl mx-auto px-4 text-center">
+    <p className="text-sm">
+      &copy; {new Date().getFullYear()} Улаанбаатар хот. СонгиноХайрхан Дүүргийн Засаг даргын тамгын газар.
+    </p>
+  </div>
+</footer>
+
+    
+    </>
+
+  );
 }

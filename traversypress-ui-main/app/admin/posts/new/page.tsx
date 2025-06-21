@@ -12,6 +12,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import { CommandSeparator } from 'cmdk';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -20,7 +21,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardHeader } from '@/components/ui/card';
 import { Popover, PopoverTrigger, PopoverContent } from '@radix-ui/react-popover';
 import { Command, CommandInput, CommandList, CommandEmpty, CommandGroup, CommandItem } from 'cmdk';
-import { Check, ChevronsUpDown } from 'lucide-react';
+import { Check, ChevronsUpDown, Maximize } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import * as PopoverPrimitive from '@radix-ui/react-popover';
 
@@ -43,13 +44,20 @@ const formSchema = z.object({
   //   (val) => val === '' ? undefined : Number(val),
   //   z.number().min(1, { message: 'Гэрээний дүн 1-с бага байж болохгүй' })
   // ),
-  khoroo: z.string().min(1, { message: 'Хороо сонгоно уу' }),
+  //khoroo: z.string().min(1, { message: 'Хороо сонгоно уу' }),
+  khoroo: z.array(z.string()).min(1, { message: 'Хороо сонгоно уу' }),
   startDate: z.string().min(1, { message: 'Огноо' }),
   endDate: z.string().min(1, { message: 'Огноо' }),
   stage: z.string().min(1, { message: 'Гүйцэтгэлийн үе шат' }),
+  // precent: z.preprocess(
+  // (val) => val === '' ? undefined : Number(val),
+  // z.number().min(1, { message: 'Гэрээний дүн 1-с бага байж болохгүй' })
+  //)
   precent: z.preprocess(
     (val) => val === '' ? undefined : Number(val),
-    z.number().min(1, { message: 'Гэрээний дүн 1-с бага байж болохгүй' })
+    z.number()
+      .min(1, { message: '1-ээс бага байж болохгүй' })
+      .max(100, { message: '100-аас их байж болохгүй' })
   )
 });
 
@@ -66,8 +74,10 @@ const PostNewPage = ({ params }: PostNewPageProps) => {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const PopoverClose = PopoverPrimitive.Close;
+  const [page, setPage] = useState(1)
   // const post = posts.find((post) => post.id === params.id);
   const [khoroos, setKhoroos] = useState<Khoroo[]>([]);
+
 
   useEffect(() => {
     const fetchKhoroos = async () => {
@@ -78,31 +88,34 @@ const PostNewPage = ({ params }: PostNewPageProps) => {
       } catch (err) {
         console.error('Алдаа:', err);
       }
-    };
+    }
+    fetchKhoroos()
+  }, [page])
 
-    fetchKhoroos();
-  });
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       order: '',
       source: '',
       executor: '',
-      budget: undefined,
-      contractValue: undefined,
+      budget: Number(''),
+      contractValue: Number(''),
       engineer: '',
       title: '',
       body: '',
-      khoroo: '',
+      khoroo: [],
       startDate: '',
       endDate: '',
       stage: '',
-      precent: undefined,
+      precent: Number(''),
     },
   });
 
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
-    const khorooId = khoroos.find((kh) => kh.name === data.khoroo)?.id;
+    // const khorooId = khoroos.find((kh) => kh.name === data.khoroo)?.id;
+    const khorooId = khoroos
+      .filter((kh) => data.khoroo.includes(kh.name))
+      .map((kh) => kh.id);
     const sdate = new Date(data.startDate);
     const edate = new Date(data.endDate);
     const formattedsdate = sdate.toUTCString();
@@ -134,6 +147,8 @@ const PostNewPage = ({ params }: PostNewPageProps) => {
 
       if (!res.ok) {
         console.log('res==:', res);
+
+        toast({ title: 'Хадгалахад алдаа гарлаа', variant: 'destructive' });
         throw new Error('Амжилтгүй');
       }
 
@@ -199,7 +214,9 @@ const PostNewPage = ({ params }: PostNewPageProps) => {
                         }[name]}
                       </FormLabel>
                       <FormControl>
-                        <Input className='bg-slate-100 dark:bg-slate-500 text-black dark:text-white' {...field} />
+                        <Input className='bg-slate-100 dark:bg-slate-500 text-black dark:text-white' {...field}
+                          type={name === 'engineer' ? 'text' : 'number'}
+                          step={name === 'engineer' ? undefined : 1} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -240,7 +257,7 @@ const PostNewPage = ({ params }: PostNewPageProps) => {
           />
 
           {/* Хороо сонгох */}
-          <FormField
+          {/* <FormField
             control={form.control}
             name="khoroo"
             render={({ field }) => (
@@ -282,8 +299,121 @@ const PostNewPage = ({ params }: PostNewPageProps) => {
                 <FormMessage />
               </FormItem>
             )}
-          />
+          /> */}
+          <FormField
+            control={form.control}
+            name="khoroo"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel className="uppercase text-xs font-bold text-zinc-500 dark:text-white">
+                  Хороо сонгох
+                </FormLabel>
+                <Popover open={open} onOpenChange={setOpen} >
+                  <PopoverTrigger asChild>
+                    {/* <Button variant="outline" role="combobox" className="w-[400px] justify-between">
+                      {field.value.length > 0
+                        ? khoroos
+                          .filter((k) => field.value.includes(k.name))
+                          .map((k) => k.name)
+                          .join(', ')
+                        : 'Хороо сонгох'}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+                    </Button> */}
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      className="w-[400px] justify-between truncate"
+                    >
+                      <span className="truncate">
+                        {field.value.length > 0
+                          ? field.value.join(', ')
+                          : 'Хороо сонгох'}
+                      </span>
+                      <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="bg-slate-100 dark:bg-slate-500 w-[400px] max-h-[300px] overflow-auto p-0">
+                    <Command>
+                      <CommandInput placeholder="Хайх..." className="h-9 p-2" />
+                      <CommandList>
+                        <CommandEmpty>Хороо олдсонгүй.</CommandEmpty>
+                        {/* <CommandGroup>
+                          {khoroos.map((khoroo) => {
+                            const selected = field.value.includes(khoroo.name);
+                            return (
+                              <div >
+                                <Check
+                                  className={cn(
+                                    'mt-1 mr-2 ml-2 h-4 w-4',
+                                    selected ? 'opacity-100' : 'opacity-0'
+                                  )}
+                                />
+                                <CommandItem
+                                  key={khoroo.id}
+                                  value={khoroo.name}
+                                  onSelect={() => {
+                                    const alreadySelected = field.value.includes(khoroo.name);
+                                    if (alreadySelected) {
+                                      form.setValue(
+                                        'khoroo',
+                                        field.value.filter((v) => v !== khoroo.name)
+                                      );
+                                    } else {
+                                      form.setValue('khoroo', [...field.value, khoroo.name]);
+                                    }
+                                  }}
+                                >
 
+                                  {khoroo.name}
+                                </CommandItem>
+                              </div>
+                            );
+                          })}
+                        </CommandGroup> */}
+                        <CommandGroup>
+                          {khoroos.map((khoroo) => {
+                            const selected = field.value.includes(khoroo.name);
+
+                            return (
+                              <CommandItem
+                                key={khoroo.id}
+                                value={khoroo.name}
+                                onSelect={() => {
+                                  const alreadySelected = field.value.includes(khoroo.name);
+                                  if (alreadySelected) {
+                                    form.setValue(
+                                      'khoroo',
+                                      field.value.filter((v) => v !== khoroo.name)
+                                    );
+                                  } else {
+                                    form.setValue('khoroo', [...field.value, khoroo.name]);
+                                  }
+                                }}
+                                className={cn(
+                                  'flex flex-row items-center gap-3 px-3 py-2',
+                                  'border-b border-zinc-200 bg-gray-100 hover:bg-gray-200',
+                                  selected && 'font-semibold'
+                                )}
+                              >
+                                <Check
+                                  className={cn(
+                                    'h-4 w-4 text-green-600 transition-opacity',
+                                    selected ? 'opacity-100' : 'opacity-0'
+                                  )}
+                                />
+                                {khoroo.name}
+                              </CommandItem>
+                            );
+                          })}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           {/* Огноо (гэрээний хугацаа) */}
           <div className="flex flex-row gap-10">
             {['startDate', 'endDate'].map((name, i) => (
@@ -330,7 +460,11 @@ const PostNewPage = ({ params }: PostNewPageProps) => {
                         }[name]}
                       </FormLabel>
                       <FormControl>
-                        <Input className='bg-slate-100 dark:bg-slate-500 text-black dark:text-white' {...field} />
+                        <Input className='bg-slate-100 dark:bg-slate-500 text-black dark:text-white' {...field}
+                          type={name === 'precent' ? 'number' : 'text'}
+                          min={name === 'precent' ? 1 : undefined}
+                          max={name === 'precent' ? 100 : undefined}
+                          step={name === 'precent' ? 1 : undefined} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

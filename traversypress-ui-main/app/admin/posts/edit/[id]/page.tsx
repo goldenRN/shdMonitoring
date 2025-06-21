@@ -20,7 +20,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { useEffect, useState } from 'react';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import * as  PopoverPrimitive from '@radix-ui/react-popover';
-import { Popover, PopoverTrigger, PopoverContent  } from '@radix-ui/react-popover';
+import { Popover, PopoverTrigger, PopoverContent } from '@radix-ui/react-popover';
 
 
 const formSchema = z.object({
@@ -83,15 +83,14 @@ interface Posts {
 
 const PostEditPage = ({ params }: PostEditPageProps) => {
   const { toast } = useToast();
-const [postsData, setPostsData] = useState<Posts[]>([])
-  // const post = posts.find((post) => post.id === params.id);
-
+  const [postsData, setPostsData] = useState<Posts[]>([])
+  const [khoroos, setKhoroos] = useState<Khoroo[]>([]);
+  const id = params.id;
   const [open, setOpen] = useState(false);
   const PopoverClose = PopoverPrimitive.Close;
   // const post = posts.find((post) => post.id === params.id);
-  const [khoroos, setKhoroos] = useState<Khoroo[]>([]);
 
-  useEffect(() => {
+  useEffect (() => {
     const fetchKhoroos = async () => {
       try {
         const res = await fetch('https://shdmonitoring.ub.gov.mn/api/khoroo');
@@ -105,7 +104,15 @@ const [postsData, setPostsData] = useState<Posts[]>([])
     fetchKhoroos();
     const fetchPosts = async () => {
       try {
-        const res = await fetch(`https://shdmonitoring.ub.gov.mn/api/posts`)
+        const res = await fetch(`https://shdmonitoring.ub.gov.mn/api/posts/detail`, {
+          method: 'post',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            id: id,
+          }),
+        });
         const json = await res.json()
         console.log("json", json)
         setPostsData(json.data)
@@ -115,30 +122,64 @@ const [postsData, setPostsData] = useState<Posts[]>([])
     }
     fetchPosts()
   });
-  const handleSubmit = (data: z.infer<typeof formSchema>) => {
+  const handleSubmit = async(data: z.infer<typeof formSchema>) => {
+    try {
+      const res = await fetch('https://shdmonitoring.ub.gov.mn/api/posts/edit', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          "news": "сургалтын төвийн барилга",
+          "totalCost": 112424000,
+          "contractCost": 11242351000,
+          "endDate": "2025-12-30T16:00:00.000Z",
+          "engener": "хэвийн",
+          "contractor": "Ванхүү ХХК",
+          "khoroo": 1,
+          "orderNum": "Барилга",
+          "impPercent": 90,
+          "source": "Улсын төсөв",
+          "impPhase": "Захиалагчийн алба ОНӨААТҮГ",
+          "startDate": "2022-04-13T16:00:00.000Z",
+          "title": "сургалтын төвийн барилга",
+          "newsId":1
+      }),
+      });
+
+      if (res.ok) {
+        toast({ title: 'Мэдээлэл амжилттай шинэчлэгдлээ' });
+        form.reset();
+      } else {
+        toast({ title: 'Алдаа гарлаа', variant: 'destructive' });
+      }
+    } catch (err) {
+      console.error(err);
+      toast({ title: 'Холболтын алдаа', variant: 'destructive' });
+    }
     toast({
       title: 'Мэдээлэл амжилттай шинэчлэгдлээ',
       // description: `Сүүлд засагдсан огноо ${data?.date}`,
     });
   };
   const form = useForm<z.infer<typeof formSchema>>({
-      resolver: zodResolver(formSchema),
-      defaultValues: {
-        order: '',
-        source: '',
-        executor: '',
-        budget: undefined,
-        contractValue: undefined,
-        engineer: '',
-        title: '',
-        body: '',
-        khoroo: '',
-        startDate: '',
-        endDate: '',
-        stage: '',
-        precent: undefined,
-      },
-    });
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      order: '',
+      source: '',
+      executor: '',
+      budget: undefined,
+      contractValue: undefined,
+      engineer: '',
+      title: '',
+      body: '',
+      khoroo: '',
+      startDate: '',
+      endDate: '',
+      stage: '',
+      precent: undefined,
+    },
+  });
 
   return (
     <>

@@ -27,15 +27,9 @@ import {
     SidebarProvider,
     SidebarTrigger,
 } from "@/components/ui/sidebar"
-// import PostsTable from '@/components/posts/PostsTable';
-// import AnalyticsChart from '@/components/dashboard/AnalyticsChart';
-import { FolderArchive, MessageCircle, Newspaper, User } from 'lucide-react';
-import DashboardPage from "./dashboard/page";
 
 export default function AdminPage({ children }: { children: React.ReactNode }) {
     const pathname = usePathname()
-    // const hideHeaderRoutes = ['/auth','/admin','/admin/dashboard','/admin/khoroo','/admin/posts']
-    // const shouldHideHeader = hideHeaderRoutes.includes(pathname)
     return (
         <SidebarProvider>
             <AppSidebar />

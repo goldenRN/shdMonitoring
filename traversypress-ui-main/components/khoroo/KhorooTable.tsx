@@ -78,7 +78,7 @@ const KhorooTable = ({ limit, title }: KhorooTableProps) => {
 
               </TableCell>
               <TableCell>
-                <Link href={`/admin/khoroo/edit/${khoroo.id}?name=${khoroo.name}&dist=${khoroo.district}`}>
+                {/* <Link href={`/admin/khoroo/edit/${khoroo.id}?name=${khoroo.name}&dist=${khoroo.district}`}> */}
                   <button className="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-xs"
                  
                     onClick={async () => {
@@ -105,7 +105,7 @@ const KhorooTable = ({ limit, title }: KhorooTableProps) => {
                   >
                     Устгах
                   </button>
-                </Link>
+                {/* </Link> */}
               </TableCell>
             </TableRow>
           ))}

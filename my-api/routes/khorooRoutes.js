@@ -152,7 +152,7 @@ router.post('/search', async (req, res) => {
       res.status(500).json({ error: 'Server error' });
   }
 });
-router.delete('/khoroo/:id', async (req, res) => {
+router.delete('/khoroo/delete/:id', async (req, res) => {
   const { id } = req.params;
 
   try {
