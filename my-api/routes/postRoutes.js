@@ -2,29 +2,32 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db');
 
+// get posts
 router.get('/', async (req, res) => {
     try {
         const result = await pool.query(`
         SELECT
-        n.newsid AS newsId,
-        n.title AS title,
-        n.ordernum AS orderNum,
-        n.contractor AS contractor,
-        n.contractcost AS contractCost,
-        n.engeneer AS engener,
-        n.startdate AS startDate,
-        n.enddate AS endDate,
-        n.impphase AS impPhase,
-        n.imppercent AS impPercent,
-        n.sources AS source,
-        n.totalcost AS totalCost,
-        n.createdat AS createdAt,
-        n.updatedat AS updatedAt,
-        ARRAY_AGG(k.khname) AS khoroo
+          n.newsid AS newsId,
+          n.title AS title,
+          n.ordernum AS orderNum,
+          n.contractor AS contractor,
+          n.contractcost AS contractCost,
+          n.engeneer AS engener,
+          n.startdate AS startDate,
+          n.enddate AS endDate,
+          n.impphase AS impPhase,
+          n.imppercent AS impPercent,
+          n.sources AS source,
+          n.totalcost AS totalCost,
+          n.createdat AS createdAt,
+          n.updatedat AS updatedAt,
+          JSON_AGG(JSON_BUILD_OBJECT('id', k.khid, 'name', k.khname, 'district', k.district)) AS khoroos
         FROM news n
-        LEFT JOIN khoroo k ON k.khid = ANY(n.khid) -- ← энэ бол array JOIN
+        LEFT JOIN news_khids nk ON nk.newsid = n.newsid
+        LEFT JOIN khoroo k ON k.khid = nk.khid
         GROUP BY n.newsid
-        ORDER BY n.newsid DESC`)
+        ORDER BY n.newsid DESC
+      `);
 
         res.json({
             data: result.rows,
@@ -35,7 +38,6 @@ router.get('/', async (req, res) => {
         res.status(500).json({ error: 'Server error' });
     }
 });
-
 //posts detail
 router.post('/detail', async (req, res) => {
     const { id } = req.body;
@@ -57,9 +59,12 @@ router.post('/detail', async (req, res) => {
             n.news AS news,
             n.createdat AS createdAt,
             n.updatedat AS updatedAt,
-            k.khname AS khoroo
-        FROM news n 
-         JOIN khoroo k ON k.khid = n.khid
+             JSON_AGG(JSON_BUILD_OBJECT('id', k.khid, 'name', k.khname, 'district', k.district)) AS khoroos
+        FROM news n
+        LEFT JOIN news_khids nk ON nk.newsid = n.newsid
+        LEFT JOIN khoroo k ON k.khid = nk.khid
+        GROUP BY n.newsid
+        ORDER BY n.newsid DESC
             WHERE n.newsid = $1
             `, [id]);
 
@@ -91,15 +96,19 @@ router.post('/create', async (req, res) => {
         source,
         totalCost,
         news,
-        khoroo,
+        khoroo, // энэ нь [1, 2, 3] гэх мэт array гэж үзнэ
     } = req.body;
 
+    const client = await pool.connect();
+
     try {
-        const result = await pool.query(
+        await client.query('BEGIN');
+
+        const insertNewsResult = await client.query(
             `INSERT INTO news
-            (title, ordernum, contractor, contractcost, engeneer, startdate, enddate, impphase, imppercent, sources, totalcost, news, khid) 
-        VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-        RETURNING * `,
+          (title, ordernum, contractor, contractcost, engeneer, startdate, enddate, impphase, imppercent, sources, totalcost, news)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+         RETURNING newsid`,
             [
                 title,
                 orderNum,
@@ -113,49 +122,60 @@ router.post('/create', async (req, res) => {
                 source,
                 totalCost,
                 news,
-                khoroo,
             ]
         );
 
-        res.json(result.rows[0]);
+        const newsId = insertNewsResult.rows[0].newsid;
+
+        if (Array.isArray(khoroo)) {
+            const insertKhorooValues = khoroo.map((khid) => `(${newsId}, ${khid})`).join(',');
+            await client.query(`INSERT INTO news_khids (newsid, khid) VALUES ${insertKhorooValues}`);
+        }
+
+        await client.query('COMMIT');
+
+        res.json({ message: 'Амжилттай хадгалагдлаа', newsId });
     } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server error');
+        await client.query('ROLLBACK');
+        console.error('Insert error:', err);
+        res.status(500).json({ error: 'Server error' });
+    } finally {
+        client.release();
     }
 });
 
-// garchignaas хайлт хийх 
+// хайлт хийх 
 router.post('/search', async (req, res) => {
     const { title } = req.body;
 
     let query = `
-        SELECT
-          n.newsid AS newsId,
-            n.title AS title,
-            n.ordernum AS orderNum,
-            n.contractor AS contractor,
-            n.contractcost AS contractCost,
-            n.engeneer AS engener,
-            n.startdate AS startDate,
-            n.enddate AS endDate,
-            n.impphase AS impPhase,
-            n.imppercent AS impPercent,
-            n.sources AS source,
-            n.totalcost AS totalCost,
-            n.news AS news,
-            n.createdat AS createdAt,
-            n.updatedat AS updatedAt,
-            k.khname AS khoroo
-        FROM news n
-        JOIN khoroo k ON k.khid = n.khid
-            `;
+      SELECT
+        n.newsid AS newsId,
+        n.title AS title,
+        n.ordernum AS orderNum,
+        n.contractor AS contractor,
+        n.contractcost AS contractCost,
+        n.engeneer AS engener,
+        n.startdate AS startDate,
+        n.enddate AS endDate,
+        n.impphase AS impPhase,
+        n.imppercent AS impPercent,
+        n.sources AS source,
+        n.totalcost AS totalCost,
+        n.news AS news,
+        n.createdat AS createdAt,
+        n.updatedat AS updatedAt,
+        ARRAY_AGG(k.khname) AS khoroo
+      FROM news n
+      LEFT JOIN news_khids nk ON nk.newsid = n.newsid
+      LEFT JOIN khoroo k ON k.khid = nk.khid
+    `;
 
     const conditions = [];
     const values = [];
 
-
     if (title) {
-        values.push(`% ${title} % `);
+        values.push(`%${title}%`);
         conditions.push(`n.title ILIKE $${values.length}`);
     }
 
@@ -163,25 +183,28 @@ router.post('/search', async (req, res) => {
         query += ' WHERE ' + conditions.join(' AND ');
     }
 
-    query += ' ORDER BY n.newsid DESC';
+    query += `
+      GROUP BY n.newsid
+      ORDER BY n.newsid DESC
+    `;
 
     try {
         const result = await pool.query(query, values);
 
         if (result.rows.length === 0) {
             return res.status(404).json({ error: 'Мэдээлэл олдсонгүй' });
-        } else {
-            res.json({
-                data: result.rows,
-                total: result.rowCount
-            });
         }
 
+        res.json({
+            data: result.rows,
+            total: result.rowCount,
+        });
     } catch (err) {
-        console.error(err.message);
+        console.error('Search error:', err);
         res.status(500).json({ error: 'Server error' });
     }
 });
+
 
 
 
