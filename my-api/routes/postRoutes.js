@@ -144,7 +144,87 @@ router.post('/create', async (req, res) => {
         client.release();
     }
 });
-
+// routes/posts.js
+router.put('/edit', async (req, res) => {
+    const {
+      newsId,
+      title,
+      orderNum,
+      contractor,
+      contractCost,
+      engener,
+      startDate,
+      endDate,
+      impPhase,
+      impPercent,
+      source,
+      totalCost,
+      news,
+      khoroo // массив: [14, 13]
+    } = req.body;
+  
+    const client = await pool.connect();
+  
+    try {
+      await client.query('BEGIN');
+  
+      // news хүснэгт update хийх
+      await client.query(`
+        UPDATE news
+        SET
+          title = $1,
+          ordernum = $2,
+          contractor = $3,
+          contractcost = $4,
+          engeneer = $5,
+          startdate = $6,
+          enddate = $7,
+          impphase = $8,
+          imppercent = $9,
+          sources = $10,
+          totalcost = $11,
+          news = $12,
+          updatedat = NOW()
+        WHERE newsid = $13
+      `, [
+        title,
+        orderNum,
+        contractor,
+        contractCost,
+        engener,
+        new Date(startDate),
+        new Date(endDate),
+        impPhase,
+        impPercent,
+        source,
+        totalCost,
+        news,
+        newsId
+      ]);
+  
+      // өмнөх khoroo холбоос устгах
+      await client.query(`DELETE FROM news_khids WHERE news_id = $1`, [newsId]);
+  
+      // шинэ khoroo холбоос нэмэх
+      for (const khId of khoroo) {
+        await client.query(
+          `INSERT INTO news_khids (news_id, khoroo_id) VALUES ($1, $2)`,
+          [newsId, khId]
+        );
+      }
+  
+      await client.query('COMMIT');
+      res.json({ success: true, message: 'Мэдээлэл амжилттай шинэчлэгдлээ' });
+  
+    } catch (error) {
+      await client.query('ROLLBACK');
+      console.error('Edit post error:', error);
+      res.status(500).json({ error: 'Сервер дээр алдаа гарлаа' });
+  
+    } finally {
+      client.release();
+    }
+  });
 // хайлт хийх 
 router.post('/search', async (req, res) => {
     const { title } = req.body;
