@@ -225,6 +225,30 @@ router.put('/edit', async (req, res) => {
       client.release();
     }
   });
+
+  ///delere
+router.delete('/delete/:id', async (req, res) => {
+    const newsId = req.params.id;
+  
+    try {
+      // news_khids хүснэгтээс эхэлж холбоотой мэдээллийг устгах
+      await pool.query(`DELETE FROM news_khids WHERE news_id = $1`, [newsId]);
+  
+      // дараа нь үндсэн мэдээллийг устгах
+      const result = await pool.query(`DELETE FROM news WHERE newsid = $1`, [newsId]);
+  
+      if (result.rowCount === 0) {
+        return res.status(404).json({ error: 'Мэдээлэл олдсонгүй' });
+      }
+  
+      res.json({ success: true, message: 'Амжилттай устгалаа' });
+    } catch (err) {
+      console.error('Delete post error:', err);
+      res.status(500).json({ error: 'Сервер дээр алдаа гарлаа' });
+    }
+  });
+
+
 // хайлт хийх 
 router.post('/search', async (req, res) => {
     const { title } = req.body;

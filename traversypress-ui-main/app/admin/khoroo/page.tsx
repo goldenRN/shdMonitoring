@@ -9,7 +9,7 @@ const KhorooPage = () => {
         <>
             <BackButton text='Буцах' link='/admin/dashboard' />
             <KhorooTable />
-            <KhorooPagination />
+            {/* <KhorooPagination /> */}
         </>
     );
 };

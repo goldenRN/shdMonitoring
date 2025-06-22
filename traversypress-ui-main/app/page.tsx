@@ -27,7 +27,7 @@ interface Posts {
   news: String
   createdat: Date
   updatedat: Date
-  khoroo: string
+  khoroos: { name: string }[];
 }
 
 
@@ -36,7 +36,11 @@ export default function Home() {
   const [postsData, setPostsData] = useState<Posts[]>([])
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
-
+  const getProgressColor = (percent: number) => {
+    if (percent < 50) return 'bg-red-500';
+    if (percent < 80) return 'bg-yellow-500';
+    return 'bg-green-500';
+  };
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -84,7 +88,15 @@ export default function Home() {
                   </div>
                   <div className="py-2 flex justify-between">
                     <span className="font-medium text-gray-600">Хороо</span>
-                    <span>{post.khoroo}</span>
+                    <span>
+                      {Array.isArray(post.khoroos) && post.khoroos.length > 0 ? (
+                        post.khoroos.map((khr, index) => (
+                          <div key={index}>{khr.name}</div>
+                        ))
+                      ) : (
+                        <div className="text-gray-500 text-xs">Хороо байхгүй</div>
+                      )}
+                    </span>
                   </div>
                   <div className="py-2 flex justify-between">
                     <span className="font-medium text-gray-600">Төсөвт өртөг</span>
@@ -105,7 +117,7 @@ export default function Home() {
                   <div className="py-2 flex justify-between">
                     <span className="font-medium text-gray-600">Хугацаа</span>
                     <span>
-                      {new Date(post.startdate).toLocaleDateString()} - {new Date(post.enddate).toLocaleDateString()}
+                      {new Date(post.startdate).toLocaleDateString('ja-JP')} - {new Date(post.enddate).toLocaleDateString('ja-JP')}
                     </span>
                   </div>
                   <div className="py-2 flex justify-between">
@@ -115,6 +127,12 @@ export default function Home() {
                   <div className="py-2 flex justify-between">
                     <span className="font-medium text-gray-600">Хувь</span>
                     <span>{post.imppercent}%</span>
+                  </div>
+                  <div className="mt-3 relative w-full bg-gray-300 rounded-full h-2">
+                    <div
+                      className={`absolute top-0 left-0 h-2 rounded-full ${getProgressColor(post.imppercent)}`}
+                      style={{ width: `${post.imppercent}%` }}
+                    ></div>
                   </div>
                 </CardContent>
 

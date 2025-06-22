@@ -23,7 +23,9 @@ import {
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image'
+import Image from 'next/image';
+import { useAuth } from '@/app/context/AuthContext';
+
 const formSchema = z.object({
   email: z
     .string()
@@ -45,7 +47,7 @@ const LoginForm = () => {
       password: '',
     },
   });
-
+  const { login } = useAuth();
   // const handleSubmit = (data: z.infer<typeof formSchema>) => {
   //   router.push('/');
   // };
@@ -74,6 +76,7 @@ const LoginForm = () => {
         // localStorage.setItem('token', token);
 
         // Амжилттай нэвтэрсэн бол dashboard хуудас руу чиглүүлэх
+        login(result);
         router.push('/admin/dashboard');
       }
 

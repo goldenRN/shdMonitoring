@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/table';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { Pencil, Trash } from 'lucide-react';
 
 interface Khoroo {
   id: number;
@@ -58,9 +59,8 @@ const KhorooTable = ({ limit, title }: KhorooTableProps) => {
         <TableHeader>
           <TableRow>
             <TableHead>Дүүрэг</TableHead>
-            <TableHead className='hidden md:table-cell'>Хороо</TableHead>
-            <TableHead>Засах</TableHead>
-            <TableHead>Устгах</TableHead>
+            <TableHead >Хороо</TableHead>
+            <TableHead>Үйлдэл</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -69,43 +69,41 @@ const KhorooTable = ({ limit, title }: KhorooTableProps) => {
               <TableCell>{khoroo.district}</TableCell>
               <TableCell>{khoroo.name}</TableCell>
               <TableCell>
-                <Link href={`/admin/khoroo/edit/${khoroo.id}?name=${khoroo.name}&dist=${khoroo.district}`}>
-                  <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-xs">
-                    Засах
-                  </button>
-                </Link>
+                <div className='flex justify'><div>
+                  <Link href={`/admin/khoroo/edit/${khoroo.id}?name=${khoroo.name}&dist=${khoroo.district}`}>
 
+                    <button className="bg-orange-200 hover:bg-orange-500 text-white font-bold py-2 px-4 rounded text-xs">
+                      {<Pencil className='text-slate-800' size={20} />}
+                    </button>
+                  </Link>
+                </div>
+                  <div className='ml-5'>
+                    <button className="bg-red-200 hover:bg-red-500 text-white font-bold py-2 px-4 rounded text-xs"
+                      onClick={async () => {
+                        const confirmed = window.confirm(`Та "${khoroo.name}" хороо-г устгахдаа итгэлтэй байна уу?`);
+                        if (!confirmed) return;
+                        try {
+                          const res = await fetch(`https://shdmonitoring.ub.gov.mn/api/khoroo/${khoroo.id}`, {
+                            method: 'DELETE',
+                          });
 
-              </TableCell>
-              <TableCell>
-                {/* <Link href={`/admin/khoroo/edit/${khoroo.id}?name=${khoroo.name}&dist=${khoroo.district}`}> */}
-                  <button className="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded text-xs"
-                 
-                    onClick={async () => {
-                      const confirmed = window.confirm(`Та "${khoroo.name}" хороо-г устгахдаа итгэлтэй байна уу?`);
-                      if (!confirmed) return;
+                          const data = await res.json();
 
-                      try {
-                        const res = await fetch(`https://shdmonitoring.ub.gov.mn/api/khoroo/${khoroo.id}`, {
-                          method: 'DELETE',
-                        });
-
-                        if (res.ok) {
-                          setKhoroos(prev => prev.filter(k => k.id !== khoroo.id));
-                        } else {
-                          const errMsg = await res.text();
-                          alert(`Устгах үед алдаа гарлаа: ${errMsg}`);
+                          if (!res.ok) {
+                            alert(data.error || 'Устгах үед алдаа гарлаа');
+                          } else {
+                            alert('Амжилттай устлаа');
+                            // жагсаалтаа дахин ачаалах гэх мэт
+                          }
+                        } catch (err) {
+                          alert('Холболтын алдаа');
                         }
-                      } catch (err) {
-                        console.error('Устгах үед алдаа:', err);
-                        alert('Сервертэй холбогдож чадсангүй.');
-                      }
-                    }}
-                    // className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-xs"
-                  >
-                    Устгах
-                  </button>
-                {/* </Link> */}
+
+                      }}>
+                      <Trash className='text-slate-800' size={20} />
+                    </button>
+                  </div>
+                </div>
               </TableCell>
             </TableRow>
           ))}

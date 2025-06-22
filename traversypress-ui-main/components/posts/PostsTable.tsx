@@ -32,9 +32,10 @@ interface Posts {
   news: String
   createdat: Date
   updatedat: Date
-  khoroo: Khoroo[]
+  khoroos: { name: string }[];
 }
 import { Pencil, Trash } from 'lucide-react';
+import { toast } from '../ui/use-toast';
 
 const PostsTable = () => {
   const [khorooData, setKhorooData] = useState<Posts[]>([])
@@ -83,8 +84,8 @@ const PostsTable = () => {
             <TableHead>Гүйцэтгэгч</TableHead>
             <TableHead>Гэрээний дүн</TableHead>
             <TableHead>Эх үүсвэр</TableHead>
-            {/* <TableHead>Төсөвт дүн</TableHead> */}
-            {/* <TableHead>Хариуцсан инженер</TableHead> */}
+            <TableHead>Төсөвт дүн</TableHead> 
+            <TableHead>Хариуцсан инженер</TableHead> 
             <TableHead>Гүйцэтгэл үе шат</TableHead>
             <TableHead>Гүйцэтгэл хувь</TableHead>
             <TableHead className='hidden md:table-cell text-right'>
@@ -107,8 +108,8 @@ const PostsTable = () => {
                   {post.news}
                 </TableCell> */}
                 <TableCell className="w-[200px] overflow-x-auto whitespace-nowrap">
-                  {Array.isArray(post.khoroo) && post.khoroo.length > 0 ? (
-                    post.khoroo.map((khr, index) => (
+                  {Array.isArray(post.khoroos) && post.khoroos.length > 0 ? (
+                    post.khoroos.map((khr, index) => (
                       <div key={index}>{khr.name}</div>
                     ))
                   ) : (
@@ -118,10 +119,10 @@ const PostsTable = () => {
                 {/* <TableCell>{ format( {post.updatedat}) </TableCell> */}
                 <TableCell>{format(new Date(post.updatedat), 'yyyy-MM-dd')} </TableCell>
                 <TableCell>{post.contractor}</TableCell>
-                <TableCell>{post.totalcost}</TableCell>
+                <TableCell>{post.totalcost.toLocaleString()}</TableCell>
                 <TableCell>{post.source}</TableCell>
-                {/* <TableCell>{post.contractcost}</TableCell>
-                <TableCell>{post.engener}</TableCell> */}
+                <TableCell>{post.contractcost.toLocaleString()}</TableCell>
+                <TableCell>{post.engener}</TableCell>
                 <TableCell>{post.impphase}</TableCell>
                 <TableCell className="text-right hidden md:table-cell">
                   {post.imppercent}%
@@ -144,18 +145,20 @@ const PostsTable = () => {
                   <div className='flex justify-between'><div>
                     <Link href={`/admin/posts/edit/${post.newsid}`}>
                       <button className="bg-orange-200 hover:bg-orange-500 text-white font-bold py-2 px-4 rounded text-xs">
-                        {/* Засах */}
                         {<Pencil className='text-slate-800' size={20} />}
                       </button>
                     </Link>
                   </div>
                     <div className='ml-5'>
-                      <Link href={`/admin/posts/edit/${post.newsid}`}>
-                        <button className="bg-red-200 hover:bg-red-500 text-white font-bold py-2 px-4 rounded text-xs">
-                          {/* Засах */}
-                          <Trash className='text-slate-800' size={20} />
-                        </button>
-                      </Link>
+                      <button className="bg-red-200 hover:bg-red-500 text-white font-bold py-2 px-4 rounded text-xs"
+                        onClick={async () => {
+                          const confirmed = window.confirm(`Та "${post.title}" мэдээллийг устгахдаа итгэлтэй байна уу?`);
+                          if (!confirmed) return;
+
+                          deletePost(post.newsid)
+                        }}>
+                        <Trash className='text-slate-800' size={20} />
+                      </button>
                     </div>
                   </div>
                 </TableCell>
@@ -191,6 +194,23 @@ const PostsTable = () => {
       </div> */}
     </div>
   );
+};
+const deletePost = async (id: number) => {
+  try {
+    const res = await fetch(`https://shdmonitoring.ub.gov.mn/api/posts/delete/${id}`, {
+      method: 'DELETE',
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      toast({ title: 'Амжилттай устгалаа' });
+    } else {
+      toast({ title: data.error || 'Алдаа гарлаа', variant: 'destructive' });
+    }
+  } catch (error) {
+    console.error('Устгах үед алдаа:', error);
+    toast({ title: 'Сервертэй холбогдож чадсангүй', variant: 'destructive' });
+  }
 };
 
 export default PostsTable;
