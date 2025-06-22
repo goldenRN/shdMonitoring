@@ -21,6 +21,7 @@ import { useEffect, useState } from 'react';
 import { Check, ChevronsUpDown } from 'lucide-react';
 import * as  PopoverPrimitive from '@radix-ui/react-popover';
 import { Popover, PopoverTrigger, PopoverContent } from '@radix-ui/react-popover';
+import { cn } from '@/lib/utils';
 
 
 const formSchema = z.object({
@@ -38,11 +39,8 @@ const formSchema = z.object({
   engineer: z.string().min(1, { message: 'Хариуцсан инженер' }),
   title: z.string().min(1, { message: 'Гарчиг' }),
   body: z.string().min(1, { message: 'Агуулга' }),
-  // khoroo: z.preprocess(
-  //   (val) => val === '' ? undefined : Number(val),
-  //   z.number().min(1, { message: 'Гэрээний дүн 1-с бага байж болохгүй' })
-  // ),
-  khoroo: z.string().min(1, { message: 'Хороо сонгоно уу' }),
+
+  khoroo: z.array(z.string()).min(1, { message: 'Хороо сонгоно уу' }),
   startDate: z.string().min(1, { message: 'Огноо' }),
   endDate: z.string().min(1, { message: 'Огноо' }),
   stage: z.string().min(1, { message: 'Гүйцэтгэлийн үе шат' }),
@@ -75,7 +73,7 @@ interface Posts {
   imppercent: number
   source: string
   totalcost: number
-  news: String
+  news: string
   createdat: Date
   updatedat: Date
   khoroo: string
@@ -90,7 +88,7 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
   const PopoverClose = PopoverPrimitive.Close;
   // const post = posts.find((post) => post.id === params.id);
 
-  useEffect (() => {
+  useEffect(() => {
     const fetchKhoroos = async () => {
       try {
         const res = await fetch('https://shdmonitoring.ub.gov.mn/api/khoroo');
@@ -122,29 +120,38 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
     }
     fetchPosts()
   });
-  const handleSubmit = async(data: z.infer<typeof formSchema>) => {
+  const handleSubmit = async (data: z.infer<typeof formSchema>) => {
+    const khorooId = khoroos
+      .filter((kh) => data.khoroo.includes(kh.name))
+      .map((kh) => kh.id);
+    const sdate = new Date(data.startDate);
+    const edate = new Date(data.endDate);
+    const formattedsdate = sdate.toUTCString();
+    const formattededate = edate.toUTCString();
+    const body = {
+      title: data.title,
+      orderNum: data.order,
+      contractor: data.executor,
+      contractCost: data.contractValue,
+      engener: data.engineer,
+      startDate: formattedsdate,
+      endDate: formattededate,
+      impPhase: data.stage,
+      impPercent: data.precent,
+      source: data.source,
+      totalCost: data.budget,
+      news: data.body,
+      khoroo: khorooId,
+      newsId: postsData[0].newsid
+    }
+    console.log('body Амжилттай үүсгэгдлээ:', body);
     try {
       const res = await fetch('https://shdmonitoring.ub.gov.mn/api/posts/edit', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          "news": "сургалтын төвийн барилга",
-          "totalCost": 112424000,
-          "contractCost": 11242351000,
-          "endDate": "2025-12-30T16:00:00.000Z",
-          "engener": "хэвийн",
-          "contractor": "Ванхүү ХХК",
-          "khoroo": 1,
-          "orderNum": "Барилга",
-          "impPercent": 90,
-          "source": "Улсын төсөв",
-          "impPhase": "Захиалагчийн алба ОНӨААТҮГ",
-          "startDate": "2022-04-13T16:00:00.000Z",
-          "title": "сургалтын төвийн барилга",
-          "newsId":1
-      }),
+        body: JSON.stringify(body),
       });
 
       if (res.ok) {
@@ -165,19 +172,26 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      order: '',
-      source: '',
-      executor: '',
-      budget: undefined,
-      contractValue: undefined,
-      engineer: '',
-      title: '',
-      body: '',
-      khoroo: '',
-      startDate: '',
-      endDate: '',
-      stage: '',
-      precent: undefined,
+      order: postsData[0].ordernum || '',
+      source: postsData[0].source || '',
+      executor: postsData[0].contractor || '',
+      budget: postsData[0].contractcost || 0,
+      contractValue: postsData[0].totalcost || 0,
+      engineer: postsData[0].engener || '',
+      title: postsData[0].title || '',
+      body: postsData[0].news || '',
+      khoroo: Array.isArray(postsData[0].khoroo)
+        ? postsData[0].khoroo.map((k: { name: string }) => k.name)
+        : [],
+      startDate: postsData[0]?.startdate
+        ? new Date(postsData[0].startdate).toISOString().slice(0, 10)
+        : '',
+
+      endDate: postsData[0]?.enddate
+        ? new Date(postsData[0].enddate).toISOString().slice(0, 10)
+        : '',
+      stage: postsData[0].impphase || '',
+      precent: postsData[0].imppercent || 0,
     },
   });
 
@@ -231,7 +245,9 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
                         }[name]}
                       </FormLabel>
                       <FormControl>
-                        <Input className='bg-slate-100 dark:bg-slate-500 text-black dark:text-white' {...field} />
+                        <Input className='bg-slate-100 dark:bg-slate-500 text-black dark:text-white' {...field}
+                          type={name === 'engineer' ? 'text' : 'number'}
+                          step={name === 'engineer' ? undefined : 1} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -277,35 +293,64 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
             name="khoroo"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel className='uppercase text-xs font-bold text-zinc-500 dark:text-white'>Хороо сонгох</FormLabel>
-                <Popover open={open} onOpenChange={setOpen}>
+                <FormLabel className="uppercase text-xs font-bold text-zinc-500 dark:text-white">
+                  Хороо сонгох
+                </FormLabel>
+                <Popover open={open} onOpenChange={setOpen} >
                   <PopoverTrigger asChild>
-                    <Button variant="outline" role="combobox" className="w-[200px] justify-between">
-                      {field.value
-                        ? khoroos.find((k) => k.id)?.name
-                        : "Хороо сонгох"}
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      className="w-[400px] justify-between truncate"
+                    >
+                      <span className="truncate">
+                        {field.value.length > 0
+                          ? field.value.join(', ')
+                          : 'Хороо сонгох'}
+                      </span>
                       <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="bg-slate-100 dark:bg-slate-500 w-[200px] p-0">
+                  <PopoverContent className="bg-slate-100 dark:bg-slate-500 w-[400px] max-h-[300px] overflow-auto p-0">
                     <Command>
-                      <CommandInput placeholder="Хайх..." className="h-9 w-[200px] p-0" />
+                      <CommandInput placeholder="Хайх..." className="h-9 p-2" />
                       <CommandList>
                         <CommandEmpty>Хороо олдсонгүй.</CommandEmpty>
                         <CommandGroup>
-                          {khoroos.map((khoroo) => (
-                            <PopoverPrimitive.Close asChild key={khoroo.id}>
+                          {khoroos.map((khoroo) => {
+                            const selected = field.value.includes(khoroo.name);
+
+                            return (
                               <CommandItem
+                                key={khoroo.id}
                                 value={khoroo.name}
                                 onSelect={() => {
-                                  form.setValue('khoroo', khoroo.name); // ID хадгална
-                                  setOpen(false);
+                                  const alreadySelected = field.value.includes(khoroo.name);
+                                  if (alreadySelected) {
+                                    form.setValue(
+                                      'khoroo',
+                                      field.value.filter((v) => v !== khoroo.name)
+                                    );
+                                  } else {
+                                    form.setValue('khoroo', [...field.value, khoroo.name]);
+                                  }
                                 }}
+                                className={cn(
+                                  'flex flex-row items-center gap-3 px-3 py-2',
+                                  'border-b border-zinc-200 bg-gray-100 hover:bg-gray-200',
+                                  selected && 'font-semibold'
+                                )}
                               >
+                                <Check
+                                  className={cn(
+                                    'h-4 w-4 text-green-600 transition-opacity',
+                                    selected ? 'opacity-100' : 'opacity-0'
+                                  )}
+                                />
                                 {khoroo.name}
                               </CommandItem>
-                            </PopoverPrimitive.Close>
-                          ))}
+                            );
+                          })}
                         </CommandGroup>
                       </CommandList>
                     </Command>
@@ -315,7 +360,6 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
               </FormItem>
             )}
           />
-
           {/* Огноо (гэрээний хугацаа) */}
           <div className="flex flex-row gap-10">
             {['startDate', 'endDate'].map((name, i) => (
@@ -362,7 +406,11 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
                         }[name]}
                       </FormLabel>
                       <FormControl>
-                        <Input className='bg-slate-100 dark:bg-slate-500 text-black dark:text-white' {...field} />
+                        <Input className='bg-slate-100 dark:bg-slate-500 text-black dark:text-white' {...field}
+                          type={name === 'precent' ? 'number' : 'text'}
+                          min={name === 'precent' ? 1 : undefined}
+                          max={name === 'precent' ? 100 : undefined}
+                          step={name === 'precent' ? 1 : undefined} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

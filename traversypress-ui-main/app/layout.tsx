@@ -37,6 +37,7 @@ import './globals.css'
 import { Inter } from 'next/font/google'
 import type { Metadata } from 'next'
 import ClientLayout from '@/components/client-layout'
+import { Toaster } from '@/components/ui/toaster'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -56,6 +57,7 @@ export default function RootLayout({
   return (
     <html lang="mn">
       <body className={inter.className}>
+        <Toaster />
         <ClientLayout>{children}</ClientLayout>
       </body>
     </html>

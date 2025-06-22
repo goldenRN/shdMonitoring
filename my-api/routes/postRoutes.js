@@ -23,8 +23,8 @@ router.get('/', async (req, res) => {
           n.updatedat AS updatedAt,
           JSON_AGG(JSON_BUILD_OBJECT('id', k.khid, 'name', k.khname, 'district', k.district)) AS khoroos
         FROM news n
-        LEFT JOIN news_khids nk ON nk.newsid = n.newsid
-        LEFT JOIN khoroo k ON k.khid = nk.khid
+        LEFT JOIN news_khids nk ON nk.news_id = n.newsid
+        LEFT JOIN khoroo k ON k.khid = nk.khoroo_id
         GROUP BY n.newsid
         ORDER BY n.newsid DESC
       `);
@@ -59,10 +59,10 @@ router.post('/detail', async (req, res) => {
             n.news AS news,
             n.createdat AS createdAt,
             n.updatedat AS updatedAt,
-             JSON_AGG(JSON_BUILD_OBJECT('id', k.khid, 'name', k.khname, 'district', k.district)) AS khoroos
+             JSON_AGG(JSON_BUILD_OBJECT('id', k.khid, 'name', k.khname)) AS khoroos
         FROM news n
-        LEFT JOIN news_khids nk ON nk.newsid = n.newsid
-        LEFT JOIN khoroo k ON k.khid = nk.khid
+        LEFT JOIN news_khids nk ON nk.news_id = n.newsid
+        LEFT JOIN khoroo k ON k.khid = nk.khoroo_id
         GROUP BY n.newsid
         ORDER BY n.newsid DESC
             WHERE n.newsid = $1
@@ -129,7 +129,7 @@ router.post('/create', async (req, res) => {
 
         if (Array.isArray(khoroo)) {
             const insertKhorooValues = khoroo.map((khid) => `(${newsId}, ${khid})`).join(',');
-            await client.query(`INSERT INTO news_khids (newsid, khid) VALUES ${insertKhorooValues}`);
+            await client.query(`INSERT INTO news_khids (news_id, khoroo_id) VALUES ${insertKhorooValues}`);
         }
 
         await client.query('COMMIT');
@@ -167,8 +167,8 @@ router.post('/search', async (req, res) => {
         n.updatedat AS updatedAt,
         ARRAY_AGG(k.khname) AS khoroo
       FROM news n
-      LEFT JOIN news_khids nk ON nk.newsid = n.newsid
-      LEFT JOIN khoroo k ON k.khid = nk.khid
+      LEFT JOIN news_khids nk ON nk.news_id = n.newsid
+      LEFT JOIN khoroo k ON k.khid = nk.khoroo_id
     `;
 
     const conditions = [];

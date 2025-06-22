@@ -12,6 +12,10 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { format } from 'date-fns';
 
+interface Khoroo {
+  id: number;
+  name: string;
+}
 interface Posts {
   newsid: number
   title: string
@@ -28,12 +32,12 @@ interface Posts {
   news: String
   createdat: Date
   updatedat: Date
-  khoroo: string
+  khoroo: Khoroo[]
 }
 import { Pencil, Trash } from 'lucide-react';
 
 const PostsTable = () => {
-
+  const [khorooData, setKhorooData] = useState<Posts[]>([])
   const [postsData, setPostsData] = useState<Posts[]>([])
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
@@ -45,6 +49,7 @@ const PostsTable = () => {
         const json = await res.json()
         console.log("json", json)
         setPostsData(json.data)
+
         setTotalPages(json.total)
       } catch (err) {
         console.error('Алдаа:', err)
@@ -73,15 +78,15 @@ const PostsTable = () => {
             <TableHead>Захирамжын дугаар</TableHead>
             <TableHead>Гарчиг</TableHead>
             {/* <TableHead>Агуулга</TableHead> */}
-            <TableHead className='hidden md:table-cell'>Хороо</TableHead>
+            <TableHead className='w-[200px]'>Хороо</TableHead>
             <TableHead>Сүүлд шинэчлэгдсэн огноо</TableHead>
             <TableHead>Гүйцэтгэгч</TableHead>
             <TableHead>Гэрээний дүн</TableHead>
             <TableHead>Эх үүсвэр</TableHead>
             {/* <TableHead>Төсөвт дүн</TableHead> */}
             {/* <TableHead>Хариуцсан инженер</TableHead> */}
-            <TableHead>Гүйцэтгэлийн үе шат</TableHead>
-            <TableHead>Гүйцэтгэлийн хувь</TableHead>
+            <TableHead>Гүйцэтгэл үе шат</TableHead>
+            <TableHead>Гүйцэтгэл хувь</TableHead>
             <TableHead className='hidden md:table-cell text-right'>
               Гэрээний хугацаа
             </TableHead>
@@ -90,7 +95,9 @@ const PostsTable = () => {
         </TableHeader>
         <TableBody>
           {Array.isArray(postsData) && postsData.length > 0 ? (
-            postsData.map((post) => (
+            postsData.map((post) =>
+            (
+
               <TableRow key={post.newsid}>
                 <TableCell>{post.ordernum}</TableCell>
                 <TableCell className="max-w-[250px] truncate font-semibold text-sm">
@@ -99,7 +106,15 @@ const PostsTable = () => {
                 {/* <TableCell className="max-w-[250px] truncate font-semibold text-sm">
                   {post.news}
                 </TableCell> */}
-                <TableCell>{post.khoroo}</TableCell>
+                <TableCell className="w-[200px] overflow-x-auto whitespace-nowrap">
+                  {Array.isArray(post.khoroo) && post.khoroo.length > 0 ? (
+                    post.khoroo.map((khr, index) => (
+                      <div key={index}>{khr.name}</div>
+                    ))
+                  ) : (
+                    <div className="text-gray-500 text-xs">Хороо байхгүй</div>
+                  )}
+                </TableCell>
                 {/* <TableCell>{ format( {post.updatedat}) </TableCell> */}
                 <TableCell>{format(new Date(post.updatedat), 'yyyy-MM-dd')} </TableCell>
                 <TableCell>{post.contractor}</TableCell>
@@ -133,14 +148,14 @@ const PostsTable = () => {
                         {<Pencil className='text-slate-800' size={20} />}
                       </button>
                     </Link>
-                    </div>
+                  </div>
                     <div className='ml-5'>
-                    <Link href={`/admin/posts/edit/${post.newsid}`}>
-                      <button className="bg-red-200 hover:bg-red-500 text-white font-bold py-2 px-4 rounded text-xs">
-                        {/* Засах */}
-                        <Trash className='text-slate-800' size={20} />
-                      </button>
-                    </Link>
+                      <Link href={`/admin/posts/edit/${post.newsid}`}>
+                        <button className="bg-red-200 hover:bg-red-500 text-white font-bold py-2 px-4 rounded text-xs">
+                          {/* Засах */}
+                          <Trash className='text-slate-800' size={20} />
+                        </button>
+                      </Link>
                     </div>
                   </div>
                 </TableCell>

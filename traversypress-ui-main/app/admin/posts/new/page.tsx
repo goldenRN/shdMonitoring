@@ -148,13 +148,18 @@ const PostNewPage = ({ params }: PostNewPageProps) => {
       if (!res.ok) {
         console.log('res==:', res);
 
-        toast({ title: 'Хадгалахад алдаа гарлаа', variant: 'destructive' });
+        alert({ title: 'Хадгалахад алдаа гарлаа', variant: 'destructive' });
         throw new Error('Амжилтгүй');
       }
 
       const result = await res.json();
       console.log('Мэдээлэл амжилттай хадгалагдлаа:', result);
-      toast({ title: 'Амжилттай хадгаллаа' });
+      toast({
+        title: '✅ Амжилттай',
+        description: 'Мэдээлэл амжилттай хадгалагдлаа.',
+        variant: 'default', // эсвэл 'success' хэрвээ custom variant байгаа бол
+        duration: 3000,
+      });
       form.reset();
     } catch (err) {
       console.error('Хүсэлт алдаа:', err);
