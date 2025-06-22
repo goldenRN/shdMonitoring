@@ -21,7 +21,7 @@ router.get('/', async (req, res) => {
           n.totalcost AS totalCost,
           n.createdat AS createdAt,
           n.updatedat AS updatedAt,
-          JSON_AGG(JSON_BUILD_OBJECT('id', k.khid, 'name', k.khname, 'district', k.district)) AS khoroos
+          JSON_AGG(JSON_BUILD_OBJECT('id', k.khid, 'name', k.khname)) AS khoroos
         FROM news n
         LEFT JOIN news_khids nk ON nk.news_id = n.newsid
         LEFT JOIN khoroo k ON k.khid = nk.khoroo_id
