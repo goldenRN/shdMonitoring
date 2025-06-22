@@ -112,14 +112,14 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
           }),
         });
         const json = await res.json()
-        console.log("json", json)
+        console.log("jsonDetail", json)
         setPostsData(json.data)
       } catch (err) {
         console.error('Алдаа:', err)
       }
     }
     fetchPosts()
-  });
+  },[]);
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
     const khorooId = khoroos
       .filter((kh) => data.khoroo.includes(kh.name))
@@ -172,26 +172,26 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      order: postsData[0].ordernum || '',
-      source: postsData[0].source || '',
-      executor: postsData[0].contractor || '',
-      budget: postsData[0].contractcost || 0,
-      contractValue: postsData[0].totalcost || 0,
-      engineer: postsData[0].engener || '',
-      title: postsData[0].title || '',
-      body: postsData[0].news || '',
-      khoroo: Array.isArray(postsData[0].khoroo)
-        ? postsData[0].khoroo.map((k: { name: string }) => k.name)
+      order: postsData?.[0]?.ordernum ?? '',
+      source: postsData?.[0]?.source ?? '',
+      executor: postsData?.[0]?.contractor || '',
+      budget: postsData?.[0]?.contractcost || 0,
+      contractValue: postsData?.[0]?.totalcost || 0,
+      engineer: postsData?.[0]?.engener || '',
+      title: postsData?.[0]?.title || '',
+      body: postsData?.[0]?.news || '',
+      khoroo: Array.isArray(postsData?.[0]?.khoroo)
+        ? postsData?.[0]?.khoroo.map((k: { name: string }) => k.name)
         : [],
-      startDate: postsData[0]?.startdate
-        ? new Date(postsData[0].startdate).toISOString().slice(0, 10)
+      startDate: postsData?.[0]?.startdate
+        ? new Date(postsData?.[0]?.startdate).toISOString().slice(0, 10)
         : '',
 
-      endDate: postsData[0]?.enddate
-        ? new Date(postsData[0].enddate).toISOString().slice(0, 10)
+      endDate: postsData?.[0]?.enddate
+        ? new Date(postsData?.[0]?.enddate).toISOString().slice(0, 10)
         : '',
-      stage: postsData[0].impphase || '',
-      precent: postsData[0].imppercent || 0,
+      stage: postsData?.[0]?.impphase || '',
+      precent: postsData?.[0]?.imppercent || 0,
     },
   });
 

@@ -10,45 +10,45 @@ export default function DashboardLayout() {
 
       <div className='flex flex-col md:flex-row gap-5 mb-5'>
 
-        <div className="w-1/4 h-100 bg-orange-200 p-4 border-radius: 0.25rem"><DashboardCard
+        <div className="w-1/4 h-100 bg-orange-200 p-4 rounded"><DashboardCard
           title='НИЙТ МЭДЭЭЛЭЛИЙН ТОО'
           count={1}
-          icon={<FolderMinus className='text-slate-800' size={60} />}
+          icon={<FolderMinus className='text-slate-/800' size={60} />}
         /></div>
 
-        <div className="w-1/4 h-100 bg-red-200 p-4 border-radius: 0.25rem"><DashboardCard
+        <div className="w-1/4 h-100 bg-red-200 p-4 rounded"><DashboardCard
           title='УЛСЫН ТӨСВИЙН ХӨРӨНГӨ ОРУУЛАЛТТАЙ '
           count={100}
           icon={<FolderMinus className='text-slate-/500' size={60} />}
         /></div>
-        <div className="w-1/4 h-100 bg-green-200 p-4 border-radius: 0.25rem"><DashboardCard
+        <div className="w-1/4 h-100 bg-green-200 p-4 rounded"><DashboardCard
           title='НИЙСЛЭЛИЙН ТӨСВИЙН ХӨРӨНГӨ ОРУУЛАЛТТАЙ '
           count={42}
           icon={<FolderMinus className='text-slate-800' size={60} />}
         /></div>
-        <div className="w-1/4 h-100 bg-blue-200 p-4 border-radius: 0.25rem"><DashboardCard
+        <div className="w-1/4 h-100 bg-blue-200 p-4 rounded"><DashboardCard
           title='ДҮҮРГИЙН ТӨСВИЙН ХӨРӨНГӨ ОРУУЛАЛТ'
           count={1}
           icon={<FolderMinus className='text-slate-800' size={60} />}
         /></div>
       </div>
       <div className='flex flex-col md:flex-row gap-5 mb-5'>
-        <div className="w-1/4 h-100 bg-blue-200 p-4 border-radius: 0.25rem"><DashboardCard
+        <div className="w-1/4 h-100 bg-blue-200 p-4 rounded"><DashboardCard
           title='БҮРТГЭЛТЭЙ ХОРООДЫН ТОО'
           count={100}
           icon={<FolderMinus className='text-slate-/800' size={60} />}
         /></div>
-        <div className="w-1/4 h-100 bg-orange-200 p-4 border-radius: 0.25rem"><DashboardCard
+        <div className="w-1/4 h-100 bg-orange-200 p-4 rounded"><DashboardCard
           title='ДҮҮРГИЙН ЗДТГ-ЫН ХОТ ТОХИЖУУЛАХ ХӨРӨНГӨ ОРУУЛАЛТ'
           count={100}
           icon={<FolderMinus className='text-slate-/800' size={60} />}
         /></div>
-        <div className="w-1/4 h-100 bg-red-200 p-4 border-radius: 0.25rem"><DashboardCard
+        <div className="w-1/4 h-100 bg-red-200 p-4 rounded"><DashboardCard
           title='НИЙСЛЭЛИЙН ОРОН НУТГИЙН ХӨГЖЛИЙН САНГИЙН ХӨРӨНГӨ ОРУУЛАЛТ'
           count={100}
           icon={<Newspaper className='text-slate-/800' size={60} />}
         /></div>
-        <div className="w-1/4 h-100 bg-green-200 p-4 border-radius: 0.25rem"><DashboardCard
+        <div className="w-1/4 h-100 bg-green-200 p-4 rounded"><DashboardCard
           title='ДҮҮРГИЙН ОРОН НУТГИЙН ХӨГЖЛИЙН САНГИЙН ХӨРӨНГӨ ОРУУЛАЛТ'
           count={100}
           icon={<Newspaper className='text-slate-/800' size={60} />}
