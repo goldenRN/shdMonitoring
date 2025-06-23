@@ -183,7 +183,7 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
       khoroo: khorooId,
       newsId: Number(id)
     }
-    // console.log('body Амжилттай үүсгэгдлээ:', body);
+    console.log('body Амжилттай үүсгэгдлээ:', body);
     try {
       const res = await fetch('https://shdmonitoring.ub.gov.mn/api/posts/edit', {
         method: 'PUT',
