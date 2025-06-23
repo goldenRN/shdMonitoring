@@ -65,7 +65,26 @@ const PostsTable = () => {
 
   // Filter posts to limit
   // const filteredPosts = limit ? sortedPosts.slice(0, limit) : sortedPosts;
+  const deletePost = async (id: number) => {
+    try {
+      const res = await fetch(`https://shdmonitoring.ub.gov.mn/api/posts/delete/${id}`, {
+        method: 'DELETE',
+      });
 
+      const data = await res.json();
+
+      if (res.ok) {
+        toast({ title: 'Амжилттай устгалаа' });
+        setPostsData((prevData) => prevData.filter(pst => pst.newsid !== id));
+
+      } else {
+        toast({ title: data.error || 'Алдаа гарлаа', variant: 'destructive' });
+      }
+    } catch (error) {
+      console.error('Устгах үед алдаа:', error);
+      toast({ title: 'Сервертэй холбогдож чадсангүй', variant: 'destructive' });
+    }
+  };
   return (
     <div >
       <div >
@@ -84,8 +103,8 @@ const PostsTable = () => {
             <TableHead>Гүйцэтгэгч</TableHead>
             <TableHead>Гэрээний дүн</TableHead>
             <TableHead>Эх үүсвэр</TableHead>
-            <TableHead>Төсөвт дүн</TableHead> 
-            <TableHead>Хариуцсан инженер</TableHead> 
+            <TableHead>Төсөвт дүн</TableHead>
+            <TableHead>Хариуцсан инженер</TableHead>
             <TableHead>Гүйцэтгэл үе шат</TableHead>
             <TableHead>Гүйцэтгэл хувь</TableHead>
             <TableHead className='hidden md:table-cell text-right'>
@@ -101,7 +120,7 @@ const PostsTable = () => {
 
               <TableRow key={post.newsid}>
                 <TableCell>{post.ordernum}</TableCell>
-                <TableCell className="max-w-[250px] truncate font-semibold text-sm">
+                <TableCell className="max-w-[500px] line-clamp-2 text-sm font-medium">
                   {post.title}
                 </TableCell>
                 {/* <TableCell className="max-w-[250px] truncate font-semibold text-sm">
@@ -118,7 +137,7 @@ const PostsTable = () => {
                 </TableCell>
                 {/* <TableCell>{ format( {post.updatedat}) </TableCell> */}
                 <TableCell>{format(new Date(post.updatedat), 'yyyy-MM-dd')} </TableCell>
-                <TableCell>{post.contractor}</TableCell>
+                <TableCell className="max-w-[500px] line-clamp-2 text-sm font-medium">{post.contractor}</TableCell>
                 <TableCell>{post.totalcost.toLocaleString()}</TableCell>
                 <TableCell>{post.source}</TableCell>
                 <TableCell>{post.contractcost.toLocaleString()}</TableCell>
@@ -194,24 +213,9 @@ const PostsTable = () => {
       </div> */}
     </div>
   );
-};
-const deletePost = async (id: number) => {
-  try {
-    const res = await fetch(`https://shdmonitoring.ub.gov.mn/api/posts/delete/${id}`, {
-      method: 'DELETE',
-    });
 
-    const data = await res.json();
-    if (res.ok) {
-      toast({ title: 'Амжилттай устгалаа' });
-    } else {
-      toast({ title: data.error || 'Алдаа гарлаа', variant: 'destructive' });
-    }
-  } catch (error) {
-    console.error('Устгах үед алдаа:', error);
-    toast({ title: 'Сервертэй холбогдож чадсангүй', variant: 'destructive' });
-  }
 };
+
 
 export default PostsTable;
 

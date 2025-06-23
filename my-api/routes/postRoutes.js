@@ -42,7 +42,7 @@ router.get('/', async (req, res) => {
 router.post('/detail', async (req, res) => {
     const { id } = req.body;
     try {
-      const result = await pool.query(`
+        const result = await pool.query(`
         SELECT
           n.newsid AS newsId,
           n.title AS title,
@@ -67,20 +67,20 @@ router.post('/detail', async (req, res) => {
         GROUP BY n.newsid
         ORDER BY n.newsid DESC
       `, [id]);
-  
-      if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Мэдээлэл олдсонгүй' });
-      }
-  
-      res.json({
-        data: result.rows[0]
-      });
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Мэдээлэл олдсонгүй' });
+        }
+
+        res.json({
+            data: result.rows[0]
+        });
     } catch (err) {
-      console.error('Fetch news error:', err);
-      res.status(500).json({ error: 'Server error' });
+        console.error('Fetch news error:', err);
+        res.status(500).json({ error: 'Server error' });
     }
-  });
-  
+});
+
 
 // news create 
 router.post('/create', async (req, res) => {
@@ -147,29 +147,29 @@ router.post('/create', async (req, res) => {
 // routes/posts.js
 router.put('/edit', async (req, res) => {
     const {
-      newsId,
-      title,
-      orderNum,
-      contractor,
-      contractCost,
-      engener,
-      startDate,
-      endDate,
-      impPhase,
-      impPercent,
-      source,
-      totalCost,
-      news,
-      khoroo // массив: [14, 13]
+        newsId,
+        title,
+        orderNum,
+        contractor,
+        contractCost,
+        engener,
+        startDate,
+        endDate,
+        impPhase,
+        impPercent,
+        source,
+        totalCost,
+        news,
+        khoroo // массив: [14, 13]
     } = req.body;
-  
+
     const client = await pool.connect();
-  
+
     try {
-      await client.query('BEGIN');
-  
-      // news хүснэгт update хийх
-      await client.query(`
+        await client.query('BEGIN');
+
+        // news хүснэгт update хийх
+        await client.query(`
         UPDATE news
         SET
           title = $1,
@@ -187,66 +187,63 @@ router.put('/edit', async (req, res) => {
           updatedat = NOW()
         WHERE newsid = $13
       `, [
-        title,
-        orderNum,
-        contractor,
-        contractCost,
-        engener,
-        new Date(startDate),
-        new Date(endDate),
-        impPhase,
-        impPercent,
-        source,
-        totalCost,
-        news,
-        newsId
-      ]);
-  
-      // өмнөх khoroo холбоос устгах
-      await client.query(`DELETE FROM news_khids WHERE news_id = $1`, [newsId]);
-  
-      // шинэ khoroo холбоос нэмэх
-      for (const khId of khoroo) {
-        await client.query(
-          `INSERT INTO news_khids (news_id, khoroo_id) VALUES ($1, $2)`,
-          [newsId, khId]
-        );
-      }
-  
-      await client.query('COMMIT');
-      res.json({ success: true, message: 'Мэдээлэл амжилттай шинэчлэгдлээ' });
-  
-    } catch (error) {
-      await client.query('ROLLBACK');
-      console.error('Edit post error:', error);
-      res.status(500).json({ error: 'Сервер дээр алдаа гарлаа' });
-  
-    } finally {
-      client.release();
-    }
-  });
+            title,
+            orderNum,
+            contractor,
+            contractCost,
+            engener,
+            new Date(startDate),
+            new Date(endDate),
+            impPhase,
+            impPercent,
+            source,
+            totalCost,
+            news,
+            newsId
+        ]);
 
-  ///delere
+        // өмнөх khoroo холбоос устгах
+        await client.query(`DELETE FROM news_khids WHERE news_id = $1`, [newsId]);
+
+        // шинэ khoroo холбоос нэмэх
+        for (const khId of khoroo) {
+            await client.query(
+                `INSERT INTO news_khids (news_id, khoroo_id) VALUES ($1, $2)`,
+                [newsId, khId]
+            );
+        }
+
+        await client.query('COMMIT');
+        res.json({ success: true, message: 'Мэдээлэл амжилттай шинэчлэгдлээ' });
+
+    } catch (error) {
+        await client.query('ROLLBACK');
+        console.error('Edit post error:', error);
+        res.status(500).json({ error: 'Сервер дээр алдаа гарлаа' });
+
+    } finally {
+        client.release();
+    }
+});
+
+///delere
 router.delete('/delete/:id', async (req, res) => {
     const newsId = req.params.id;
-  
-    try {
-      // news_khids хүснэгтээс эхэлж холбоотой мэдээллийг устгах
-      await pool.query(`DELETE FROM news_khids WHERE news_id = $1`, [newsId]);
-  
-      // дараа нь үндсэн мэдээллийг устгах
-      const result = await pool.query(`DELETE FROM news WHERE newsid = $1`, [newsId]);
-  
-      if (result.rowCount === 0) {
-        return res.status(404).json({ error: 'Мэдээлэл олдсонгүй' });
-      }
-  
-      res.json({ success: true, message: 'Амжилттай устгалаа' });
-    } catch (err) {
-      console.error('Delete post error:', err);
-      res.status(500).json({ error: 'Сервер дээр алдаа гарлаа' });
-    }
-  });
+
+    const res = await fetch('https://shdmonitoring.ub.gov.mn/api/posts/insert-khoroo', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            newsId: 20,
+            khoroo: [14, 13],
+        }),
+    });
+    const data = await res.json();
+    console.log(data);
+
+});
 
 
 // хайлт хийх 
@@ -310,7 +307,17 @@ router.post('/search', async (req, res) => {
     }
 });
 
-
+// GET /api/posts/count
+router.get('/posts/count', async (req, res) => {
+    try {
+      const result = await pool.query('SELECT COUNT(*) FROM posts');
+      const count = parseInt(result.rows[0].count, 10);
+      res.json({ totalPosts: count });
+    } catch (err) {
+      console.error('Posts count error:', err.message);
+      res.status(500).json({ error: 'Мэдээний тоог авахад алдаа гарлаа' });
+    }
+  });
 
 
 module.exports = router;

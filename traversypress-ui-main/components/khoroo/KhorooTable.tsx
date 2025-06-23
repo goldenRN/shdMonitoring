@@ -42,16 +42,11 @@ const KhorooTable = ({ limit, title }: KhorooTableProps) => {
   }, [limit]);
 
   return (
-    <div className='mt-10'>
+    <div >
       <div className='flex justify-between'>
         <h3 className='text-2xl mb-4 font-semibold'>
           {title ? title : 'Хороод'}
         </h3>
-        <Link href={`/admin/khoroo/new`}>
-          <button className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded text-xs'>
-            Нэмэх
-          </button>
-        </Link>
       </div>
 
       <Table>

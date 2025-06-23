@@ -57,7 +57,6 @@ const KhorooEditPage = ({ params }: { params: { id: string } }) => {
         console.error('District fetch алдаа:', err);
       }
     };
-
     fetchDistricts();
 
   }, []);
@@ -86,9 +85,9 @@ const KhorooEditPage = ({ params }: { params: { id: string } }) => {
 
       if (res.ok) {
         toast({ title: 'Мэдээлэл амжилттай шинэчлэгдлээ' });
-        form.reset();
+        // form.reset();
       } else {
-        toast({ title: 'Алдаа гарлаа', variant: 'destructive' });
+        toast({ title: `Энэ нэрээр хороо бүртгэгдсэн байна`, variant: 'destructive' });
       }
     } catch (err) {
       console.error(err);
