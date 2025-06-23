@@ -9,7 +9,7 @@ const khorooRoute = require('./routes/khorooRoutes');
 const branchRoute = require('./routes/branchRoutes');
 const sourceRoute = require('./routes/sourceRoutes');
 const supervisorRoute = require('./routes/supervisorRoutes');
-const workprogressRoute = require('./routes/workprogresRoutes');
+const workprogresRoute = require('./routes/workprogresRoutes');
 
 require('dotenv').config();
 
@@ -26,7 +26,7 @@ app.use('/api/branch', branchRoute);
 app.use('/api/source', sourceRoute);
 app.use('/api/supervisor', supervisorRoute);
 app.use('/api/posts', postsRoute);
-app.use('/api/workprogress', workprogressRoute);
+app.use('/api/workprogress', workprogresRoute);
 // app.get('/', (req, res) => {
 //     res.send('API is working!');
 //   });

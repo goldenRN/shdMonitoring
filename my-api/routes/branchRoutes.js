@@ -37,7 +37,7 @@ router.post('/create', async (req, res) => {
             return res.status(400).json({ error: 'Ийм нэртэй салбар аль хэдийн бүртгэгдсэн байна' });
         }
         // 2. Шинээр үүсгэх
-        const result = await pool.query('INSERT INTO branch (b_name) VALUES ($1)', [branch]);
+        const result = await pool.query('INSERT INTO branch (b_name) VALUES ($1)', [b_name]);
         res.json(result.rows);
     } catch (err) {
         console.error(err.message);
@@ -117,3 +117,4 @@ router.delete('/:id', async (req, res) => {
         res.status(500).json({ error: 'Серверийн алдаа' });
     }
 });
+module.exports = router;

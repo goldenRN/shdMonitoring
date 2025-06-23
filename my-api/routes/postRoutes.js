@@ -12,13 +12,14 @@ router.get('/', async (req, res) => {
           n.ordernum AS orderNum,
           n.contractor AS contractor,
           n.contractcost AS contractCost,
-          n.engeneer AS engener,
+          n.supervisor AS engener,
           n.startdate AS startDate,
           n.enddate AS endDate,
           n.impphase AS impPhase,
           n.imppercent AS impPercent,
           n.sources AS source,
           n.totalcost AS totalCost,
+          n.branch AS branch,
           n.createdat AS createdAt,
           n.updatedat AS updatedAt,
           JSON_AGG(JSON_BUILD_OBJECT('id', k.khid, 'name', k.khname)) AS khoroos
@@ -49,7 +50,7 @@ router.post('/detail', async (req, res) => {
           n.ordernum AS orderNum,
           n.contractor AS contractor,
           n.contractcost AS contractCost,
-          n.engeneer AS engener,
+          n.supervisor AS engener,
           n.startdate AS startDate,
           n.enddate AS endDate,
           n.impphase AS impPhase,
@@ -57,6 +58,7 @@ router.post('/detail', async (req, res) => {
           n.sources AS source,
           n.totalcost AS totalCost,
           n.news AS news,
+          n.branch AS branch,
           n.createdat AS createdAt,
           n.updatedat AS updatedAt,
           JSON_AGG(JSON_BUILD_OBJECT('id', k.khid, 'name', k.khname)) AS khoroos
@@ -89,12 +91,17 @@ router.post('/create', async (req, res) => {
         orderNum,
         contractor,
         contractCost,
-        engener,
+        supervisor,
+        supervisor_id,
         startDate,
         endDate,
         impPhase,
+        impPhase_id,
         impPercent,
         source,
+        source_id,
+        branch,
+        branch_id,
         totalCost,
         news,
         khoroo, // энэ нь [1, 2, 3] гэх мэт array гэж үзнэ
@@ -107,20 +114,25 @@ router.post('/create', async (req, res) => {
 
         const insertNewsResult = await client.query(
             `INSERT INTO news
-          (title, ordernum, contractor, contractcost, engeneer, startdate, enddate, impphase, imppercent, sources, totalcost, news)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+          (title, ordernum, contractor, contractcost, supervisor, supervisor_id, startdate, enddate, impphase, impPhase_id, imppercent, sources, source_id, branch, branch_id, totalcost, news)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
          RETURNING newsid`,
             [
                 title,
                 orderNum,
                 contractor,
                 contractCost,
-                engener,
+                supervisor,
+                supervisor_id,
                 startDate,
                 endDate,
                 impPhase,
+                impPhase_id,
                 impPercent,
                 source,
+                source_id,
+                branch,
+                branch_id,
                 totalCost,
                 news,
             ]
@@ -152,12 +164,17 @@ router.put('/edit', async (req, res) => {
         orderNum,
         contractor,
         contractCost,
-        engener,
+        supervisor,
+        supervisor_id,
         startDate,
         endDate,
         impPhase,
+        impPhase_id,
         impPercent,
         source,
+        source_id,
+        branch,
+        branch_id,
         totalCost,
         news,
         khoroo // массив: [14, 13]
@@ -176,27 +193,37 @@ router.put('/edit', async (req, res) => {
           ordernum = $2,
           contractor = $3,
           contractcost = $4,
-          engeneer = $5,
-          startdate = $6,
-          enddate = $7,
-          impphase = $8,
-          imppercent = $9,
-          sources = $10,
-          totalcost = $11,
-          news = $12,
+          supervisor = $5,
+          supervisor_id = $6,
+          startdate = $7,
+          enddate = $8,
+          impphase = $9,
+          impphase_id = $10
+          imppercent = $11,
+          sources = $12,
+          source_id = $12,
+          branch=$13,
+          branch_id=$14,
+          totalcost = $15,
+          news = $16,
           updatedat = NOW()
-        WHERE newsid = $13
+        WHERE newsid = $17
       `, [
             title,
             orderNum,
             contractor,
             contractCost,
-            engener,
+            supervisor,
+            supervisor_id,
             new Date(startDate),
             new Date(endDate),
             impPhase,
+            impPhase_id,
             impPercent,
             source,
+            source_id,
+            branch,
+            branch_id,
             totalCost,
             news,
             newsId
@@ -229,21 +256,21 @@ router.put('/edit', async (req, res) => {
 // DELETE: Мэдээлэл устгах
 router.delete('/delete/:id', async (req, res) => {
     const { id } = req.params;
-  
+
     try {
-      // newsId-ээр устгах
-      const result = await pool.query('DELETE FROM news WHERE newsid = $1 RETURNING *', [id]);
-  
-      if (result.rowCount === 0) {
-        return res.status(404).json({ error: 'Мэдээлэл олдсонгүй' });
-      }
-  
-      res.status(200).json({ message: 'Амжилттай устгалаа', deleted: result.rows[0] });
+        // newsId-ээр устгах
+        const result = await pool.query('DELETE FROM news WHERE newsid = $1 RETURNING *', [id]);
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: 'Мэдээлэл олдсонгүй' });
+        }
+
+        res.status(200).json({ message: 'Амжилттай устгалаа', deleted: result.rows[0] });
     } catch (err) {
-      console.error('Устгах үед алдаа:', err.message);
-      res.status(500).json({ error: 'Серверийн алдаа' });
+        console.error('Устгах үед алдаа:', err.message);
+        res.status(500).json({ error: 'Серверийн алдаа' });
     }
-  });
+});
 
 
 // хайлт хийх 
@@ -257,7 +284,7 @@ router.post('/search', async (req, res) => {
         n.ordernum AS orderNum,
         n.contractor AS contractor,
         n.contractcost AS contractCost,
-        n.engeneer AS engener,
+        n.supervisor AS engener,
         n.startdate AS startDate,
         n.enddate AS endDate,
         n.impphase AS impPhase,
@@ -265,6 +292,7 @@ router.post('/search', async (req, res) => {
         n.sources AS source,
         n.totalcost AS totalCost,
         n.news AS news,
+        n.branch AS branch
         n.createdat AS createdAt,
         n.updatedat AS updatedAt,
         ARRAY_AGG(k.khname) AS khoroo
@@ -310,14 +338,14 @@ router.post('/search', async (req, res) => {
 // GET /api/posts/count
 router.get('/count', async (req, res) => {
     try {
-      const result = await pool.query('SELECT COUNT(*) FROM news');
-      const count = parseInt(result.rows[0].count, 10);
-      res.json({ totalPosts: count });
+        const result = await pool.query('SELECT COUNT(*) FROM news');
+        const count = parseInt(result.rows[0].count, 10);
+        res.json({ totalPosts: count });
     } catch (err) {
-      console.error('Posts count error:', err.message);
-      res.status(500).json({ error: 'Мэдээний тоог авахад алдаа гарлаа' });
+        console.error('Posts count error:', err.message);
+        res.status(500).json({ error: 'Мэдээний тоог авахад алдаа гарлаа' });
     }
-  });
+});
 
 
 module.exports = router;
