@@ -10,10 +10,10 @@ export default function DashboardLayout() {
   const [khorooCount, setKhorooCount] = useState<number | null>(null);
   useEffect(() => {
     const fetchCounts = async () => {
-      const postRes = await fetch('/api/posts/count');
+      const postRes = await fetch('https://shdmonitoring.ub.gov.mn/api/posts/count');
       const postJson = await postRes.json();
 
-      const khorooRes = await fetch('/api/khoroo/count');
+      const khorooRes = await fetch('https://shdmonitoring.ub.gov.mn/api/khoroo/count');
       const khorooJson = await khorooRes.json();
       setPostsCount(postJson.totalPosts);
       setKhorooCount(khorooJson.totalKhoroos);

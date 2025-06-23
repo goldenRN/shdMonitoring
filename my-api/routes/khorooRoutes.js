@@ -202,7 +202,7 @@ router.post('/search', async (req, res) => {
 // });
 
 // delete khoroo
-router.delete('/khoroo/:id', async (req, res) => {
+router.delete('/:id', async (req, res) => {
   const khorooId = req.params.id;
 
   try {
@@ -234,6 +234,17 @@ router.delete('/khoroo/:id', async (req, res) => {
   } catch (err) {
     console.error('Khoroo устгах алдаа:', err);
     res.status(500).json({ error: 'Серверийн алдаа' });
+  }
+});
+// GET /api/khoroo/count
+router.get('/count', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT COUNT(*) FROM khoroo');
+    const count = parseInt(result.rows[0].count, 10);
+    res.json({ totalKhoroos: count });
+  } catch (err) {
+    console.error('Khoroo count error:', err.message);
+    res.status(500).json({ error: 'Хорооны тоог авахад алдаа гарлаа' });
   }
 });
 

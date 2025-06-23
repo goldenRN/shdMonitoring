@@ -308,9 +308,9 @@ router.post('/search', async (req, res) => {
 });
 
 // GET /api/posts/count
-router.get('/posts/count', async (req, res) => {
+router.get('/count', async (req, res) => {
     try {
-      const result = await pool.query('SELECT COUNT(*) FROM posts');
+      const result = await pool.query('SELECT COUNT(*) FROM news');
       const count = parseInt(result.rows[0].count, 10);
       res.json({ totalPosts: count });
     } catch (err) {
