@@ -226,24 +226,24 @@ router.put('/edit', async (req, res) => {
     }
 });
 
-///delere
+// DELETE: Мэдээлэл устгах
 router.delete('/delete/:id', async (req, res) => {
-    const newsId = req.params.id;
-
-    const res = await fetch('https://shdmonitoring.ub.gov.mn/api/posts/insert-khoroo', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            newsId: 20,
-            khoroo: [14, 13],
-        }),
-    });
-    const data = await res.json();
-    console.log(data);
-
-});
+    const { id } = req.params;
+  
+    try {
+      // newsId-ээр устгах
+      const result = await pool.query('DELETE FROM news WHERE newsid = $1 RETURNING *', [id]);
+  
+      if (result.rowCount === 0) {
+        return res.status(404).json({ error: 'Мэдээлэл олдсонгүй' });
+      }
+  
+      res.status(200).json({ message: 'Амжилттай устгалаа', deleted: result.rows[0] });
+    } catch (err) {
+      console.error('Устгах үед алдаа:', err.message);
+      res.status(500).json({ error: 'Серверийн алдаа' });
+    }
+  });
 
 
 // хайлт хийх 
