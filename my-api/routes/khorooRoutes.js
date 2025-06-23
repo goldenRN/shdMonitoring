@@ -32,7 +32,7 @@ router.get('/', async (req, res) => {
           d.distname AS district
         FROM khoroo k
         JOIN district d ON k.distid = d.distid
-        ORDER BY k.khid DESC
+        ORDER BY k.khname DESC
       `);
 
     res.json(result.rows);
@@ -48,6 +48,16 @@ router.post('/create', async (req, res) => {
   const { khoroo } = req.body;
 
   try {
+    // 1. Давхардал шалгах 
+    const existing = await pool.query(
+      'SELECT * FROM khoroo WHERE LOWER(khname) = LOWER($1)',
+      [khoroo]
+    );
+
+    if (existing.rows.length > 0) {
+      return res.status(400).json({ error: 'Ийм нэрээр бүртгэгдсэн байна' });
+    }
+    // 2. Шинээр үүсгэх
     const result = await pool.query('INSERT INTO khoroo (khname, distid) VALUES ($1, $2)', [khoroo, 1]);
     res.json(result.rows);
   } catch (err) {

@@ -6,6 +6,10 @@ const app = express();
 const authRoute = require('./routes/authRoutes');
 const postsRoute = require('./routes/postRoutes');
 const khorooRoute = require('./routes/khorooRoutes');
+const branchRoute = require('./routes/branchRoutes');
+const sourceRoute = require('./routes/sourceRoutes');
+const supervisorRoute = require('./routes/supervisorRoutes');
+const workprogressRoute = require('./routes/workprogresRoutes');
 
 require('dotenv').config();
 
@@ -18,7 +22,11 @@ app.use(cors()); // бүх origin зөвшөөрнө
 
 app.use('/api/auth', authRoute);
 app.use('/api/khoroo', khorooRoute);
+app.use('/api/branch', branchRoute);
+app.use('/api/source', sourceRoute);
+app.use('/api/supervisor', supervisorRoute);
 app.use('/api/posts', postsRoute);
+app.use('/api/workprogress', workprogressRoute);
 // app.get('/', (req, res) => {
 //     res.send('API is working!');
 //   });
