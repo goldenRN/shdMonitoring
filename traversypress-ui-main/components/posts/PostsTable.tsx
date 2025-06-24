@@ -29,7 +29,7 @@ interface Posts {
   imppercent: number
   source: string
   totalcost: number
-  news: String
+  branch: string
   createdat: Date
   updatedat: Date
   khoroos: { name: string }[];
@@ -38,7 +38,6 @@ import { Pencil, Trash } from 'lucide-react';
 import { toast } from '../ui/use-toast';
 
 const PostsTable = () => {
-  const [khorooData, setKhorooData] = useState<Posts[]>([])
   const [postsData, setPostsData] = useState<Posts[]>([])
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
@@ -99,14 +98,15 @@ const PostsTable = () => {
             <TableHead>Гарчиг</TableHead>
             {/* <TableHead>Агуулга</TableHead> */}
             <TableHead className='w-[200px]'>Хороо</TableHead>
-            <TableHead>Сүүлд шинэчлэгдсэн огноо</TableHead>
+            <TableHead>Захиалагчын хяналтын байгууллага</TableHead>
             <TableHead>Гүйцэтгэгч</TableHead>
             <TableHead>Гэрээний дүн</TableHead>
-            <TableHead>Эх үүсвэр</TableHead>
+            <TableHead>Хөрөнгө оруулалтын эх үүсвэр</TableHead>
             <TableHead>Төсөвт дүн</TableHead>
-            <TableHead>Хариуцсан инженер</TableHead>
-            <TableHead>Гүйцэтгэл үе шат</TableHead>
+            <TableHead>Ажлын явц</TableHead>
             <TableHead>Гүйцэтгэл хувь</TableHead>
+            <TableHead>Салбар</TableHead>
+            <TableHead>Сүүлд шинэчлэгдсэн огноо</TableHead>
             <TableHead className='hidden md:table-cell text-right'>
               Гэрээний хугацаа
             </TableHead>
@@ -135,29 +135,24 @@ const PostsTable = () => {
                     <div className="text-gray-500 text-xs">Хороо байхгүй</div>
                   )}
                 </TableCell>
-                {/* <TableCell>{ format( {post.updatedat}) </TableCell> */}
-                <TableCell>{format(new Date(post.updatedat), 'yyyy-MM-dd')} </TableCell>
-                <TableCell className="max-w-[500px] line-clamp-2 text-sm font-medium">{post.contractor}</TableCell>
-                <TableCell>{post.totalcost.toLocaleString()}</TableCell>
-                <TableCell>{post.source}</TableCell>
-                <TableCell>{post.contractcost.toLocaleString()}</TableCell>
                 <TableCell>{post.engener}</TableCell>
+                <TableCell className="max-w-[500px] line-clamp-2 text-sm font-medium">{post.contractor}</TableCell>
+                <TableCell>{Number(post.totalcost).toLocaleString()+'₮'}</TableCell>
+                <TableCell>{post.source}</TableCell>
+                <TableCell>{Number(post.contractcost).toLocaleString()+'₮'}</TableCell>
+
                 <TableCell>{post.impphase}</TableCell>
                 <TableCell className="text-right hidden md:table-cell">
                   {post.imppercent}%
                 </TableCell>
-
+                <TableCell className="text-right hidden md:table-cell">
+                  {post.branch}
+                </TableCell>
+                <TableCell>{format(new Date(post.updatedat), 'yyyy-MM-dd')} </TableCell>
                 <TableCell className="max-w-[250px] text-right hidden md:table-cell">
                   {post.startdate && post.enddate
-                    ? `${new Date(post.startdate).toLocaleDateString('mn-MN', {
-                      year: 'numeric',
-                      month: '2-digit',
-                      day: '2-digit',
-                    })} - ${new Date(post.enddate).toLocaleDateString('mn-MN', {
-                      year: 'numeric',
-                      month: '2-digit',
-                      day: '2-digit',
-                    })}`
+                    ? `${format(new Date(post.startdate), 'yyyy-MM-dd')} 
+                    - ${format(new Date(post.enddate), 'yyyy-MM-dd')}`
                     : 'Огноо байхгүй'}
                 </TableCell>
                 <TableCell>

@@ -25,6 +25,7 @@ interface Posts {
   source: string
   totalcost: number
   news: String
+  branch: string
   createdat: Date
   updatedat: Date
   khoroos: { name: string }[];
@@ -83,7 +84,7 @@ export default function Home() {
                     <span>{post.ordernum}</span>
                   </div>
                   <div className="py-2 flex justify-between">
-                    <span className="font-medium text-gray-600">Эх үүсвэр</span>
+                    <span className="font-medium text-gray-600">Хөрөнгө оруулалтын эх үүсвэр</span>
                     <span>{post.source}</span>
                   </div>
                   <div className="py-2 flex justify-between">
@@ -111,7 +112,7 @@ export default function Home() {
                     <span>{Number(post.contractcost).toLocaleString()}₮</span>
                   </div>
                   <div className="py-2 flex justify-between">
-                    <span className="font-medium text-gray-600">Инженер</span>
+                    <span className="font-medium text-gray-600">Захиалагчын хяналтын байгууллага</span>
                     <span>{post.engener}</span>
                   </div>
                   <div className="py-2 flex justify-between">
@@ -121,11 +122,15 @@ export default function Home() {
                     </span>
                   </div>
                   <div className="py-2 flex justify-between">
-                    <span className="font-medium text-gray-600">Үе шат</span>
+                    <span className="font-medium text-gray-600">Ажлын явц</span>
                     <span>{post.impphase}</span>
                   </div>
                   <div className="py-2 flex justify-between">
-                    <span className="font-medium text-gray-600">Хувь</span>
+                    <span className="font-medium text-gray-600">Салбар</span>
+                    <span>{post.branch}</span>
+                  </div>
+                  <div className="py-2 flex justify-between">
+                    <span className="font-medium text-gray-600">Гүйцэтгэлийн хувь</span>
                     <span>{post.imppercent}%</span>
                   </div>
                   <div className="mt-3 relative w-full bg-gray-300 rounded-full h-2">

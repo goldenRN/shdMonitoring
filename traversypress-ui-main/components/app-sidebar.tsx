@@ -29,6 +29,9 @@ import {
   LayoutDashboard,
   Newspaper,
   Folders,
+  ListPlus,
+  Wallet,
+  Hotel,
   User,
   LogOut,
 } from 'lucide-react';
@@ -86,6 +89,26 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <CommandItem>
                 <Folders className='mr-2 h-8 w-4' />
                 <Link href='/admin/khoroo'>Хороо бүртгэл</Link>
+                {/* <CommandShortcut>⌘P</CommandShortcut> */}
+              </CommandItem>
+              <CommandItem>
+                <ListPlus className='mr-2 h-8 w-4' />
+                <Link href='/admin/salbar'>Салбар бүртгэл</Link>
+                {/* <CommandShortcut>⌘P</CommandShortcut> */}
+              </CommandItem>
+              <CommandItem>
+                <Folders className='mr-2 h-8 w-4' />
+                <Link href='/admin/workprogres'>Ажлын явц</Link>
+                {/* <CommandShortcut>⌘P</CommandShortcut> */}
+              </CommandItem>
+               <CommandItem>
+                <Wallet className='mr-2 h-8 w-4' />
+                <Link href='/admin/source'>Хөрөнгө оруулалтын эх үүсвэр бүртгэл</Link>
+                {/* <CommandShortcut>⌘P</CommandShortcut> */}
+              </CommandItem>
+              <CommandItem>
+                <Hotel className='mr-2 h-8 w-4' />
+                <Link href='/admin/supervisor'>Захиалагчын хяналтын байгууллага</Link>
                 {/* <CommandShortcut>⌘P</CommandShortcut> */}
               </CommandItem>
               <CommandItem>

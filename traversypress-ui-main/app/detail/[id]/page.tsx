@@ -341,7 +341,8 @@ interface postsDatas {
   imppercent: number
   source: string
   totalcost: number
-  news: String
+  news: string
+  branch: string
   createdat: Date
   updatedat: Date
   khoroo: string
@@ -413,12 +414,13 @@ const Detail = ({ params }: { params: { id: string } }) => {
 
               <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
                 <InfoItem label="Захирамж №" value={postsData?.ordernum} />
-                <InfoItem label="Эх үүсвэр" value={postsData?.source} />
+                <InfoItem label="Хөрөнгө оруулалтын эх үүсвэр" value={postsData?.source} />
                 <InfoItem label="Хороо" value={postsData?.khoroo} />
-                <InfoItem label="Төсөвт өртөг" value={postsData?.totalcost + '₮'} />
+                <InfoItem label="Төсөвт өртөг" value={Number(postsData?.totalcost).toLocaleString() + '₮'} />
                 <InfoItem label="Гүйцэтгэгч" value={postsData?.contractor} />
-                <InfoItem label="Гэрээний дүн" value={postsData?.contractcost + '₮'} />
-                <InfoItem label="Хариуцсан инженер" value={postsData?.engener} />
+                <InfoItem label="Гэрээний дүн" value={Number(postsData?.contractcost).toLocaleString() + '₮'} />
+                <InfoItem label="Захиалагчын хяналтын байгууллага" value={postsData?.engener} />
+                <InfoItem label="Салбар" value={postsData?.branch} />
                 <InfoItem
                   label="Гэрээний хугацаа"
                   value={
@@ -427,12 +429,13 @@ const Detail = ({ params }: { params: { id: string } }) => {
                       : 'Огноо байхгүй'
                   }
                 />
-                <InfoItem label="Хэрэгжилтийн үе шат" value={postsData?.impphase} />
                 <InfoItem label="Хэрэгжилтийн хувь" value={`${postsData?.imppercent}%`} />
+                <InfoItem label="Хэрэгжилтийн үе шат" value={postsData?.impphase} />
+
                 <div className="mt-3 relative w-full bg-gray-300 rounded-full h-2">
                   <div
                     className={`absolute top-0 left-0 h-2 rounded-full ${getProgressColor(Number(postsData?.imppercent))}`}
-                    style={{ width: `${Number(postsData?.imppercent) * 2}%` }}
+                    style={{ width: `${Number(postsData?.imppercent)}%` }}
                   ></div>
                 </div>
               </CardContent>
@@ -453,10 +456,10 @@ const Detail = ({ params }: { params: { id: string } }) => {
   );
 }
 
-const InfoItem = ({ label, value }: { label: string, value?: string | number }) => (
+const InfoItem = ({ label, value }: { label: string, value?: string }) => (
   <div className="flex justify-between items-center p-2 border rounded-lg bg-gray-100">
     <span className="text-sm font-medium text-blue-600 ">{label}</span>
-    {value ?? '...'}
+    {value}
   </div>
 );
 
