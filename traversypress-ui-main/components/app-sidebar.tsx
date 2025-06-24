@@ -111,12 +111,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <Link href='/admin/supervisor'>Захиалагчын хяналтын байгууллага</Link>
                 {/* <CommandShortcut>⌘P</CommandShortcut> */}
               </CommandItem>
-              <CommandItem>
+              {/* <CommandItem>
                 <User className='mr-2 h-8 w-4' />
 
                 <span>Хувийн мэдээлэл</span>
-                {/* <CommandShortcut>⌘B</CommandShortcut> */}
-              </CommandItem>
+                <CommandShortcut>⌘B</CommandShortcut>
+              </CommandItem> */}
               <CommandItem>
                 <LogOut className='mr-2 h-8 w-4' />
                 <Link href='/auth'>Гарах</Link>

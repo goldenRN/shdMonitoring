@@ -93,6 +93,7 @@ const PostNewPage = ({ params }: PostNewPageProps) => {
   const [sourceOpen, setSourceOpen] = useState(false);
   const [branchOpen, setBranchOpen] = useState(false);
   const [superOpen, setSuperOpen] = useState(false);
+  const [wprogressOpen, setWprogressOpen] = useState(false);
 
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
@@ -100,7 +101,6 @@ const PostNewPage = ({ params }: PostNewPageProps) => {
   const [khoroos, setKhoroos] = useState<Khoroo[]>([]);
   const [branch, setBranch] = useState<Branch[]>([]);
   const [source, setSource] = useState<Source[]>([]);
-   const [wprogress, setWprogress] = useState<Source[]>([]);
   const [supervisor, setSupervisor] = useState<Supervisor[]>([]);
   const [WorkProgres, setWorkProgres] = useState<WorkProgres[]>([]);
 
@@ -182,7 +182,10 @@ const PostNewPage = ({ params }: PostNewPageProps) => {
   });
 
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
-    // const khorooId = khoroos.find((kh) => kh.name === data.khoroo)?.id;
+    const supervisor_id = supervisor.find((s) => s.s_name === data.supervisor)?.s_id;
+    const impPhase_id = WorkProgres.find((wp) => wp.wp_name === data.stage)?.wp_id;
+    const source_id = source.find((sc) => sc.sc_name === data.source)?.sc_id;
+    const branch_id = branch.find((b) => b.b_name === data.branch)?.b_id;
     const khorooId = khoroos
       .filter((kh) => data.khoroo.includes(kh.name))
       .map((kh) => kh.id);
@@ -196,15 +199,16 @@ const PostNewPage = ({ params }: PostNewPageProps) => {
       contractor: data.executor,
       contractCost: data.contractValue,
       supervisor: data.supervisor,
-      supervisor_id: "id",
+      supervisor_id: supervisor_id,
       startDate: formattedsdate,
       endDate: formattededate,
       impPhase: data.stage,
-      impPhase_id: "",
+      impPhase_id: impPhase_id,
       impPercent: data.precent,
       source: data.source,
-      source_id: "",
-      branch: "",
+      source_id: source_id,
+      branch: data.branch,
+      branch_id: branch_id,
       totalCost: data.budget,
       news: data.body,
       khoroo: khorooId,
@@ -583,17 +587,17 @@ const PostNewPage = ({ params }: PostNewPageProps) => {
             <div className="min-w-[300px] flex-1">
               <FormField
                 control={form.control}
-                name="branch"
+                name="stage"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel className='uppercase text-xs font-bold text-zinc-500 dark:text-white'>Салбар сонгох</FormLabel>
-                    <Popover open={branchOpen} onOpenChange={setBranchOpen}>
+                    <FormLabel className='uppercase text-xs font-bold text-zinc-500 dark:text-white'>Ажлын явц </FormLabel>
+                    <Popover open={wprogressOpen} onOpenChange={setWprogressOpen}>
                       <PopoverTrigger asChild>
                         <Button variant="outline" role="combobox" className="w-[360px] justify-between">
                           <span className="truncate">
                             {field.value
                               ? field.value
-                              : 'Салбар сонгох'}
+                              : 'Ажлын явц сонгох'}
                           </span>
                           <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
                         </Button>
@@ -602,22 +606,22 @@ const PostNewPage = ({ params }: PostNewPageProps) => {
                         <Command>
                           <CommandInput placeholder="Хайх..." className="h-9 w-[360px] p-0" />
                           <CommandList>
-                            <CommandEmpty>Салбар олдсонгүй.</CommandEmpty>
+                            <CommandEmpty>Ажлын явц олдсонгүй.</CommandEmpty>
                             <CommandGroup>
-                              {branch.map((b) => (
-                                <PopoverPrimitive.Close asChild key={b.b_id}>
+                              {WorkProgres.map((wp) => (
+                                <PopoverPrimitive.Close asChild key={wp.wp_id}>
                                   <CommandItem
-                                    value={b.b_name}
+                                    value={wp.wp_name}
                                     onSelect={() => {
-                                      form.setValue('branch', b.b_name); // ID хадгална
-                                      setBranchOpen(false);
+                                      form.setValue('stage', wp.wp_name); // ID хадгална
+                                      setWprogressOpen(false);
                                     }}
                                     className={cn(
                                       'flex flex-row items-center gap-3 px-3 py-2',
                                       'border-b border-zinc-200 bg-gray-100 hover:bg-gray-200',
                                     )}
                                   >
-                                    {b.b_name}
+                                    {wp.wp_name}
                                   </CommandItem>
                                 </PopoverPrimitive.Close>
                               ))}
