@@ -1,6 +1,3 @@
-
-
-
 const express = require('express');
 const app = express();
 const authRoute = require('./routes/authRoutes');
@@ -10,6 +7,7 @@ const branchRoute = require('./routes/branchRoutes');
 const sourceRoute = require('./routes/sourceRoutes');
 const supervisorRoute = require('./routes/supervisorRoutes');
 const workprogresRoute = require('./routes/workprogresRoutes');
+const imageRoutes = require('./routes/image');
 
 require('dotenv').config();
 
@@ -20,6 +18,8 @@ app.use(express.urlencoded({ extended: true }));
 const cors = require('cors');
 app.use(cors()); // бүх origin зөвшөөрнө
 
+
+app.use('/api/image', imageRoutes);
 app.use('/api/auth', authRoute);
 app.use('/api/khoroo', khorooRoute);
 app.use('/api/branch', branchRoute);
@@ -33,5 +33,5 @@ app.use('/api/workprogress', workprogresRoute);
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  // console.log(Server running on port ${PORT});
 });
