@@ -201,13 +201,13 @@ router.put('/edit', async (req, res) => {
           impphase_id = $10
           imppercent = $11,
           sources = $12,
-          source_id = $12,
-          branch=$13,
-          branch_id=$14,
-          totalcost = $15,
-          news = $16,
+          source_id = $13,
+          branch=$14,
+          branch_id=$15,
+          totalcost = $16,
+          news = $17,
           updatedat = NOW()
-        WHERE newsid = $17
+        WHERE newsid = $18
       `, [
             title,
             orderNum,

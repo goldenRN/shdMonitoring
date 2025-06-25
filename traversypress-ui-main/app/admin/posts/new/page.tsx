@@ -25,6 +25,8 @@ import { Check, ChevronsUpDown, Maximize } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import * as PopoverPrimitive from '@radix-ui/react-popover';
 import { Skeleton } from '@/components/ui/skeleton';
+import Image from 'next/image';
+
 
 const formSchema = z.object({
   order: z.string().min(1, { message: 'Захирамжийн дугаар' }),
@@ -60,7 +62,8 @@ const formSchema = z.object({
     z.number()
       .min(1, { message: '1-ээс бага байж болохгүй' })
       .max(100, { message: '100-аас их байж болохгүй' })
-  )
+  ),
+  image: z.string().min(1, { message: '' }),
 });
 
 interface PostNewPageProps {
@@ -103,6 +106,9 @@ const PostNewPage = ({ params }: PostNewPageProps) => {
   const [source, setSource] = useState<Source[]>([]);
   const [supervisor, setSupervisor] = useState<Supervisor[]>([]);
   const [WorkProgres, setWorkProgres] = useState<WorkProgres[]>([]);
+  const [files, setFiles] = useState<FileList | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchKhoroos = async () => {
@@ -178,10 +184,46 @@ const PostNewPage = ({ params }: PostNewPageProps) => {
       endDate: '',
       stage: '',
       precent: Number(''),
+      image: '',
     },
   });
-
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("e.target.files", e.target.files)
+    setFiles(e.target.files);
+  };
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
+    console.log("image medeelelee==", data.image)
+    if (!files) return alert('Зураг сонгоно уу')
+    setLoading(true)
+    const img = new FormData()
+
+    if (files) {
+      Array.from(files).forEach((file, index) => {
+        img.append('images', file) // 'images' гэдэг нэрээр олон файл явуулна
+      })
+    }
+
+    img.append('newsid', '1')
+    try {
+      const res = await fetch('https://shdmonitoring.ub.gov.mn/api/image/upload', {
+        method: 'POST',
+        body: img,
+      })
+
+      if (!res.ok) {
+        throw new Error('Upload амжилтгүй')
+      }
+
+      const result = await res.json()
+      alert('Зураг амжилттай илгээгдлээ')
+      console.log(result)
+    } catch (err) {
+      console.error('Upload алдаа:', err)
+      alert('Зураг илгээх үед алдаа гарлаа')
+    } finally {
+      setLoading(false)
+    }
+    
     const supervisor_id = supervisor.find((s) => s.s_name === data.supervisor)?.s_id;
     const impPhase_id = WorkProgres.find((wp) => wp.wp_name === data.stage)?.wp_id;
     const source_id = source.find((sc) => sc.sc_name === data.source)?.sc_id;
@@ -245,7 +287,7 @@ const PostNewPage = ({ params }: PostNewPageProps) => {
       toast({ title: 'Хадгалахад алдаа гарлаа', variant: 'destructive' });
     }
     // Жишээ лог
-    // console.log('Form data:', data);
+    console.log('Form data:', data);
   };
 
   return loading ? (
@@ -464,9 +506,9 @@ const PostNewPage = ({ params }: PostNewPageProps) => {
                       <FormControl>
                         <Input className='bg-slate-100 dark:bg-slate-500 text-black dark:text-white' {...field}
                           type={'number'}
-                          min={name === 'precent' ? 1 : 1}
-                          max={name === 'precent' ? 100 : 10000000000}
-                          step={name === 'precent' ? 1 : 10000000000} />
+                          min={name === 'precent' ? 1 : undefined}
+                          max={name === 'precent' ? 100 : undefined}
+                          step={name === 'precent' ? 1 : undefined} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -667,9 +709,37 @@ const PostNewPage = ({ params }: PostNewPageProps) => {
             ))}
           </div>
 
-          {/* Submit button */}
-          <Button type="submit" className="w-full mb-100 dark:bg-slate-800 dark:text-white">
-            Хадгалах
+          {/* Зураг харагдуулах хэсэг */}
+          <FormField
+            control={form.control}
+            name="image"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="uppercase text-xs font-bold text-zinc-500 dark:text-white">
+                  Зураг оруулах
+                </FormLabel>
+                <FormControl>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={(e) => {
+                      handleFileChange(e);       // Таны custom logic
+                      field.onChange(e);         // react-hook-form-т мэдээлэх
+                    }}
+                    onBlur={field.onBlur}
+                    name={field.name}
+                    ref={field.ref}
+                    className="block"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <Button type="submit" disabled={uploading} className="w-full mb-100 dark:bg-slate-800 dark:text-white">
+            {uploading ? 'Түр хүлээнэ үү...' : 'Хадгалах'}
           </Button>
         </form>
       </Form>
@@ -677,4 +747,3 @@ const PostNewPage = ({ params }: PostNewPageProps) => {
   );
 };
 
-export default PostNewPage;
