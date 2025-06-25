@@ -746,4 +746,5 @@ const PostNewPage = ({ params }: PostNewPageProps) => {
     </>
   );
 };
+export default PostNewPage;
 
