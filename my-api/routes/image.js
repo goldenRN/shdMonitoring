@@ -29,12 +29,16 @@ router.post('/upload', upload.array('images'), async (req, res) => {
   try {
     // Файлуудын замыг хадгалах
     const inserted = [];
-
+    const relativePath = `uploads/${filename}`;
     for (const file of files) {
       const result = await pool.query(
-        'INSERT INTO image (imagepath, newsid) VALUES ($1, $2) RETURNING *',
-        [file.path, newsid]
+        'INSERT INTO image (imagepath, newsid) VALUES ($1, $2)',
+        [relativePath, newsid]
       );
+      // await pool.query(
+      //   'INSERT INTO image (imagepath, newsid) VALUES ($1, $2) RETURNING *',
+      //   [file.path, newsid]
+      // );
       inserted.push(result.rows[0]);
     }
 
@@ -53,7 +57,7 @@ router.get('/:newsid', async (req, res) => {
 
   try {
     const result = await pool.query(
-      'SELECT id, imagepath FROM image WHERE newsid = $1',
+      'SELECT * FROM image WHERE newsid = $1',
       [newsid]
     );
 

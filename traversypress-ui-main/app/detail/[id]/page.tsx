@@ -35,6 +35,7 @@ interface postsDatas {
 interface Image {
   id: number;
   imagepath: string;
+  imageid: number;
 }
 
 const Detail = ({ params }: { params: { id: string } }) => {
@@ -57,6 +58,7 @@ const Detail = ({ params }: { params: { id: string } }) => {
         const res = await fetch(`https://shdmonitoring.ub.gov.mn/api/image/${id}`);
         const data = await res.json();
         setImages(data.images);
+        console.log("imge data", data)
       } catch (err) {
         console.error('Алдаа:', err)
       }
@@ -114,7 +116,23 @@ const Detail = ({ params }: { params: { id: string } }) => {
                   onLoad={() => setIsLoaded(true)}
                   onError={() => console.log('Image load error')}
                 /> */}
-                <div className="grid grid-cols-2 gap-4">
+                {Array.isArray(images) && images.length > 0 ? (
+                  <div className="grid grid-cols-2 gap-4">
+                    {images.map((img) => (
+                      <img
+                        key={img.imageid}
+                        // src={`https://shdmonitoring.ub.gov.mn/${img.imagepath}`}
+                        src={`https://shdmonitoring.ub.gov.mn/uploads/${img.imagepath.split('/').pop()}`}
+
+                        alt="uploaded"
+                        className="w-full h-auto border rounded-md shadow"
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <p>Зураг олдсонгүй</p>
+                )}
+                {/* <div className="grid grid-cols-2 gap-4">
                   {images.map((img) => (
                     <img
                       key={img.id}
@@ -123,7 +141,7 @@ const Detail = ({ params }: { params: { id: string } }) => {
                       className="w-full h-auto border rounded-md shadow"
                     />
                   ))}
-                </div>
+                </div> */}
               </div>
               {/* <div className="relative h-[250px] md:h-[400px] w-full">
                 <Image

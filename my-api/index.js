@@ -14,7 +14,7 @@ require('dotenv').config();
 // UTF-8 charset-ийг автоматаар дэмжинэ
 app.use(express.json({ type: 'application/json' }));
 app.use(express.urlencoded({ extended: true }));
-
+app.use('/uploads', express.static('/home/ndc-user/image'));
 const cors = require('cors');
 app.use(cors()); // бүх origin зөвшөөрнө
 
