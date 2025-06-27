@@ -2,6 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const router = express.Router();
+const pool = require('../db');
 
 // Зураг хадгалах тохиргоо
 const storage = multer.diskStorage({
@@ -40,6 +41,25 @@ router.post('/upload', upload.array('images'), async (req, res) => {
     res.status(200).json({ message: 'Амжилттай', data: inserted });
   } catch (err) {
     console.error('Image upload алдаа:', err);
+    res.status(500).json({ error: err });
+  }
+});
+/**
+ * @route GET /api/image/:newsid
+ * @desc Тухайн мэдээтэй холбоотой бүх зургуудыг авах
+ */
+router.get('/:newsid', async (req, res) => {
+  const { newsid } = req.params;
+
+  try {
+    const result = await pool.query(
+      'SELECT id, imagepath FROM image WHERE newsid = $1',
+      [newsid]
+    );
+
+    res.json({ images: result.rows });
+  } catch (err) {
+    console.error('Зураг авахад алдаа:', err.message);
     res.status(500).json({ error: 'Серверийн алдаа' });
   }
 });

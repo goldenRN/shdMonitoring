@@ -11,6 +11,8 @@ import {
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { format } from 'date-fns';
+import ImageUploadModal from './ImageUploadmodal';
+import { Button } from '@/components/ui/button';
 
 interface Khoroo {
   id: number;
@@ -34,13 +36,14 @@ interface Posts {
   updatedat: Date
   khoroos: { name: string }[];
 }
-import { Pencil, Trash } from 'lucide-react';
+import { Pencil, Trash, ImagePlus } from 'lucide-react';
 import { toast } from '../ui/use-toast';
 
 const PostsTable = () => {
   const [postsData, setPostsData] = useState<Posts[]>([])
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -83,6 +86,10 @@ const PostsTable = () => {
       console.error('Устгах үед алдаа:', error);
       toast({ title: 'Сервертэй холбогдож чадсангүй', variant: 'destructive' });
     }
+  };
+  const handleUpload = (file: File) => {
+    console.log('Зураг файл:', file);
+    // API-р илгээх бол энд бичнэ
   };
   return (
     <div >
@@ -137,9 +144,9 @@ const PostsTable = () => {
                 </TableCell>
                 <TableCell>{post.engener}</TableCell>
                 <TableCell className="max-w-[500px] line-clamp-2 text-sm font-medium">{post.contractor}</TableCell>
-                <TableCell>{Number(post.totalcost).toLocaleString()+'₮'}</TableCell>
+                <TableCell>{Number(post.totalcost).toLocaleString() + '₮'}</TableCell>
                 <TableCell>{post.source}</TableCell>
-                <TableCell>{Number(post.contractcost).toLocaleString()+'₮'}</TableCell>
+                <TableCell>{Number(post.contractcost).toLocaleString() + '₮'}</TableCell>
 
                 <TableCell>{post.impphase}</TableCell>
                 <TableCell className="text-right hidden md:table-cell">
@@ -168,11 +175,19 @@ const PostsTable = () => {
                         onClick={async () => {
                           const confirmed = window.confirm(`Та "${post.title}" мэдээллийг устгахдаа итгэлтэй байна уу?`);
                           if (!confirmed) return;
-
                           deletePost(post.newsid)
                         }}>
                         <Trash className='text-slate-800' size={20} />
                       </button>
+                    </div>
+                    <div className='ml-5'>
+                      <button className="bg-blue-200 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded text-xs"
+                        onClick={() => setOpen(true)}>
+                        <ImagePlus className='text-slate-800' size={20} />
+                      </button>
+                      {/* <ImageUploadModal open={open} onClose={() => setOpen(false)} onUpload={handleUpload} /> */}
+                      <ImageUploadModal open={open} onClose={() => setOpen(false)} newsId={post.newsid} />
+
                     </div>
                   </div>
                 </TableCell>

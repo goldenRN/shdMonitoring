@@ -35,7 +35,10 @@ export default function SupervisorForm() {
         body: JSON.stringify({ s_name: data.supervisor }),
       });
       console.log("res", res)
-      if (!res.ok) throw new Error('Амжилтгүй');
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || 'Амжилтгүй');
+      }
 
       const result = await res.json();
       console.log("res", result)
