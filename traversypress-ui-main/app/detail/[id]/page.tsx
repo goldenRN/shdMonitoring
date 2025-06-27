@@ -121,8 +121,8 @@ const Detail = ({ params }: { params: { id: string } }) => {
                     {images.map((img) => (
                       <img
                         key={img.imageid}
-                        // src={`https://shdmonitoring.ub.gov.mn/${img.imagepath}`}
-                        src={`https://shdmonitoring.ub.gov.mn/uploads/${img.imagepath.split('/').pop()}`}
+                        src={`https://shdmonitoring.ub.gov.mn/${img.imagepath}`}
+                        // src={`https://shdmonitoring.ub.gov.mn/${img.imagepath.split('/').pop()}`}
 
                         alt="uploaded"
                         className="w-full h-auto border rounded-md shadow"

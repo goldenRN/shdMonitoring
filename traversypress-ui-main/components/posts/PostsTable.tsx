@@ -44,7 +44,7 @@ const PostsTable = () => {
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [open, setOpen] = useState(false);
-
+  const [selectedNewsId, setSelectedNewsId] = useState<number | null>(null);
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -182,11 +182,15 @@ const PostsTable = () => {
                     </div>
                     <div className='ml-5'>
                       <button className="bg-blue-200 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded text-xs"
-                        onClick={() => setOpen(true)}>
+                        onClick={() => { setSelectedNewsId(post.newsid); setOpen(true) }}>
                         <ImagePlus className='text-slate-800' size={20} />
                       </button>
                       {/* <ImageUploadModal open={open} onClose={() => setOpen(false)} onUpload={handleUpload} /> */}
-                      <ImageUploadModal open={open} onClose={() => setOpen(false)} newsId={post.newsid} />
+                      <ImageUploadModal
+                        open={open}
+                        onClose={() => {setOpen(false);setSelectedNewsId(null);}}
+                        newsId={selectedNewsId}
+                      />
 
                     </div>
                   </div>
@@ -230,9 +234,3 @@ const PostsTable = () => {
 export default PostsTable;
 
 
-// PostsTable дотор хамгийн доор
-// const getFirstTwoSentences = (text: string) => {
-//   const sentences = text.match(/[^.!?]+[.!?]+/g);
-//   if (!sentences) return text;
-//   return sentences.slice(0, 1).join(' ');
-// };

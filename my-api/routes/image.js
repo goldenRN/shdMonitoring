@@ -29,10 +29,11 @@ router.post('/upload', upload.array('images'), async (req, res) => {
   try {
     // Файлуудын замыг хадгалах
     const inserted = [];
-    const relativePath = `uploads/${filename}`;
+
     for (const file of files) {
+       const relativePath = `uploads/${path.basename(file.path)}`; 
       const result = await pool.query(
-        'INSERT INTO image (imagepath, newsid) VALUES ($1, $2)',
+        'INSERT INTO image (imagepath, newsid) VALUES ($1, $2) RETURNING *',
         [relativePath, newsid]
       );
       // await pool.query(
@@ -45,7 +46,7 @@ router.post('/upload', upload.array('images'), async (req, res) => {
     res.status(200).json({ message: 'Амжилттай', data: inserted });
   } catch (err) {
     console.error('Image upload алдаа:', err);
-    res.status(500).json({ error: err });
+    res.status(500).json({ error: err.stack });
   }
 });
 /**
