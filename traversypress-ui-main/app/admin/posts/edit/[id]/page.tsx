@@ -305,6 +305,7 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
       newsId: Number(id),
     };
 
+    console.log(JSON.stringify(body))
     if (process.env.NODE_ENV === 'development') {
       console.log('[DEV LOG] body:', body);
     }
@@ -313,25 +314,15 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
       const res = await fetch('https://shdmonitoring.ub.gov.mn/api/posts/edit', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ body }),
+        body: JSON.stringify( body ),
       });
+      
       if (res.ok) {
-        const contentType = res.headers.get("content-type");
-        if (contentType && contentType.includes("application/json")) {
-          const json = await res.json();
-          console.log("Амжилттай:", json.message);
-        } else {
-          console.log("Амжилттай, гэхдээ хоосон хариу");
-        }
+        toast({ title: 'Мэдээлэл амжилттай шинэчлэгдлээ' });
       } else {
-        console.error("Амжилтгүй хариу:", res.status);
+        const err = await res.json();
+        toast({ title: 'Алдаа: ' + (err.message || 'Хүсэлт амжилтгүй боллоо'), variant: 'destructive' });
       }
-      // if (res.ok) {
-      //   toast({ title: 'Мэдээлэл амжилттай шинэчлэгдлээ' });
-      // } else {
-      //   const err = await res.json();
-      //   toast({ title: 'Алдаа: ' + (err.message || 'Хүсэлт амжилтгүй боллоо'), variant: 'destructive' });
-      // }
     } catch (err) {
       console.error('[DEV LOG] Холболтын алдаа:', err);
       toast({ title: 'Холболтын алдаа', variant: 'destructive' });

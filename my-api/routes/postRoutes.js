@@ -156,40 +156,63 @@ router.post('/create', async (req, res) => {
         client.release();
     }
 });
-// routes/posts.js
+// edit
+
+// 🧠 Utility функц: нэрээр ID-г авах
+async function findIdByName(client, table, idField, nameField, name) {
+  if (!name) return null;
+  const query = `
+    SELECT ${idField} FROM ${table}
+    WHERE TRIM(LOWER(${nameField})) = TRIM(LOWER($1))
+    LIMIT 1
+  `;
+  const result = await client.query(query, [name]);
+  return result.rows[0]?.[idField] || null;
+}
+
+// 🛡 Огноог ISO болгох
+const safeDateToISOString = (val) => {
+  if (!val) return null;
+  const date = new Date(val);
+  return isNaN(date.getTime()) ? null : date.toISOString();
+};
+
 router.put('/edit', async (req, res) => {
-    const {
-        newsId,
-        title,
-        orderNum,
-        contractor,
-        contractCost,
-        supervisor,
-        supervisor_id,
-        startDate,
-        endDate,
-        impPhase,
-        impPhase_id,
-        impPercent,
-        source,
-        source_id,
-        branch,
-        branch_id,
-        totalCost,
-        news,
-        khoroo // массив: [14, 13]
-    } = req.body;
+  const {
+    newsId,
+    title,
+    orderNum,
+    contractor,
+    contractCost,
+    supervisor,
+    supervisor_id,
+    startDate,
+    endDate,
+    impPhase,
+    impPhase_id,
+    impPercent,
+    source,
+    source_id,
+    branch,
+    branch_id,
+    totalCost,
+    news,
+    khoroo // массив: [14, 13] эсвэл string
+  } = req.body;
 
-    if (!Array.isArray(khoroo)) {
-        return res.status(400).json({ error: 'khoroo массив байх ёстой' });
-    }
+  const client = await pool.connect();
 
-    const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
 
-    try {
-        await client.query('BEGIN');
+    // ✅ ID-г нэрээр нь олж авах
+    const finalSourceId = source_id || await findIdByName(client, 'source', 'sc_id', 'sc_name', source);
+    const finalSupervisorId = supervisor_id || await findIdByName(client, 'supervisor', 's_id', 's_name', supervisor);
+    const finalBranchId = branch_id || await findIdByName(client, 'branch', 'b_id', 'b_name', branch);
+    const finalImpPhaseId = impPhase_id || await findIdByName(client, 'workprogress', 'wp_id', 'wp_name', impPhase);
 
-        await client.query(`
+    // ✅ news хүснэгт шинэчлэх
+    await client.query(`
       UPDATE news
       SET
         title = $1,
@@ -212,48 +235,67 @@ router.put('/edit', async (req, res) => {
         updatedat = NOW()
       WHERE newsid = $18
     `, [
-            title,
-            orderNum,
-            contractor,
-            contractCost,
-            supervisor,
-            supervisor_id,
-            new Date(startDate),
-            new Date(endDate),
-            impPhase,
-            impPhase_id,
-            impPercent,
-            source,
-            source_id,
-            branch,
-            branch_id,
-            totalCost,
-            news,
-            newsId
-        ]);
+      title,
+      orderNum,
+      contractor,
+      contractCost,
+      supervisor,
+      finalSupervisorId,
+      safeDateToISOString(startDate),
+      safeDateToISOString(endDate),
+      impPhase,
+      finalImpPhaseId,
+      impPercent,
+      source,
+      finalSourceId,
+      branch,
+      finalBranchId,
+      totalCost,
+      news,
+      newsId
+    ]);
 
-        // Хуучин холбоосыг устгах
-        await client.query(`DELETE FROM news_khids WHERE news_id = $1`, [newsId]);
+    // ✅ Хорооны холбоосыг шинэчлэх
+    await client.query(`DELETE FROM news_khids WHERE news_id = $1`, [newsId]);
 
-        // Шинэ khoroo холбоос нэмэх
-        for (const khId of khoroo) {
-            await client.query(
-                `INSERT INTO news_khids (news_id, khoroo_id) VALUES ($1, $2)`,
-                [newsId, khId]
-            );
+    let khorooArray = [];
+
+    if (Array.isArray(khoroo)) {
+      khorooArray = khoroo;
+    } else if (typeof khoroo === 'string') {
+      try {
+        const parsed = JSON.parse(khoroo);
+        if (Array.isArray(parsed)) {
+          khorooArray = parsed;
         }
-
-        await client.query('COMMIT');
-        res.json({ success: true, message: 'Мэдээлэл амжилттай шинэчлэгдлээ' });
-
-    } catch (error) {
-        await client.query('ROLLBACK');
-        console.error('Edit post error:', error);
-        res.status(500).json({ error: 'Сервер дээр алдаа гарлаа' });
-
-    } finally {
-        client.release();
+      } catch (err) {
+        console.warn('⚠ khoroo parse error:', err);
+      }
     }
+
+    for (const khId of khorooArray) {
+      if (khId !== null && khId !== undefined) {
+        await client.query(
+          `INSERT INTO news_khids (news_id, khoroo_id) VALUES ($1, $2)`,
+          [newsId, khId]
+        );
+      }
+    }
+
+    await client.query('COMMIT');
+    res.json({ success: true, message: 'Мэдээлэл амжилттай шинэчлэгдлээ' });
+
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Edit post error:', error);
+    res.status(500).json({
+      error: 'Сервер дээр алдаа гарлаа',
+      message: error.message,
+      details: error.stack
+    });
+  } finally {
+    client.release();
+  }
 });
 
 
