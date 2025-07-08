@@ -186,11 +186,22 @@ const PostsTable = () => {
                         <ImagePlus className='text-slate-800' size={20} />
                       </button>
                       {/* <ImageUploadModal open={open} onClose={() => setOpen(false)} onUpload={handleUpload} /> */}
-                      <ImageUploadModal
+                      {selectedNewsId !== null && (
+                        <ImageUploadModal
+                          open={open}
+                          onClose={() => {
+                            setOpen(false);
+                            setSelectedNewsId(null);
+                          }}
+                          newsId={selectedNewsId}
+                        />
+                      )}
+
+                      {/* <ImageUploadModal
                         open={open}
-                        onClose={() => {setOpen(false);setSelectedNewsId(null);}}
+                        onClose={() => { setOpen(false); setSelectedNewsId(null); }}
                         newsId={selectedNewsId}
-                      />
+                      /> */}
 
                     </div>
                   </div>

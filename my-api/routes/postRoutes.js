@@ -180,35 +180,38 @@ router.put('/edit', async (req, res) => {
         khoroo // массив: [14, 13]
     } = req.body;
 
+    if (!Array.isArray(khoroo)) {
+        return res.status(400).json({ error: 'khoroo массив байх ёстой' });
+    }
+
     const client = await pool.connect();
 
     try {
         await client.query('BEGIN');
 
-        // news хүснэгт update хийх
         await client.query(`
-        UPDATE news
-        SET
-          title = $1,
-          ordernum = $2,
-          contractor = $3,
-          contractcost = $4,
-          supervisor = $5,
-          supervisor_id = $6,
-          startdate = $7,
-          enddate = $8,
-          impphase = $9,
-          impphase_id = $10
-          imppercent = $11,
-          sources = $12,
-          source_id = $13,
-          branch=$14,
-          branch_id=$15,
-          totalcost = $16,
-          news = $17,
-          updatedat = NOW()
-        WHERE newsid = $18
-      `, [
+      UPDATE news
+      SET
+        title = $1,
+        ordernum = $2,
+        contractor = $3,
+        contractcost = $4,
+        supervisor = $5,
+        supervisor_id = $6,
+        startdate = $7,
+        enddate = $8,
+        impphase = $9,
+        impphase_id = $10,
+        imppercent = $11,
+        sources = $12,
+        source_id = $13,
+        branch = $14,
+        branch_id = $15,
+        totalcost = $16,
+        news = $17,
+        updatedat = NOW()
+      WHERE newsid = $18
+    `, [
             title,
             orderNum,
             contractor,
@@ -229,10 +232,10 @@ router.put('/edit', async (req, res) => {
             newsId
         ]);
 
-        // өмнөх khoroo холбоос устгах
+        // Хуучин холбоосыг устгах
         await client.query(`DELETE FROM news_khids WHERE news_id = $1`, [newsId]);
 
-        // шинэ khoroo холбоос нэмэх
+        // Шинэ khoroo холбоос нэмэх
         for (const khId of khoroo) {
             await client.query(
                 `INSERT INTO news_khids (news_id, khoroo_id) VALUES ($1, $2)`,
@@ -252,6 +255,7 @@ router.put('/edit', async (req, res) => {
         client.release();
     }
 });
+
 
 // DELETE: Мэдээлэл устгах
 router.delete('/delete/:id', async (req, res) => {
@@ -291,8 +295,7 @@ router.post('/search', async (req, res) => {
         n.imppercent AS impPercent,
         n.sources AS source,
         n.totalcost AS totalCost,
-        n.news AS news,
-        n.branch AS branch
+        n.branch AS branch,
         n.createdat AS createdAt,
         n.updatedat AS updatedAt,
         ARRAY_AGG(k.khname) AS khoroo

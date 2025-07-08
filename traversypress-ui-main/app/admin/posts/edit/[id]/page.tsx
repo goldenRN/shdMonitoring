@@ -23,17 +23,22 @@ import * as  PopoverPrimitive from '@radix-ui/react-popover';
 import { Popover, PopoverTrigger, PopoverContent } from '@radix-ui/react-popover';
 import { cn } from '@/lib/utils';
 
-
 const formSchema = z.object({
   order: z.string().min(1, { message: 'Захирамжийн дугаар' }),
   source: z.string().min(1, { message: 'Эх үүсвэр' }),
   executor: z.string().min(1, { message: 'Гүйцэтгэгч' }),
   budget: z.preprocess(
-    (val) => val === '' ? undefined : Number(val),
-    z.number().min(1, { message: ' 1-с бага байж болохгүй' })
+    (val) => {
+      const parsed = Number(val);
+      return isNaN(parsed) ? undefined : parsed;
+    },
+    z.number().min(1, { message: '1-с бага байж болохгүй' })
   ),
   contractValue: z.preprocess(
-    (val) => val === '' ? undefined : Number(val),
+    (val) => {
+      const parsed = Number(val);
+      return isNaN(parsed) ? undefined : parsed;
+    },
     z.number().min(1, { message: 'Гэрээний дүн 1-с бага байж болохгүй' })
   ),
   supervisor: z.string().min(1, { message: 'Хариуцсан инженер' }),
@@ -46,12 +51,47 @@ const formSchema = z.object({
   stage: z.string().min(1, { message: 'Гүйцэтгэлийн үе шат' }),
   branch: z.string().min(1, { message: 'Салбар оруулна уу' }),
   precent: z.preprocess(
-    (val) => val === '' ? undefined : Number(val),
-    z.number()
-      .min(1, { message: '1-ээс бага байж болохгүй' })
-      .max(100, { message: '100-аас их байж болохгүй' })
+    (val) => {
+      const parsed = Number(val);
+      return isNaN(parsed) ? undefined : parsed;
+    },
+    z.number().min(1).max(100)
   )
 });
+
+// const formSchema = z.object({
+//   order: z.string().min(1, { message: 'Захирамжийн дугаар' }),
+//   source: z.string().min(1, { message: 'Эх үүсвэр' }),
+//   executor: z.string().min(1, { message: 'Гүйцэтгэгч' }),
+//   budget: z.preprocess(
+//     (val) => val === '' || val === null ? undefined : Number(val),
+//     z.number().min(1, { message: ' 1-с бага байж болохгүй' })
+//   ),
+//   contractValue:
+//     z.preprocess(
+//       (val) => val === '' || val === null ? undefined : Number(val),
+//       z.number().min(1, { message: 'Гэрээний дүн 1-с бага байж болохгүй' })
+//     ),
+//   // z.preprocess(
+//   //   (val) => val === '' ? undefined : Number(val),
+//   //   z.number().min(1, { message: 'Гэрээний дүн 1-с бага байж болохгүй' })
+//   // ),
+//   supervisor: z.string().min(1, { message: 'Хариуцсан инженер' }),
+//   title: z.string().min(1, { message: 'Гарчиг' }),
+//   body: z.string().min(1, { message: 'Агуулга' }),
+
+//   khoroo: z.array(z.string()).min(1, { message: 'Хороо сонгоно уу' }),
+//   startDate: z.string().min(1, { message: 'Огноо' }),
+//   endDate: z.string().min(1, { message: 'Огноо' }),
+//   stage: z.string().min(1, { message: 'Гүйцэтгэлийн үе шат' }),
+//   branch: z.string().min(1, { message: 'Салбар оруулна уу' }),
+//   precent: z.preprocess(
+//     (val) => val === '' || val === null ? undefined : Number(val),
+//     z.number()
+//       .min(1, { message: '1-ээс бага байж болохгүй' })
+//       .max(100, { message: '100-аас их байж болохгүй' })
+//   )
+// });
 
 interface PostEditPageProps {
   params: {
@@ -135,6 +175,25 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
       precent: 0,
     },
   });
+  // const form = useForm<z.infer<typeof formSchema>>({
+  //   resolver: zodResolver(formSchema),
+  //   defaultValues: {
+  //     order: '',
+  //     source: '',
+  //     executor: '',
+  //     budget: Number(''),
+  //     contractValue: Number(''),
+  //     supervisor: '',
+  //     title: '',
+  //     body: '',
+  //     khoroo: [],
+  //     startDate: '',
+  //     endDate: '',
+  //     branch: '',
+  //     stage: '',
+  //     precent: Number(''),
+  //   },
+  // });
   const selectedKhoroos = form.watch("khoroo");
   useEffect(() => {
     const fetchAll = async () => {
@@ -178,8 +237,13 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
           title: post.title || '',
           body: post.news || '',
           khoroo: Array.isArray(post.khoroos)
-            ? post.khoroos.map((k: { name: string }) => k.name)
+            ? post.khoroos
+              .map((k: { name: string }) => k.name)
+              .filter(Boolean)
             : [],
+          // khoroo: Array.isArray(post.khoroos)
+          //   ? post.khoroos.map((k: { name: string }) => k.name)
+          //   : [],
           startDate: post.startdate
             ? new Date(post.startdate).toISOString().slice(0, 10)
             : '',
@@ -188,7 +252,7 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
             : '',
           stage: post.impphase || '',
           precent: post.imppercent || 0,
-          branch: post.branch || ""
+          branch: post.branch || ''
         });
 
         setPostsData(post);
@@ -199,72 +263,148 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
     };
 
     fetchAll();
+    const subscription = form.watch((value) => {
+      console.log('🕵️‍♂️ Form утгууд:', value);
+    });
+    return () => subscription.unsubscribe();
   }, [form, id]);
 
 
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
-    const supervisor_id = supervisor.find((s) => s.s_name === data.supervisor)?.s_id;
-    const impPhase_id = WorkProgres.find((wp) => wp.wp_name === data.stage)?.wp_id;
-    const source_id = source.find((sc) => sc.sc_name === data.source)?.sc_id;
-    const branch_id = branch.find((b) => b.b_name === data.branch)?.b_id;
-    const khorooId = khoroos
-      .filter((kh) => data.khoroo.includes(kh.name))
-      .map((kh) => kh.id);
-    const sdate = new Date(data.startDate);
-    const edate = new Date(data.endDate);
-    const formattedsdate = sdate.toUTCString();
-    const formattededate = edate.toUTCString();
+    console.log('[DEV LOG] submit Амжилттай үүсгэгдлээ');
+
+    const supervisor_id = supervisor.find((s) => s.s_name.toLowerCase() === data.supervisor.toLowerCase())?.s_id;
+    const impPhase_id = WorkProgres.find((wp) => wp.wp_name.toLowerCase() === data.stage.toLowerCase())?.wp_id;
+    // const source_id = source.find((sc) => sc.sc_name === data.source)?.sc_id;
+    const source_id = source.find((sc) => sc.sc_name.toLowerCase() === data.source.toLowerCase())?.sc_id;
+    const branch_id = branch.find((b) => b.b_name.toLowerCase() === data.branch.toLowerCase())?.b_id;
+    const khorooId = khoroos.filter((kh) => data.khoroo.includes(kh.name)).map((kh) => kh.id);
+
+    const formattedsdate = new Date(data.startDate).toISOString();
+    const formattededate = new Date(data.endDate).toISOString();
+
     const body = {
       title: data.title,
       orderNum: data.order,
       contractor: data.executor,
       contractCost: data.contractValue,
       supervisor: data.supervisor,
-      supervisor_id: supervisor_id,
+      supervisor_id,
       startDate: formattedsdate,
       endDate: formattededate,
       impPhase: data.stage,
-      impPhase_id: impPhase_id,
+      impPhase_id,
       impPercent: data.precent,
       source: data.source,
-      source_id: source_id,
+      source_id,
       branch: data.branch,
-      branch_id: branch_id,
+      branch_id,
       totalCost: data.budget,
       news: data.body,
       khoroo: khorooId,
-      newsId: Number(id)
+      newsId: Number(id),
+    };
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[DEV LOG] body:', body);
     }
-    console.log('body Амжилттай үүсгэгдлээ:', body);
+
     try {
       const res = await fetch('https://shdmonitoring.ub.gov.mn/api/posts/edit', {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          body
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ body }),
       });
-
       if (res.ok) {
-        toast({ title: 'Мэдээлэл амжилттай шинэчлэгдлээ' });
-        // form.reset();
+        const contentType = res.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          const json = await res.json();
+          console.log("Амжилттай:", json.message);
+        } else {
+          console.log("Амжилттай, гэхдээ хоосон хариу");
+        }
       } else {
-        toast({ title: 'Алдаа гарлаа', variant: 'destructive' });
+        console.error("Амжилтгүй хариу:", res.status);
       }
+      // if (res.ok) {
+      //   toast({ title: 'Мэдээлэл амжилттай шинэчлэгдлээ' });
+      // } else {
+      //   const err = await res.json();
+      //   toast({ title: 'Алдаа: ' + (err.message || 'Хүсэлт амжилтгүй боллоо'), variant: 'destructive' });
+      // }
     } catch (err) {
-      console.error(err);
+      console.error('[DEV LOG] Холболтын алдаа:', err);
       toast({ title: 'Холболтын алдаа', variant: 'destructive' });
     }
-    toast({
-      title: 'Мэдээлэл амжилттай шинэчлэгдлээ',
-      // description: `Сүүлд засагдсан огноо ${data?.date}`,
-    });
   };
+  // const handleSubmit = async (data: z.infer<typeof formSchema>) => {
+  //   console.log('submit  Амжилттай үүсгэгдлээ');
+  //   const supervisor_id = supervisor.find((s) => s.s_name === data.supervisor)?.s_id;
+  //   const impPhase_id = WorkProgres.find((wp) => wp.wp_name === data.stage)?.wp_id;
+  //   const source_id = source.find((sc) => sc.sc_name === data.source)?.sc_id;
+  //   const branch_id = branch.find((b) => b.b_name === data.branch)?.b_id;
+  //   const khorooId = khoroos
+  //     .filter((kh) => data.khoroo.includes(kh.name))
+  //     .map((kh) => kh.id);
+  //   const sdate = new Date(data.startDate);
+  //   const edate = new Date(data.endDate);
+  //   const formattedsdate = sdate.toUTCString();
+  //   const formattededate = edate.toUTCString();
+  //   const body = {
+  //     title: data.title,
+  //     orderNum: data.order,
+  //     contractor: data.executor,
+  //     contractCost: data.contractValue,
+  //     supervisor: data.supervisor,
+  //     supervisor_id: supervisor_id,
+  //     startDate: formattedsdate,
+  //     endDate: formattededate,
+  //     impPhase: data.stage,
+  //     impPhase_id: impPhase_id,
+  //     impPercent: data.precent,
+  //     source: data.source,
+  //     source_id: source_id,
+  //     branch: data.branch,
+  //     branch_id: branch_id,
+  //     totalCost: data.budget,
+  //     news: data.body,
+  //     khoroo: khorooId,
+  //     newsId: Number(id)
+  //   }
+  //   console.log('body Амжилттай үүсгэгдлээ:', body);
+  //   try {
+  //     const res = await fetch('https://shdmonitoring.ub.gov.mn/api/posts/edit', {
+  //       method: 'PUT',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({
+  //         body
+  //       }),
+  //     });
+
+  //     if (res.ok) {
+  //       toast({ title: 'Мэдээлэл амжилттай шинэчлэгдлээ' });
+  //       // form.reset();
+  //     } else {
+  //       toast({ title: 'Алдаа гарлаа', variant: 'destructive' });
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //     toast({ title: 'Холболтын алдаа', variant: 'destructive' });
+  //   }
+  //   toast({
+  //     title: 'Мэдээлэл амжилттай шинэчлэгдлээ',
+  //     // description: `Сүүлд засагдсан огноо ${data?.date}`,
+  //   });
+  // };
 
   if (postsData.length === 0) {
-    return <div>Уншиж байна...</div>; // эсвэл Loading spinner
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <span className="text-gray-600">Уншиж байна...</span>
+      </div>
+    );
   }
   else {
 
@@ -576,16 +716,29 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
                                       key={khoroo.id}
                                       value={khoroo.name}
                                       onSelect={() => {
-                                        const alreadySelected = field.value.includes(khoroo.name);
-                                        if (alreadySelected) {
+                                        const current = Array.isArray(field.value) ? field.value.filter(Boolean) : [];
+
+                                        if (current.includes(khoroo.name)) {
                                           form.setValue(
                                             'khoroo',
-                                            field.value.filter((v) => v !== khoroo.name)
+                                            current.filter((v) => v !== khoroo.name)
                                           );
                                         } else {
-                                          form.setValue('khoroo', [...field.value, khoroo.name]);
+                                          form.setValue('khoroo', [...current, khoroo.name]);
                                         }
                                       }}
+
+                                      // onSelect={() => {
+                                      //   const alreadySelected = field.value.includes(khoroo.name);
+                                      //   if (alreadySelected) {
+                                      //     form.setValue(
+                                      //       'khoroo',
+                                      //       field.value.filter((v) => v !== khoroo.name)
+                                      //     );
+                                      //   } else {
+                                      //     form.setValue('khoroo', [...field.value, khoroo.name]);
+                                      //   }
+                                      // }}
                                       className={cn(
                                         'flex flex-row items-center gap-3 px-3 py-2',
                                         'border-b border-zinc-200 bg-gray-100 hover:bg-gray-200',

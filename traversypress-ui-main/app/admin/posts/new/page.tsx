@@ -176,6 +176,7 @@ const PostNewPage = ({ params }: PostNewPageProps) => {
       khoroo: [],
       startDate: '',
       endDate: '',
+      branch: '',
       stage: '',
       precent: Number(''),
     },
