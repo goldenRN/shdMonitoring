@@ -1,6 +1,5 @@
 'use client';
 import DashboardCard from '@/components/dashboard/DashboardCard';
-import PostsTable from '@/components/posts/PostsTable';
 import AnalyticsChart from '@/components/dashboard/AnalyticsChart';
 import { FolderArchive, MessageCircle, Newspaper, DollarSignIcon, FolderMinus } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -22,7 +21,7 @@ export default function DashboardLayout() {
   useEffect(() => {
     const fetchCounts = async () => {
       const fetchStats = async () => {
-        const res = await fetch('/api/source-news-count');
+        const res = await fetch('https://shdmonitoring.ub.gov.mn/api/posts/source-news-count');
         const data = await res.json();
 
         const statusMap: { [key: number]: string } = {
@@ -74,27 +73,8 @@ export default function DashboardLayout() {
   return (
     <>
 
-      <div className='flex flex-col md:flex-row gap-5 mb-5'>
-
-
-
-        <div className="w-1/3 h-100 bg-red-200 p-4 rounded"><DashboardCard
-          title='УЛСЫН ТӨСВИЙН ХӨРӨНГӨ ОРУУЛАЛТТАЙ '
-          count={getCountByStatus('Улсын')}
-          icon={<DollarSignIcon className='text-slate-/500' size={60} />}
-        /></div>
-        <div className="w-1/3 h-100 bg-green-200 p-4 rounded"><DashboardCard
-          title='НИЙСЛЭЛИЙН ТӨСВИЙН ХӨРӨНГӨ ОРУУЛАЛТТАЙ '
-          count={getCountByStatus('Нийслэлийн')}
-          icon={<FolderArchive className='text-slate-800' size={60} />}
-        /></div>
-        <div className="w-1/3 h-100 bg-blue-200 p-4 rounded"><DashboardCard
-          title='ДҮҮРГИЙН ТӨСВИЙН ХӨРӨНГӨ ОРУУЛАЛТ'
-          count={getCountByStatus('Дүүргийн')}
-          icon={<FolderArchive className='text-slate-800' size={60} />}
-        /></div>
-      </div>
-
+      Удирдлагын хэсэг
+      <AnalyticsChart />
       <div className='flex flex-col md:flex-row gap-5 mb-5'>
         <div className="w-1/3 h-100 bg-orange-200 p-4 rounded"><DashboardCard
           title='НИЙТ МЭДЭЭЛЭЛ'
@@ -131,7 +111,7 @@ export default function DashboardLayout() {
         /></div>
 
       </div>
-      {/* <AnalyticsChart /> */}
+
       {/* <PostsTable title='Сүүлд нэмэгдсэн' limit={5} /> */}
     </>
   );

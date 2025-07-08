@@ -411,6 +411,28 @@ router.get('/source-news-count', async (req, res) => {
   }
 });
 
-
+router.get('/source-average-precent', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        s.sc_status,
+        ROUND(AVG(p.precent), 2) AS average_precent,
+        COUNT(p.id) AS total_posts
+      FROM 
+        source s
+      JOIN 
+        posts p ON p.source = s.sc_name
+      GROUP BY 
+        s.sc_status
+      ORDER BY 
+        s.sc_status
+    `);
+    
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Алдаа:', err.message);
+    res.status(500).json({ error: 'Серверийн алдаа' });
+  }
+});
 
 module.exports = router;
