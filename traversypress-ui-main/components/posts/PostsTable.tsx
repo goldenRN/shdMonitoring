@@ -170,16 +170,7 @@ const PostsTable = () => {
                       </button>
                     </Link>
                   </div>
-                    <div className='ml-5'>
-                      <button className="bg-red-200 hover:bg-red-500 text-white font-bold py-2 px-4 rounded text-xs"
-                        onClick={async () => {
-                          const confirmed = window.confirm(`Та "${post.title}" мэдээллийг устгахдаа итгэлтэй байна уу?`);
-                          if (!confirmed) return;
-                          deletePost(post.newsid)
-                        }}>
-                        <Trash className='text-slate-800' size={20} />
-                      </button>
-                    </div>
+
                     <div className='ml-5'>
                       <button className="bg-blue-200 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded text-xs"
                         onClick={() => { setSelectedNewsId(post.newsid); setOpen(true) }}>
@@ -197,13 +188,19 @@ const PostsTable = () => {
                         />
                       )}
 
-                      {/* <ImageUploadModal
-                        open={open}
-                        onClose={() => { setOpen(false); setSelectedNewsId(null); }}
-                        newsId={selectedNewsId}
-                      /> */}
-
                     </div>
+
+                    <div className='ml-5'>
+                      <button className="bg-red-200 hover:bg-red-500 text-white font-bold py-2 px-4 rounded text-xs"
+                        onClick={async () => {
+                          const confirmed = window.confirm(`Та "${post.title}" мэдээллийг устгахдаа итгэлтэй байна уу?`);
+                          if (!confirmed) return;
+                          deletePost(post.newsid)
+                        }}>
+                        <Trash className='text-slate-800' size={20} />
+                      </button>
+                    </div>
+
                   </div>
                 </TableCell>
               </TableRow>

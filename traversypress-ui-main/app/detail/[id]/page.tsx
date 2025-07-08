@@ -49,7 +49,7 @@ const Detail = ({ params }: { params: { id: string } }) => {
     if (percent < 80) return 'bg-yellow-500';
     return 'bg-green-500';
   };
-  let imageUrl = ''; // API image URL
+  // let imageUrl = ''; // API image URL
 
   useEffect(() => {
 
@@ -74,7 +74,7 @@ const Detail = ({ params }: { params: { id: string } }) => {
           },
           body: JSON.stringify({ id }),
         });
-        imageUrl = res.url;
+        // imageUrl = res.url;
         setIsLoaded(true);
         console.log("res", res)
         if (!res.ok) throw new Error('Амжилтгүй');
@@ -103,45 +103,28 @@ const Detail = ({ params }: { params: { id: string } }) => {
                       : 'Огноо олдсонгүй'}
                 </CardDescription>
               </CardHeader>
-              <div className="relative w-[300px] h-[200px]">
+              <div className="w-full h-auto">
                 {!isLoaded && (
                   <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
                     <span className="text-gray-400">Loading image...</span>
                   </div>
                 )}
-                {/* <img
-                  src={imageUrl}
-                  alt="Image"
-                  className={`w-full h-full object-cover transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
-                  onLoad={() => setIsLoaded(true)}
-                  onError={() => console.log('Image load error')}
-                /> */}
+               
                 {Array.isArray(images) && images.length > 0 ? (
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="max-height: 600px; overflow: hidden;">
                     {images.map((img) => (
                       <img
                         key={img.imageid}
                         src={`https://shdmonitoring.ub.gov.mn/${img.imagepath}`}
-                        // src={`https://shdmonitoring.ub.gov.mn/${img.imagepath.split('/').pop()}`}
-
                         alt="uploaded"
-                        className="w-full h-auto border rounded-md shadow"
+                        className="w-full h-auto border rounded-md shadow height: 100%; width: auto;"
                       />
                     ))}
                   </div>
                 ) : (
                   <p>Зураг олдсонгүй</p>
                 )}
-                {/* <div className="grid grid-cols-2 gap-4">
-                  {images.map((img) => (
-                    <img
-                      key={img.id}
-                      src={`https://shdmonitoring.ub.gov.mn/${img.imagepath}`}
-                      alt="uploaded"
-                      className="w-full h-auto border rounded-md shadow"
-                    />
-                  ))}
-                </div> */}
+                
               </div>
               {/* <div className="relative h-[250px] md:h-[400px] w-full">
                 <Image

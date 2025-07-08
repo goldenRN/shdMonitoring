@@ -41,7 +41,8 @@ router.post('/create', async (req, res) => {
         res.json(result.rows);
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Server error');
+        // res.status(500).send('Server error');
+        res.status(500).json({ error: 'Server error' });
     }
 });
 
@@ -116,5 +117,16 @@ router.delete('/:id', async (req, res) => {
         console.error('Захиалагчын хяналтын байгууллага устгах алдаа:', err);
         res.status(500).json({ error: 'Серверийн алдаа' });
     }
+});
+// GET /count
+router.get('/count', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT COUNT(*) FROM supervisor');
+    const count = parseInt(result.rows[0].count, 10);
+    res.json({ totals: count });
+  } catch (err) {
+    console.error(' count error:', err.message);
+    res.status(500).json({ error: 'тоог авахад алдаа гарлаа' });
+  }
 });
 module.exports = router;

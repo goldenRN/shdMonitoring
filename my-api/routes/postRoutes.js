@@ -392,5 +392,25 @@ router.get('/count', async (req, res) => {
     }
 });
 
+router.get('/source-news-count', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        s.sc_status,
+        COUNT(n.*) AS news_count
+      FROM source s
+      JOIN news n ON n.source_id = s.sc_id
+      GROUP BY s.sc_status
+      ORDER BY s.sc_status
+    `);
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Stat query error:', err);
+    res.status(500).json({ error: 'Серверийн алдаа' });
+  }
+});
+
+
 
 module.exports = router;

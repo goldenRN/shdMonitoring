@@ -16,6 +16,7 @@ import { Pencil, Trash } from 'lucide-react';
 interface Source {
   sc_id: number;
   sc_name: string;
+  sc_status: string;
 }
 
 interface SourceTableProps {
@@ -25,12 +26,17 @@ interface SourceTableProps {
 
 const SourceTable = ({ limit, title }: SourceTableProps) => {
   const [sources, setSources] = useState<Source[]>([]);
-
+  const status = [
+    { sc_id: 1, sc_name: 'Улсын' },
+    { sc_id: 2, sc_name: 'Нийслэлийн' },
+    { sc_id: 3, sc_name: 'Дүүргийн' },
+  ];
   useEffect(() => {
     const fetchSources = async () => {
       try {
         const res = await fetch('https://shdmonitoring.ub.gov.mn/api/source');
         const data = await res.json();
+        console.log('data:', data);
         setSources(limit ? data.slice(0, limit) : data);
       } catch (err) {
         console.error('Алдаа:', err);
@@ -72,6 +78,7 @@ const SourceTable = ({ limit, title }: SourceTableProps) => {
         <TableHeader>
           <TableRow>
             <TableHead >Хөрөнгө оруулалтын эх үүсвэр</TableHead>
+            <TableHead >эх үүсвэр төрөл</TableHead>
             <TableHead>Үйлдэл</TableHead>
           </TableRow>
         </TableHeader>
@@ -79,8 +86,15 @@ const SourceTable = ({ limit, title }: SourceTableProps) => {
           {Array.isArray(sources) && sources.length > 0 ? (
 
             sources.map((source) => (
+
+
               <TableRow key={source.sc_id}>
                 <TableCell>{source.sc_name}</TableCell>
+                <TableCell>{
+
+                  status.find((sts) => sts.sc_id === Number(source.sc_status))?.sc_name || 'Тодорхойгүй'
+
+                }</TableCell>
                 <TableCell>
                   <div className='flex justify'><div>
                     <Link href={`/admin/source/edit/${source.sc_id}?sc_name=${source.sc_name}`}>

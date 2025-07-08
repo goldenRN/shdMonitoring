@@ -117,4 +117,15 @@ router.delete('/:id', async (req, res) => {
         res.status(500).json({ error: 'Серверийн алдаа' });
     }
 });
+// GET /count
+router.get('/count', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT COUNT(*) FROM branch');
+    const count = parseInt(result.rows[0].count, 10);
+    res.json({ totalbranch: count });
+  } catch (err) {
+    console.error(' count error:', err.message);
+    res.status(500).json({ error: ' тоог авахад алдаа гарлаа' });
+  }
+});
 module.exports = router;

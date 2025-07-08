@@ -31,7 +31,7 @@ router.post('/upload', upload.array('images'), async (req, res) => {
     const inserted = [];
 
     for (const file of files) {
-       const relativePath = `uploads/${path.basename(file.path)}`; 
+       const relativePath = `image/${path.basename(file.path)}`; 
       const result = await pool.query(
         'INSERT INTO image (imagepath, newsid) VALUES ($1, $2) RETURNING *',
         [relativePath, newsid]

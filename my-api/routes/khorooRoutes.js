@@ -143,7 +143,7 @@ router.post('/search', async (req, res) => {
         n.ordernum AS orderNum,
         n.contractor AS contractor,
         n.contractcost AS contractCost,
-        n.engeneer AS engener,
+        n.supervisor AS engener,
         n.startdate AS startDate,
         n.enddate AS endDate,
         n.impphase AS impPhase,
@@ -151,6 +151,7 @@ router.post('/search', async (req, res) => {
         n.sources AS source,
         n.totalcost AS totalCost,
         n.news AS news,
+        n.branch AS branch,
         n.createdat AS createdAt,
         n.updatedat AS updatedAt,
         k.khname AS khoroo
