@@ -156,7 +156,8 @@ router.post('/search', async (req, res) => {
         n.updatedat AS updatedAt,
         k.khname AS khoroo
       FROM news n
-      JOIN khoroo k ON k.khid = n.khid
+      JOIN news_khids nk ON nk.news_id = n.newsid
+      JOIN khoroo k ON k.khid = nk.khoroo_id
   `;
 
   const conditions = [];
@@ -166,11 +167,6 @@ router.post('/search', async (req, res) => {
     values.push(id);
     conditions.push(`k.khid = $${values.length}`);
   }
-
-  // if (name) {
-  //     values.push(`%${name}%`);
-  //     conditions.push(`k.khname ILIKE $${values.length}`);
-  // }
 
   if (conditions.length > 0) {
     query += ' WHERE ' + conditions.join(' AND ');
@@ -192,7 +188,7 @@ router.post('/search', async (req, res) => {
 
   } catch (err) {
     console.error(err.message);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: 'Server error', detail: err.message });
   }
 });
 // router.delete('/khoroo/delete/:id', async (req, res) => {

@@ -10,6 +10,8 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { useEffect, useState } from 'react'
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { HelpCircle } from 'lucide-react';
 
 interface Posts {
   newsid: number
@@ -160,8 +162,15 @@ export default function Home() {
 
       <footer className="bg-blue-900 text-white py-6 mt-10">
         <div className="max-w-7xl mx-auto px-4 text-center">
+
+          
           <p className="text-sm">
             &copy; {new Date().getFullYear()} Улаанбаатар хот. СонгиноХайрхан Дүүргийн Засаг даргын тамгын газар.
+            <Link href={`/support/`}>
+            {/* <button className="bg-orange-200 hover:bg-orange-500 text-white font-bold py-2 px-4 rounded text-xs"> */}
+            {/* {<HelpCircle className='text-slate-800' size={20} />} */}
+            {/* </button> */}
+          </Link>
           </p>
         </div>
       </footer>
