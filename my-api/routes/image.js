@@ -3,6 +3,8 @@ const multer = require('multer');
 const path = require('path');
 const router = express.Router();
 const pool = require('../db');
+const fs = require('fs');
+
 
 // Зураг хадгалах тохиргоо
 const storage = multer.diskStorage({
@@ -65,6 +67,38 @@ router.get('/:newsid', async (req, res) => {
     res.json({ images: result.rows });
   } catch (err) {
     console.error('Зураг авахад алдаа:', err.message);
+    res.status(500).json({ error: 'Серверийн алдаа' });
+  }
+});
+
+router.delete('/delete/:id/:filename', async (req, res) => {
+  const { id, filename } = req.params;
+ // const onlyname = path.basename(filename);
+  const imagePath = path.join('/home/ndc-user', filename);
+
+  try {
+    // DB-с зураг устгах
+    const result = await pool.query('DELETE FROM image WHERE imageid = $1 RETURNING *', [id]);
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Мэдээлэл олдсонгүй' });
+    }
+
+    // File system-с зураг устгах
+    fs.unlink(imagePath, (err) => {
+      if (err && err.code !== 'ENOENT') {
+        console.error('Файл устгах үед алдаа:', err.message);
+        return res.status(500).json({ error: 'Файл устгаж чадсангүй' });
+      }
+
+      // ENOENT = файл олдоогүй бол ч гэсэн амжилттай гэж үзэж болно
+      return res.status(200).json({
+        message: 'Зураг болон мэдээлэл амжилттай устлаа',
+        deleted: result.rows[0],
+      });
+    });
+  } catch (err) {
+    console.error('Устгах үед алдаа:', err.message);
     res.status(500).json({ error: 'Серверийн алдаа' });
   }
 });

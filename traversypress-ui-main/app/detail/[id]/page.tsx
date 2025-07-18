@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge'
 import { useEffect, useState } from 'react'
 import { useToast } from '@/components/ui/use-toast'
 import Image from 'next/image'
+import AutoImageSlider from '@/components/autoslider';
 
 interface postsDatas {
   newsid: number
@@ -30,7 +31,7 @@ interface postsDatas {
   branch: string
   createdat: Date
   updatedat: Date
-  khoroo: string
+  khoroo: { name: string }[]
 }
 interface Image {
   id: number;
@@ -76,7 +77,7 @@ const Detail = ({ params }: { params: { id: string } }) => {
         });
         // imageUrl = res.url;
         setIsLoaded(true);
-        console.log("res", res)
+        // console.log("res", res)
         if (!res.ok) throw new Error('Амжилтгүй');
         const json = await res.json()
         setpostsData(json.data)
@@ -103,38 +104,10 @@ const Detail = ({ params }: { params: { id: string } }) => {
                       : 'Огноо олдсонгүй'}
                 </CardDescription>
               </CardHeader>
-              <div className="w-full h-auto">
-                {!isLoaded && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
-                    <span className="text-gray-400">Loading image...</span>
-                  </div>
-                )}
-               
-                {Array.isArray(images) && images.length > 0 ? (
-                  <div className="max-height: 600px; overflow: hidden;">
-                    {images.map((img) => (
-                      <img
-                        key={img.imageid}
-                        src={`https://shdmonitoring.ub.gov.mn/${img.imagepath}`}
-                        alt="uploaded"
-                        className="w-full h-auto border rounded-md shadow height: 100%; width: auto;"
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <p>Зураг олдсонгүй</p>
-                )}
-                
-              </div>
-              {/* <div className="relative h-[250px] md:h-[400px] w-full">
-                <Image
-                  src={imageUrl}
-                  alt="Зураг"
-                  fill
-                  className="object-cover opacity-90"
-                />
-                <div className="absolute inset-0 bg-black bg-opacity-20" />
-              </div> */}
+             
+              
+              <AutoImageSlider images={images} isLoaded={isLoaded} />
+
               {postsData?.news && (
                 <CardFooter className="text-sm text-gray-700 bg-gray-50 px-6 py-4">
                   {postsData.news}
@@ -144,7 +117,16 @@ const Detail = ({ params }: { params: { id: string } }) => {
               <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
                 <InfoItem label="Захирамж №" value={postsData?.ordernum} />
                 <InfoItem label="Хөрөнгө оруулалтын эх үүсвэр" value={postsData?.source} />
-                <InfoItem label="Хороо" value={postsData?.khoroo} />
+                <InfoItem label="Хороо" value=
+                  // {postsData?.khoroo} 
+                  {Array.isArray(postsData?.khoroo) && postsData.khoroo.length > 0 ? (
+                    postsData.khoroo.map((khr, index) => (
+                      <div key={index}>{khr.name}</div>
+                    ))
+                  ) : (
+                    <div className="text-gray-500 text-xs">Хороо байхгүй</div>
+                  )}
+                />
                 <InfoItem label="Төсөвт өртөг" value={Number(postsData?.totalcost).toLocaleString() + '₮'} />
                 <InfoItem label="Гүйцэтгэгч" value={postsData?.contractor} />
                 <InfoItem label="Гэрээний дүн" value={Number(postsData?.contractcost).toLocaleString() + '₮'} />
@@ -185,7 +167,8 @@ const Detail = ({ params }: { params: { id: string } }) => {
   );
 }
 
-const InfoItem = ({ label, value }: { label: string, value?: string }) => (
+const InfoItem = ({ label, value }: { label: string; value?: React.ReactNode }) => (
+
   <div className="flex justify-between items-center p-2 border rounded-lg bg-gray-100">
     <span className="text-sm font-medium text-blue-600 ">{label}</span>
     {value}

@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db');
+const fs = require('fs');
+const path = require('path');
 
 // get posts
 router.get('/', async (req, res) => {
@@ -299,24 +301,49 @@ router.put('/edit', async (req, res) => {
 });
 
 
-// DELETE: Мэдээлэл устгах
+// DELETE: Мэдээлэл болон холбогдсон зургуудыг устгах
 router.delete('/delete/:id', async (req, res) => {
-    const { id } = req.params;
+  const { id } = req.params;
 
-    try {
-        // newsId-ээр устгах
-        const result = await pool.query('DELETE FROM news WHERE newsid = $1 RETURNING *', [id]);
+  try {
+    // 1. newsid-тай холбоотой зургуудыг авна
+    const imageResult = await pool.query(
+      'SELECT imagepath FROM image WHERE newsid = $1',
+      [id]
+    );
 
-        if (result.rowCount === 0) {
-            return res.status(404).json({ error: 'Мэдээлэл олдсонгүй' });
+    // 2. Тухайн зургуудыг файл системээс устгах
+    for (const row of imageResult.rows) {
+      const imagePath = path.join('/home/ndc-user', row.imagepath); // image/image.jpg
+      fs.unlink(imagePath, (err) => {
+        if (err) {
+          console.error(`Файл устгах үед алдаа (${row.imagepath}):`, err.message);
+        } else {
+          console.log(`Файл устгав: ${imagePath}`);
         }
-
-        res.status(200).json({ message: 'Амжилттай устгалаа', deleted: result.rows[0] });
-    } catch (err) {
-        console.error('Устгах үед алдаа:', err.message);
-        res.status(500).json({ error: 'Серверийн алдаа' });
+      });
     }
+
+    // 3. DB-ээс зургуудыг устгах
+    await pool.query('DELETE FROM image WHERE newsid = $1', [id]);
+
+    // 4. Мэдээг өөрийг нь устгах
+    const result = await pool.query(
+      'DELETE FROM news WHERE newsid = $1 RETURNING *',
+      [id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Мэдээлэл олдсонгүй' });
+    }
+
+    res.status(200).json({ message: 'Мэдээлэл болон зургууд амжилттай устлаа', deleted: result.rows[0] });
+  } catch (err) {
+    console.error('Устгах үед алдаа:', err.message);
+    res.status(500).json({ error: 'Серверийн алдаа' });
+  }
 });
+
 
 
 // хайлт хийх 

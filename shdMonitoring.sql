@@ -308,7 +308,6 @@ COPY public.admin_users (id, username, password, created_at) FROM stdin;
 
 COPY public.district (distid, distname, disname) FROM stdin;
 1	сонгинохайрхан дүүрэг	СХД
-2	сонгинохайрхан дүүрэг	СХД
 \.
 
 
