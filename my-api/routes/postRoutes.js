@@ -443,12 +443,12 @@ router.get('/source-average-precent', async (req, res) => {
     const result = await pool.query(`
       SELECT 
         s.sc_status,
-        ROUND(AVG(p.precent), 2) AS average_precent,
-        COUNT(p.id) AS total_posts
+        ROUND(AVG(p.imppercent), 2) AS average_precent,
+        COUNT(p.id) AS news
       FROM 
         source s
       JOIN 
-        posts p ON p.source = s.sc_name
+        news p ON p.source = s.sc_name
       GROUP BY 
         s.sc_status
       ORDER BY 

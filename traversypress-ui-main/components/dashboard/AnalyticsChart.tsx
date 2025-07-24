@@ -70,13 +70,13 @@ export default function AnalyticsChart() {
     const fetchAvirage = async () => {
       const res = await fetch('/api/posts/source-average-precent');
       const data1: SourceAveragePrecent[] = await res.json();
-
-      const formatted1 = data1.map(item => ({
-        status: statusMap[item.sc_status],
-        average: item.average_precent, // ← энэ average нэртэй утга
-        count: item.total_posts
-      }));
-      setAvg(formatted1);
+      console.log("data1===", data1)
+      // const formatted1 = data1.map(item => ({
+      //   status: statusMap[item.sc_status],
+      //   average: item.average_precent, // ← энэ average нэртэй утга
+      //   count: item.total_posts
+      // }));
+      // setAvg(formatted1);
 
     };
 

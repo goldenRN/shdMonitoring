@@ -31,7 +31,7 @@ interface postsDatas {
   branch: string
   createdat: Date
   updatedat: Date
-  khoroo: { name: string }[]
+  khoroos: { name: string }[]
 }
 interface Image {
   id: number;
@@ -81,6 +81,7 @@ const Detail = ({ params }: { params: { id: string } }) => {
         if (!res.ok) throw new Error('Амжилтгүй');
         const json = await res.json()
         setpostsData(json.data)
+        console.log("detailpostsdata====", postsData)
       } catch (err) {
         console.error('Алдаа:', err)
       }
@@ -104,8 +105,8 @@ const Detail = ({ params }: { params: { id: string } }) => {
                       : 'Огноо олдсонгүй'}
                 </CardDescription>
               </CardHeader>
-             
-              
+
+
               <AutoImageSlider images={images} isLoaded={isLoaded} />
 
               {postsData?.news && (
@@ -119,13 +120,16 @@ const Detail = ({ params }: { params: { id: string } }) => {
                 <InfoItem label="Хөрөнгө оруулалтын эх үүсвэр" value={postsData?.source} />
                 <InfoItem label="Хороо" value=
                   // {postsData?.khoroo} 
-                  {Array.isArray(postsData?.khoroo) && postsData.khoroo.length > 0 ? (
-                    postsData.khoroo.map((khr, index) => (
-                      <div key={index}>{khr.name}</div>
-                    ))
-                  ) : (
-                    <div className="text-gray-500 text-xs">Хороо байхгүй</div>
-                  )}
+                  {
+
+                    Array.isArray(postsData?.khoroos) && postsData.khoroos.length > 0 ? (
+                      postsData.khoroos.map(
+                        (khr, index) => (
+                          <div key={index}>{khr.name}</div>
+                        ))
+                    ) : (
+                      <div className="text-gray-500 text-xs">Хороо байхгүй</div>
+                    )}
                 />
                 <InfoItem label="Төсөвт өртөг" value={Number(postsData?.totalcost).toLocaleString() + '₮'} />
                 <InfoItem label="Гүйцэтгэгч" value={postsData?.contractor} />
@@ -171,7 +175,8 @@ const InfoItem = ({ label, value }: { label: string; value?: React.ReactNode }) 
 
   <div className="flex justify-between items-center p-2 border rounded-lg bg-gray-100">
     <span className="text-sm font-medium text-blue-600 ">{label}</span>
-    {value}
+    <span className='text-right'>{value}</span>
+
   </div>
 );
 

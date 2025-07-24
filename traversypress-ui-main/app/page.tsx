@@ -69,87 +69,89 @@ export default function Home() {
              hover:shadow-lg hover:scale-[1.02] hover:border-blue-500 
              transition-all duration-300 ease-in-out 
              flex flex-col justify-between cursor-pointer">
-                <CardHeader className="pb-2 border-b border-gray-100">
-                  <CardTitle className="text-base font-semibold text-blue-800">
-                    {post.title}
-                  </CardTitle>
-                  <CardDescription className="text-sm text-gray-500 text-right">
-                    {post.updatedat == null
-                      ? `Бүртгэсэн огноо: ${new Date(post.createdat).toLocaleDateString()}`
-                      : `Шинэчилсэн: ${new Date(post.updatedat).toLocaleDateString()}`}
-                  </CardDescription>
-                </CardHeader>
+                <Link href={`/detail/${post.newsid}`}>
+                  <CardHeader className="pb-2 border-b border-gray-100">
+                    <CardTitle className="text-base font-semibold text-blue-800">
+                      {post.title}
+                    </CardTitle>
+                    <CardDescription className="text-sm text-gray-500 text-right">
+                      {post.updatedat == null
+                        ? `Бүртгэсэн огноо: ${new Date(post.createdat).toLocaleDateString()}`
+                        : `Шинэчилсэн: ${new Date(post.updatedat).toLocaleDateString()}`}
+                    </CardDescription>
+                  </CardHeader>
 
-                <CardContent className="divide-y divide-gray-100 text-sm text-gray-700">
-                  <div className="py-2 flex justify-between">
-                    <span className="font-medium text-gray-600  ">Захирамж №</span>
-                    <span>{post.ordernum}</span>
-                  </div>
-                  <div className="py-2 flex justify-between">
-                    <span className="font-medium text-gray-600">Хөрөнгө оруулалтын эх үүсвэр</span>
-                    <span>{post.source}</span>
-                  </div>
-                  <div className="py-2 flex justify-between">
-                    <span className="font-medium text-gray-600">Хороо</span>
-                    <span>
-                      {Array.isArray(post.khoroos) && post.khoroos.length > 0 ? (
-                        post.khoroos.map((khr, index) => (
-                          <div key={index}>{khr.name}</div>
-                        ))
-                      ) : (
-                        <div className="text-gray-500 text-xs">Хороо байхгүй</div>
-                      )}
-                    </span>
-                  </div>
-                  <div className="py-2 flex justify-between">
-                    <span className="font-medium text-gray-600">Төсөвт өртөг</span>
-                    <span>{Number(post.totalcost).toLocaleString()}₮</span>
-                  </div>
-                  <div className="py-2 flex justify-between">
-                    <span className="font-medium text-gray-600 ">Гүйцэтгэгч</span>
-                    <span className=" text-gray-600 text-right  break-words">{post.contractor}</span>
-                  </div>
-                  <div className="py-2 flex justify-between">
-                    <span className="font-medium text-gray-600">Гэрээний дүн</span>
-                    <span>{Number(post.contractcost).toLocaleString()}₮</span>
-                  </div>
-                  <div className="py-2 flex justify-between">
-                    <span className="font-medium text-gray-600">Захиалагчын хяналтын байгууллага</span>
-                    <span>{post.engener}</span>
-                  </div>
-                  <div className="py-2 flex justify-between">
-                    <span className="font-medium text-gray-600">Хугацаа</span>
-                    <span>
-                      {new Date(post.startdate).toLocaleDateString('ja-JP')} - {new Date(post.enddate).toLocaleDateString('ja-JP')}
-                    </span>
-                  </div>
-                  <div className="py-2 flex justify-between">
-                    <span className="font-medium text-gray-600">Ажлын явц</span>
-                    <span>{post.impphase}</span>
-                  </div>
-                  <div className="py-2 flex justify-between">
-                    <span className="font-medium text-gray-600">Салбар</span>
-                    <span>{post.branch}</span>
-                  </div>
-                  <div className="py-2 flex justify-between">
-                    <span className="font-medium text-gray-600">Гүйцэтгэлийн хувь</span>
-                    <span>{post.imppercent}%</span>
-                  </div>
-                  <div className="mt-3 relative w-full bg-gray-300 rounded-full h-2">
-                    <div
-                      className={`absolute top-0 left-0 h-2 rounded-full ${getProgressColor(post.imppercent)}`}
-                      style={{ width: `${post.imppercent}%` }}
-                    ></div>
-                  </div>
-                </CardContent>
+                  <CardContent className="divide-y divide-gray-100 text-sm text-gray-700">
+                    <div className="py-2 flex justify-between">
+                      <span className="font-medium text-gray-600  ">Захирамж №</span>
+                      <span className='text-right'>{post.ordernum}</span>
+                    </div>
+                    <div className="py-2 flex justify-between">
+                      <span className="font-medium text-gray-600">Хөрөнгө оруулалтын эх үүсвэр</span>
+                      <span className='text-right'>{post.source}</span>
+                    </div>
+                    <div className="py-2 flex justify-between">
+                      <span className="font-medium text-gray-600">Хороо</span>
+                      <span className='text-right'>
+                        {Array.isArray(post.khoroos) && post.khoroos.length > 0 ? (
+                          post.khoroos.map((khr, index) => (
+                            <div key={index}>{khr.name}</div>
+                          ))
+                        ) : (
+                          <div className="text-gray-500 text-xs">Хороо байхгүй</div>
+                        )}
+                      </span>
+                    </div>
+                    <div className="py-2 flex justify-between">
+                      <span className="font-medium text-gray-600">Төсөвт өртөг</span>
+                      <span className='text-right'>{Number(post.totalcost).toLocaleString()}₮</span>
+                    </div>
+                    <div className="py-2 flex justify-between">
+                      <span className="font-medium text-gray-600 ">Гүйцэтгэгч</span>
+                      <span className=" text-gray-600 text-right  break-words">{post.contractor}</span>
+                    </div>
+                    <div className="py-2 flex justify-between">
+                      <span className="font-medium text-gray-600">Гэрээний дүн</span>
+                      <span>{Number(post.contractcost).toLocaleString()}₮</span>
+                    </div>
+                    <div className="py-2 flex justify-between">
+                      <span className="font-medium text-gray-600">Захиалагчын хяналтын байгууллага</span>
+                      <span className='text-right'>{post.engener}</span>
+                    </div>
+                    <div className="py-2 flex justify-between">
+                      <span className="font-medium text-gray-600">Хугацаа</span>
+                      <span className='text-right'>
+                        {new Date(post.startdate).toLocaleDateString('ja-JP')} - {new Date(post.enddate).toLocaleDateString('ja-JP')}
+                      </span>
+                    </div>
+                    <div className="py-2 flex justify-between">
+                      <span className="font-medium text-gray-600">Ажлын явц</span>
+                      <span className='text-right'>{post.impphase}</span>
+                    </div>
+                    <div className="py-2 flex justify-between">
+                      <span className="font-medium text-gray-600">Салбар</span>
+                      <span className='text-right'>{post.branch}</span>
+                    </div>
+                    <div className="py-2 flex justify-between">
+                      <span className="font-medium text-gray-600">Гүйцэтгэлийн хувь</span>
+                      <span className='text-right'>{post.imppercent}%</span>
+                    </div>
+                    <div className="mt-3 relative w-full bg-gray-300 rounded-full h-2">
+                      <div
+                        className={`absolute top-0 left-0 h-2 rounded-full ${getProgressColor(post.imppercent)}`}
+                        style={{ width: `${post.imppercent}%` }}
+                      ></div>
+                    </div>
+                  </CardContent>
 
-                <CardFooter className="flex justify-end p-4 pt-2 border-t border-gray-100">
-                  <Link href={`/detail/${post.newsid}`}>
+                  <CardFooter className="flex justify-end p-4 pt-2 border-t border-gray-100">
+
                     <span className="text-sm font-medium text-blue-700 hover:underline hover:text-blue-900">
                       Дэлгэрэнгүй →
                     </span>
-                  </Link>
-                </CardFooter>
+
+                  </CardFooter>
+                </Link>
               </Card>
             ))
 
@@ -163,14 +165,14 @@ export default function Home() {
       <footer className="bg-blue-900 text-white py-6 mt-10">
         <div className="max-w-7xl mx-auto px-4 text-center">
 
-          
+
           <p className="text-sm">
             &copy; {new Date().getFullYear()} Улаанбаатар хот. СонгиноХайрхан Дүүргийн Засаг даргын тамгын газар.
             <Link href={`/support/`}>
-            {/* <button className="bg-orange-200 hover:bg-orange-500 text-white font-bold py-2 px-4 rounded text-xs"> */}
-            {/* {<HelpCircle className='text-slate-800' size={20} />} */}
-            {/* </button> */}
-          </Link>
+              {/* <button className="bg-orange-200 hover:bg-orange-500 text-white font-bold py-2 px-4 rounded text-xs"> */}
+              {/* {<HelpCircle className='text-slate-800' size={20} />} */}
+              {/* </button> */}
+            </Link>
           </p>
         </div>
       </footer>
