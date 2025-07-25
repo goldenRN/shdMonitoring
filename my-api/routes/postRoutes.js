@@ -444,7 +444,7 @@ router.get('/source-average-precent', async (req, res) => {
       SELECT 
         s.sc_status,
         ROUND(AVG(p.imppercent), 2) AS average_precent,
-        COUNT(p.id) AS news
+        COUNT(p.newsid) AS news
       FROM 
         source s
       JOIN 

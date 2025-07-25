@@ -3,6 +3,9 @@ import DashboardCard from '@/components/dashboard/DashboardCard';
 import AnalyticsChart from '@/components/dashboard/AnalyticsChart';
 import { FolderArchive, MessageCircle, Newspaper, DollarSignIcon, FolderMinus } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import PieChartAnalytics from '@/components/dashboard/PieChartAnalytics';
+
+
 
 interface SourceNewsCount {
   sc_status: number;
@@ -75,6 +78,7 @@ export default function DashboardLayout() {
 
       Удирдлагын хэсэг
       <AnalyticsChart />
+      {/* <PieChartAnalytics /> */}
       <div className='flex flex-col md:flex-row gap-5 mb-5'>
         <div className="w-1/3 h-100 bg-orange-200 p-4 rounded"><DashboardCard
           title='НИЙТ МЭДЭЭЛЭЛ'
