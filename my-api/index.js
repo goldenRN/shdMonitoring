@@ -5,6 +5,7 @@ const postsRoute = require('./routes/postRoutes');
 const khorooRoute = require('./routes/khorooRoutes');
 const branchRoute = require('./routes/branchRoutes');
 const sourceRoute = require('./routes/sourceRoutes');
+const classRoute = require('./routes/classRoutes');
 const supervisorRoute = require('./routes/supervisorRoutes');
 const workprogresRoute = require('./routes/workprogresRoutes');
 const imageRoutes = require('./routes/image');
@@ -26,6 +27,7 @@ app.use('/api/branch', branchRoute);
 app.use('/api/source', sourceRoute);
 app.use('/api/supervisor', supervisorRoute);
 app.use('/api/posts', postsRoute);
+app.use('/api/class', classRoute);
 app.use('/api/workprogress', workprogresRoute);
 // app.get('/', (req, res) => {
 //     res.send('API is working!');

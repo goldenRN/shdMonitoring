@@ -75,4 +75,41 @@ console.log("namepass==",username ,password);
     }
 });
 
+// POST /api/auth/change-password
+app.post("/change-password", async (req, res) => {
+  const { oldPassword, newPassword, userId } = req.body;
+
+  try {
+    // 1. Хэрэглэгчийн одоогийн нууц үг авах
+    const result = await pool.query(
+      "SELECT password FROM admin_users WHERE id = $1",
+      [userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Хэрэглэгч олдсонгүй" });
+    }
+
+    const hashedPassword = result.rows[0].password;
+
+    // 2. Хуучин нууц үг шалгах
+    const isMatch = await bcrypt.compare(oldPassword, hashedPassword);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Хуучин нууц үг буруу байна" });
+    }
+
+    // 3. Шинэ нууц үг хадгалах
+    const newHashedPassword = await bcrypt.hash(newPassword, 10);
+    await pool.query("UPDATE admin_users SET password = $1 WHERE id = $2", [
+      newHashedPassword,
+      userId,
+    ]);
+
+    return res.json({ message: "Нууц үг амжилттай шинэчлэгдлээ ✅" });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Серверийн алдаа" });
+  }
+});
+
 module.exports = router;

@@ -172,6 +172,8 @@ import {
   Wallet,
   Hotel,
   User,
+  ClipboardPen,
+  Settings,
   LogOut,
 } from 'lucide-react';
 
@@ -219,6 +221,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <Folders className='mr-2 h-8 w-4' />
                 <Link href='/admin/workprogres'>Ажлын явц</Link>
               </CommandItem>
+              <CommandItem className={isActive('/admin/class') ? 'bg-muted text-blue-600' : ''}>
+                <ClipboardPen className='mr-2 h-8 w-4' />
+                <Link href='/admin/class'>Бүлэг бүртгэл</Link>
+              </CommandItem>
               <CommandItem className={isActive('/admin/source') ? 'bg-muted text-blue-600' : ''}>
                 <Wallet className='mr-2 h-8 w-4' />
                 <Link href='/admin/source'>Хөрөнгө оруулалтын эх үүсвэр бүртгэл</Link>
@@ -227,6 +233,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <Hotel className='mr-2 h-8 w-4' />
                 <Link href='/admin/supervisor'>Захиалагчийн хяналтын байгууллага</Link>
               </CommandItem>
+            </CommandGroup>
+
+            <CommandSeparator />
+
+            <CommandGroup heading='Тохиргоо'>
+              <CommandItem className={isActive('/admin/settings') ? 'bg-muted text-blue-600' : ''}>
+                <Settings className='mr-2 h-8 w-4' />
+                 <Link href='/admin/settings'>Нууц үг солих</Link>
+              </CommandItem>
+
               <CommandItem onSelect={logout}>
                 <LogOut className='mr-2 h-8 w-4' />
                 <span>Гарах</span>
