@@ -134,7 +134,7 @@ const Detail = ({ params }: { params: { id: string } }) => {
                 <InfoItem label="Төсөвт өртөг" value={Number(postsData?.totalcost).toLocaleString() + '₮'} />
                 <InfoItem label="Гүйцэтгэгч" value={postsData?.contractor} />
                 <InfoItem label="Гэрээний дүн" value={Number(postsData?.contractcost).toLocaleString() + '₮'} />
-                <InfoItem label="Захиалагчын хяналтын байгууллага" value={postsData?.engener} />
+                <InfoItem label="Захиалагчийн хяналтын байгууллага" value={postsData?.engener} />
                 <InfoItem label="Салбар" value={postsData?.branch} />
                 <InfoItem
                   label="Гэрээний хугацаа"

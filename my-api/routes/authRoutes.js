@@ -76,7 +76,7 @@ console.log("namepass==",username ,password);
 });
 
 // POST /api/auth/change-password
-app.post("/change-password", async (req, res) => {
+router.post("/change-password", async (req, res) => {
   const { oldPassword, newPassword, userId } = req.body;
 
   try {

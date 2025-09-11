@@ -44,7 +44,7 @@ const formSchema = z.object({
   supervisor: z.string().min(1, { message: 'Хариуцсан инженер' }),
   title: z.string().min(1, { message: 'Гарчиг' }),
   body: z.string().min(1, { message: 'Агуулга' }),
-
+  class: z.string().min(1, { message: 'Салбар оруулна уу' }),
   khoroo: z.array(z.string()).min(1, { message: 'Хороо сонгоно уу' }),
   startDate: z.string().min(1, { message: 'Огноо' }),
   endDate: z.string().min(1, { message: 'Огноо' }),
@@ -58,40 +58,6 @@ const formSchema = z.object({
     z.number().min(1).max(100)
   )
 });
-
-// const formSchema = z.object({
-//   order: z.string().min(1, { message: 'Захирамжийн дугаар' }),
-//   source: z.string().min(1, { message: 'Эх үүсвэр' }),
-//   executor: z.string().min(1, { message: 'Гүйцэтгэгч' }),
-//   budget: z.preprocess(
-//     (val) => val === '' || val === null ? undefined : Number(val),
-//     z.number().min(1, { message: ' 1-с бага байж болохгүй' })
-//   ),
-//   contractValue:
-//     z.preprocess(
-//       (val) => val === '' || val === null ? undefined : Number(val),
-//       z.number().min(1, { message: 'Гэрээний дүн 1-с бага байж болохгүй' })
-//     ),
-//   // z.preprocess(
-//   //   (val) => val === '' ? undefined : Number(val),
-//   //   z.number().min(1, { message: 'Гэрээний дүн 1-с бага байж болохгүй' })
-//   // ),
-//   supervisor: z.string().min(1, { message: 'Хариуцсан инженер' }),
-//   title: z.string().min(1, { message: 'Гарчиг' }),
-//   body: z.string().min(1, { message: 'Агуулга' }),
-
-//   khoroo: z.array(z.string()).min(1, { message: 'Хороо сонгоно уу' }),
-//   startDate: z.string().min(1, { message: 'Огноо' }),
-//   endDate: z.string().min(1, { message: 'Огноо' }),
-//   stage: z.string().min(1, { message: 'Гүйцэтгэлийн үе шат' }),
-//   branch: z.string().min(1, { message: 'Салбар оруулна уу' }),
-//   precent: z.preprocess(
-//     (val) => val === '' || val === null ? undefined : Number(val),
-//     z.number()
-//       .min(1, { message: '1-ээс бага байж болохгүй' })
-//       .max(100, { message: '100-аас их байж болохгүй' })
-//   )
-// });
 
 interface PostEditPageProps {
   params: {
@@ -119,6 +85,11 @@ interface WorkProgres {
   wp_id: number;
   wp_name: string;
 }
+interface Classes {
+  class_id: number;
+  class_name: string;
+  desc: string;
+}
 interface Posts {
   newsid: number
   title: string
@@ -131,6 +102,7 @@ interface Posts {
   impphase: string
   imppercent: number
   source: string
+  class_id: number
   totalcost: number
   news: string
   branch: string
@@ -145,6 +117,7 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
   const [khoroos, setKhoroos] = useState<Khoroo[]>([]);
   const [branch, setBranch] = useState<Branch[]>([]);
   const [source, setSource] = useState<Source[]>([]);
+  const [classes, setClasses] = useState<Classes[]>([]);
   const [supervisor, setSupervisor] = useState<Supervisor[]>([]);
   const [WorkProgres, setWorkProgres] = useState<WorkProgres[]>([]);
   const id = params.id;
@@ -152,6 +125,7 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
   const [open, setOpen] = useState(false);
   const [sourceOpen, setSourceOpen] = useState(false);
   const [branchOpen, setBranchOpen] = useState(false);
+  const [classOpen, setClassOpen] = useState(false);
   const [superOpen, setSuperOpen] = useState(false);
   const [wprogressOpen, setWprogressOpen] = useState(false);
   const PopoverClose = PopoverPrimitive.Close;
@@ -170,35 +144,17 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
       khoroo: [],
       startDate: '',
       endDate: '',
+      class: '',
       branch: '',
       stage: '',
       precent: 0,
     },
   });
-  // const form = useForm<z.infer<typeof formSchema>>({
-  //   resolver: zodResolver(formSchema),
-  //   defaultValues: {
-  //     order: '',
-  //     source: '',
-  //     executor: '',
-  //     budget: Number(''),
-  //     contractValue: Number(''),
-  //     supervisor: '',
-  //     title: '',
-  //     body: '',
-  //     khoroo: [],
-  //     startDate: '',
-  //     endDate: '',
-  //     branch: '',
-  //     stage: '',
-  //     precent: Number(''),
-  //   },
-  // });
   const selectedKhoroos = form.watch("khoroo");
   useEffect(() => {
     const fetchAll = async () => {
       try {
-        const [khRes, postRes, branchRes, sourceRes, wpRes, superRes] = await Promise.all([
+        const [khRes, postRes, branchRes, sourceRes, wpRes, superRes, classRes] = await Promise.all([
           fetch('https://shdmonitoring.ub.gov.mn/api/khoroo'),
           fetch(`https://shdmonitoring.ub.gov.mn/api/posts/detail`, {
             method: 'POST',
@@ -208,7 +164,8 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
           fetch('https://shdmonitoring.ub.gov.mn/api/branch'),
           fetch('https://shdmonitoring.ub.gov.mn/api/source'),
           fetch('https://shdmonitoring.ub.gov.mn/api/workprogress'),
-          fetch('https://shdmonitoring.ub.gov.mn/api/supervisor')
+          fetch('https://shdmonitoring.ub.gov.mn/api/supervisor'),
+          fetch('https://shdmonitoring.ub.gov.mn/api/class')
         ]);
 
         const khData = await khRes.json();
@@ -218,6 +175,7 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
         const source = await sourceRes.json();
         const wp = await wpRes.json();
         const superv = await superRes.json();
+        const clss = await classRes.json();
 
         // Set khoroos BEFORE reset
         setKhoroos(khData);
@@ -225,7 +183,7 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
         setSource(source);
         setWorkProgres(wp);
         setSupervisor(superv);
-
+        setClasses(clss);
 
         form.reset({
           order: post.ordernum || '',
@@ -252,7 +210,8 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
             : '',
           stage: post.impphase || '',
           precent: post.imppercent || 0,
-          branch: post.branch || ''
+          branch: post.branch || '',
+          class: classes.find((cl) => cl.class_id === post.class_id)?.class_name||''
         });
 
         setPostsData(post);
@@ -279,7 +238,7 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
     const source_id = source.find((sc) => sc.sc_name.toLowerCase() === data.source.toLowerCase())?.sc_id;
     const branch_id = branch.find((b) => b.b_name.toLowerCase() === data.branch.toLowerCase())?.b_id;
     const khorooId = khoroos.filter((kh) => data.khoroo.includes(kh.name)).map((kh) => kh.id);
-
+    const class_id = classes.find((cl) => cl.class_name === data.class)?.class_id;
     const formattedsdate = new Date(data.startDate).toISOString();
     const formattededate = new Date(data.endDate).toISOString();
 
@@ -301,6 +260,7 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
       branch_id,
       totalCost: data.budget,
       news: data.body,
+      class_id: class_id,
       khoroo: khorooId,
       newsId: Number(id),
     };
@@ -314,9 +274,9 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
       const res = await fetch('https://shdmonitoring.ub.gov.mn/api/posts/edit', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify( body ),
+        body: JSON.stringify(body),
       });
-      
+
       if (res.ok) {
         toast({ title: 'Мэдээлэл амжилттай шинэчлэгдлээ' });
       } else {
@@ -683,7 +643,7 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
                           <Button
                             variant="outline"
                             role="combobox"
-                            className="w-[400px] justify-between truncate"
+                            className="w-[360px] justify-between truncate"
                           >
                             <span className="truncate">
                               {selectedKhoroos.length > 0
@@ -693,7 +653,7 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
                             <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
                           </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="bg-slate-100 dark:bg-slate-500 w-[400px] max-h-[300px] overflow-auto p-0">
+                        <PopoverContent className="bg-slate-100 dark:bg-slate-500 w-[360px] max-h-[300px] overflow-auto p-0">
                           <Command>
                             <CommandInput placeholder="Хайх..." className="h-9 p-2" />
                             <CommandList>
@@ -795,6 +755,58 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
                                       )}
                                     >
                                       {wp.wp_name}
+                                    </CommandItem>
+                                  </PopoverPrimitive.Close>
+                                ))}
+                              </CommandGroup>
+                            </CommandList>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              {/* buleg */}
+              <div className="min-w-[300px] flex-1">
+                <FormField
+                  control={form.control}
+                  name="class"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel className='uppercase text-xs font-bold text-zinc-500 dark:text-white'>Бүлэг сонгох </FormLabel>
+                      <Popover open={classOpen} onOpenChange={setClassOpen}>
+                        <PopoverTrigger asChild>
+                          <Button variant="outline" role="combobox" className="w-[360px] justify-between">
+                            <span className="truncate">
+                              {field.value
+                                ? field.value
+                                : 'Бүлэг сонгох'}
+                            </span>
+                            <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="bg-slate-100 dark:bg-slate-500 w-[360px] p-0">
+                          <Command>
+                            <CommandInput placeholder="Хайх..." className="h-9 w-[360px] p-0" />
+                            <CommandList>
+                              <CommandEmpty>Бүлэг олдсонгүй.</CommandEmpty>
+                              <CommandGroup>
+                                {classes.map((cl) => (
+                                  <PopoverPrimitive.Close asChild key={cl.class_id}>
+                                    <CommandItem
+                                      value={cl.class_name}
+                                      onSelect={() => {
+                                        form.setValue('class', cl.class_name); // ID хадгална
+                                        setClassOpen(false);
+                                      }}
+                                      className={cn(
+                                        'flex flex-row items-center gap-3 px-3 py-2',
+                                        'border-b border-zinc-200 bg-gray-100 hover:bg-gray-200',
+                                      )}
+                                    >
+                                      {cl.class_name}
                                     </CommandItem>
                                   </PopoverPrimitive.Close>
                                 ))}

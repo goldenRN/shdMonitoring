@@ -54,6 +54,7 @@ const formSchema = z.object({
   // (val) => val === '' ? undefined : Number(val),
   // z.number().min(1, { message: 'Гэрээний дүн 1-с бага байж болохгүй' })
   //)
+  class:z.string().min(1, { message: 'Бүлэг оруулна уу' }),
   branch: z.string().min(1, { message: 'Салбар оруулна уу' }),
   precent: z.preprocess(
     (val) => val === '' ? undefined : Number(val),
@@ -87,6 +88,11 @@ interface WorkProgres {
   wp_id: number;
   wp_name: string;
 }
+interface Classes {
+  class_id: number;
+  class_name: string;
+  desc:string;
+}
 const PostNewPage = ({ params }: PostNewPageProps) => {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
@@ -94,13 +100,15 @@ const PostNewPage = ({ params }: PostNewPageProps) => {
   const [branchOpen, setBranchOpen] = useState(false);
   const [superOpen, setSuperOpen] = useState(false);
   const [wprogressOpen, setWprogressOpen] = useState(false);
-
+  const [classOpen, setClassOpen] = useState(false);
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
   // const post = posts.find((post) => post.id === params.id);
   const [khoroos, setKhoroos] = useState<Khoroo[]>([]);
   const [branch, setBranch] = useState<Branch[]>([]);
   const [source, setSource] = useState<Source[]>([]);
+  const [classes, setClasses] = useState<Classes[]>([]);
+
   const [supervisor, setSupervisor] = useState<Supervisor[]>([]);
   const [WorkProgres, setWorkProgres] = useState<WorkProgres[]>([]);
 
@@ -114,7 +122,16 @@ const PostNewPage = ({ params }: PostNewPageProps) => {
         console.error('Алдаа:', err);
       }
     }
-    fetchKhoroos()
+    const fetchClass = async () => {
+      try {
+        const res = await fetch('https://shdmonitoring.ub.gov.mn/api/class');
+        const data = await res.json();
+        setClasses(data);
+      } catch (err) {
+        console.error('Алдаа:', err);
+      }
+    }
+    fetchClass()
     const fetchBranch = async () => {
       try {
         const res = await fetch('https://shdmonitoring.ub.gov.mn/api/branch');
@@ -173,6 +190,7 @@ const PostNewPage = ({ params }: PostNewPageProps) => {
       supervisor: '',
       title: '',
       body: '',
+      class:'',
       khoroo: [],
       startDate: '',
       endDate: '',
@@ -187,6 +205,7 @@ const PostNewPage = ({ params }: PostNewPageProps) => {
     const impPhase_id = WorkProgres.find((wp) => wp.wp_name === data.stage)?.wp_id;
     const source_id = source.find((sc) => sc.sc_name === data.source)?.sc_id;
     const branch_id = branch.find((b) => b.b_name === data.branch)?.b_id;
+    const class_id = classes.find((cl) => cl.class_name === data.class)?.class_id;
     const khorooId = khoroos
       .filter((kh) => data.khoroo.includes(kh.name))
       .map((kh) => kh.id);
@@ -206,6 +225,7 @@ const PostNewPage = ({ params }: PostNewPageProps) => {
       impPhase: data.stage,
       impPhase_id: impPhase_id,
       impPercent: data.precent,
+      class_id:class_id,
       source: data.source,
       source_id: source_id,
       branch: data.branch,
@@ -345,7 +365,7 @@ const PostNewPage = ({ params }: PostNewPageProps) => {
                 name="supervisor"
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
-                    <FormLabel className='uppercase text-xs font-bold text-zinc-500 dark:text-white'>Захиалагчын хяналтын байгууллага</FormLabel>
+                    <FormLabel className='uppercase text-xs font-bold text-zinc-500 dark:text-white'>Захиалагчийн хяналтын байгууллага</FormLabel>
                     <Popover open={superOpen} onOpenChange={setSuperOpen}>
                       <PopoverTrigger asChild>
                         <Button variant="outline" role="combobox" className="w-[360px] justify-between">
@@ -524,7 +544,7 @@ const PostNewPage = ({ params }: PostNewPageProps) => {
                         <Button
                           variant="outline"
                           role="combobox"
-                          className="w-[400px] justify-between truncate"
+                          className="w-[360px] justify-between truncate"
                         >
                           <span className="truncate">
                             {field.value.length > 0
@@ -534,7 +554,7 @@ const PostNewPage = ({ params }: PostNewPageProps) => {
                           <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent className="bg-slate-100 dark:bg-slate-500 w-[400px] max-h-[300px] overflow-auto p-0">
+                      <PopoverContent className="bg-slate-100 dark:bg-slate-500 w-[360px] max-h-[300px] overflow-auto p-0">
                         <Command>
                           <CommandInput placeholder="Хайх..." className="h-9 p-2" />
                           <CommandList>
@@ -585,7 +605,7 @@ const PostNewPage = ({ params }: PostNewPageProps) => {
               />
             </div>
             {/* salbar */}
-            <div className="min-w-[300px] flex-1">
+            <div className="min-w-[200px] flex-1">
               <FormField
                 control={form.control}
                 name="stage"
@@ -623,6 +643,58 @@ const PostNewPage = ({ params }: PostNewPageProps) => {
                                     )}
                                   >
                                     {wp.wp_name}
+                                  </CommandItem>
+                                </PopoverPrimitive.Close>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            {/* burtgel */}
+            <div className="min-w-[300px] flex-1">
+              <FormField
+                control={form.control}
+                name="class"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel className='uppercase text-xs font-bold text-zinc-500 dark:text-white'>Бүлэг сонгох</FormLabel>
+                    <Popover open={classOpen} onOpenChange={setClassOpen}>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" role="combobox" className="w-[360px] justify-between">
+                          <span className="truncate">
+                            {field.value
+                              ? field.value
+                              : 'Бүлэг сонгох'}
+                          </span>
+                          <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="bg-slate-100 dark:bg-slate-500 w-[360px] p-0">
+                        <Command>
+                          <CommandInput placeholder="Хайх..." className="h-9 w-[360px] p-0" />
+                          <CommandList>
+                            <CommandEmpty>Бүлэг олдсонгүй.</CommandEmpty>
+                            <CommandGroup>
+                              {classes.map((cl) => (
+                                <PopoverPrimitive.Close asChild key={cl.class_id}>
+                                  <CommandItem
+                                    value={cl.class_name}
+                                    onSelect={() => {
+                                      form.setValue('class', cl.class_name); // ID хадгална
+                                      setClassOpen(false);
+                                    }}
+                                    className={cn(
+                                      'flex flex-row items-center gap-3 px-3 py-2',
+                                      'border-b border-zinc-200 bg-gray-100 hover:bg-gray-200',
+                                    )}
+                                  >
+                                    {cl.class_name}
                                   </CommandItem>
                                 </PopoverPrimitive.Close>
                               ))}

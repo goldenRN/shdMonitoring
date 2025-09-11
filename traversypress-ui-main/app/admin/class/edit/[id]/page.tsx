@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import BackButton from '@/components/BackButton';
 import * as z from 'zod';
-import {  useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useSearchParams } from 'next/navigation';
 import {
@@ -20,7 +20,10 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/use-toast'; 2
 
 const formSchema = z.object({
-   class: z.string().min(1, {
+  class_name: z.string().min(1, {
+    message: 'Бүлэг оруулна уу',
+  }),
+  description: z.string().min(1, {
     message: 'Бүлэг оруулна уу',
   }),
 });
@@ -35,30 +38,33 @@ const ClassEditPage = ({ params }: { params: { id: string } }) => {
   const { toast } = useToast();
 
   const searchParams = useSearchParams();
-  const name = searchParams.get('c_name');
+  const name = searchParams.get('class_name');
+  const desc = searchParams.get('description');
   const id = params.id
 
 
- 
- 
+
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {     
-      class: name || '',
+    defaultValues: {
+      class_name: name || '',
+      description: desc || '',
     },
   });
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
-   
-   //console.log("dataбббббб==", districtsId);
+
+    //console.log("dataбббббб==", districtsId);
     try {
-      const res = await fetch('https://shdmonitoring.ub.gov.mn/api/branch/edit', {
+      const res = await fetch('https://shdmonitoring.ub.gov.mn/api/class/edit', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          b_id: id,         
-          b_name: data.class,
+          class_id: id,
+          class_name: data.class_name,
+          description: data.description
         }),
       });
 
@@ -76,15 +82,15 @@ const ClassEditPage = ({ params }: { params: { id: string } }) => {
 
   return (
     <>
-      <BackButton text='Буцах' link='/admin/Class' />
+      <BackButton text='Буцах' link='/admin/class' />
       <h3 className='text-2xl mb-4'>Мэдээлэл шинэчлэх</h3>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-8'>        
+        <form onSubmit={form.handleSubmit(handleSubmit)} className='space-y-8'>
 
           {/* Class input */}
           <FormField
             control={form.control}
-            name='class'
+            name='class_name'
             render={({ field }) => (
               <FormItem>
                 <FormLabel className='uppercase text-xs font-bold text-zinc-500 dark:text-white'>
@@ -92,9 +98,29 @@ const ClassEditPage = ({ params }: { params: { id: string } }) => {
                 </FormLabel>
                 <FormControl>
                   <Textarea
+                  {...field}
                     className='bg-slate-100 dark:bg-slate-500 border-0 focus:ring-0 text-black dark:text-white'
-                    placeholder='Бүлгийн нэр'
-                    {...field}
+
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name='description'
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className='uppercase text-xs font-bold text-zinc-500 dark:text-white'>
+                  Тайлбар
+                </FormLabel>
+                <FormControl>
+                  <Textarea
+                  {...field}
+                    className='bg-slate-100 dark:bg-slate-500 border-0 focus:ring-0 text-black dark:text-white'
+
                   />
                 </FormControl>
                 <FormMessage />

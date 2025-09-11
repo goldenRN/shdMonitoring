@@ -5,7 +5,8 @@ const fs = require('fs');
 const path = require('path');
 
 // get posts
-router.get('/', async (req, res) => {
+router.post('/', async (req, res) => {
+   const { id } = req.body;
     try {
         const result = await pool.query(`
         SELECT
@@ -28,9 +29,9 @@ router.get('/', async (req, res) => {
         FROM news n
         LEFT JOIN news_khids nk ON nk.news_id = n.newsid
         LEFT JOIN khoroo k ON k.khid = nk.khoroo_id
-        GROUP BY n.newsid
+        GROUP BY n.newsid WHERE n.class_id=$1
         ORDER BY n.newsid DESC
-      `);
+      `, [id]);
 
         res.json({
             data: result.rows,
@@ -106,6 +107,7 @@ router.post('/create', async (req, res) => {
         branch_id,
         totalCost,
         news,
+        class_id,
         khoroo, // энэ нь [1, 2, 3] гэх мэт array гэж үзнэ
     } = req.body;
 
@@ -116,8 +118,8 @@ router.post('/create', async (req, res) => {
 
         const insertNewsResult = await client.query(
             `INSERT INTO news
-          (title, ordernum, contractor, contractcost, supervisor, supervisor_id, startdate, enddate, impphase, impphase_id, imppercent, sources, source_id, branch, branch_id, totalcost, news)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,$15,$16,$17)
+          (title, ordernum, contractor, contractcost, supervisor, supervisor_id, startdate, enddate, impphase, impphase_id, imppercent, sources, source_id, branch, branch_id, totalcost, news, class_id)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,$15,$16,$17, $18)
          RETURNING newsid`,
             [
                 title,
@@ -137,6 +139,7 @@ router.post('/create', async (req, res) => {
                 branch_id,
                 totalCost,
                 news,
+                class_id
             ]
         );
 
@@ -199,6 +202,7 @@ router.put('/edit', async (req, res) => {
     branch_id,
     totalCost,
     news,
+    class_id,
     khoroo // массив: [14, 13] эсвэл string
   } = req.body;
 
@@ -234,8 +238,9 @@ router.put('/edit', async (req, res) => {
         branch_id = $15,
         totalcost = $16,
         news = $17,
+        class_id = $18,
         updatedat = NOW()
-      WHERE newsid = $18
+      WHERE newsid = $19
     `, [
       title,
       orderNum,
@@ -254,6 +259,7 @@ router.put('/edit', async (req, res) => {
       finalBranchId,
       totalCost,
       news,
+      class_id,
       newsId
     ]);
 
