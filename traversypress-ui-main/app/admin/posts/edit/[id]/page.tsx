@@ -184,7 +184,9 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
         setWorkProgres(wp);
         setSupervisor(superv);
         setClasses(clss);
-
+        // console.log("post.class_id", post)
+        // const clssname=classes.find((cl) => cl.class_id === post.class_id)?.class_name
+        // console.log("clssname",clssname)
         form.reset({
           order: post.ordernum || '',
           source: post.source || '',
@@ -215,7 +217,7 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
         });
 
         setPostsData(post);
-        console.log("selectedKhoroos", selectedKhoroos)
+        // console.log("selectedKhoroos", selectedKhoroos)
       } catch (err) {
         console.error('Алдаа:', err);
       }
@@ -288,68 +290,7 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
       toast({ title: 'Холболтын алдаа', variant: 'destructive' });
     }
   };
-  // const handleSubmit = async (data: z.infer<typeof formSchema>) => {
-  //   console.log('submit  Амжилттай үүсгэгдлээ');
-  //   const supervisor_id = supervisor.find((s) => s.s_name === data.supervisor)?.s_id;
-  //   const impPhase_id = WorkProgres.find((wp) => wp.wp_name === data.stage)?.wp_id;
-  //   const source_id = source.find((sc) => sc.sc_name === data.source)?.sc_id;
-  //   const branch_id = branch.find((b) => b.b_name === data.branch)?.b_id;
-  //   const khorooId = khoroos
-  //     .filter((kh) => data.khoroo.includes(kh.name))
-  //     .map((kh) => kh.id);
-  //   const sdate = new Date(data.startDate);
-  //   const edate = new Date(data.endDate);
-  //   const formattedsdate = sdate.toUTCString();
-  //   const formattededate = edate.toUTCString();
-  //   const body = {
-  //     title: data.title,
-  //     orderNum: data.order,
-  //     contractor: data.executor,
-  //     contractCost: data.contractValue,
-  //     supervisor: data.supervisor,
-  //     supervisor_id: supervisor_id,
-  //     startDate: formattedsdate,
-  //     endDate: formattededate,
-  //     impPhase: data.stage,
-  //     impPhase_id: impPhase_id,
-  //     impPercent: data.precent,
-  //     source: data.source,
-  //     source_id: source_id,
-  //     branch: data.branch,
-  //     branch_id: branch_id,
-  //     totalCost: data.budget,
-  //     news: data.body,
-  //     khoroo: khorooId,
-  //     newsId: Number(id)
-  //   }
-  //   console.log('body Амжилттай үүсгэгдлээ:', body);
-  //   try {
-  //     const res = await fetch('https://shdmonitoring.ub.gov.mn/api/posts/edit', {
-  //       method: 'PUT',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify({
-  //         body
-  //       }),
-  //     });
-
-  //     if (res.ok) {
-  //       toast({ title: 'Мэдээлэл амжилттай шинэчлэгдлээ' });
-  //       // form.reset();
-  //     } else {
-  //       toast({ title: 'Алдаа гарлаа', variant: 'destructive' });
-  //     }
-  //   } catch (err) {
-  //     console.error(err);
-  //     toast({ title: 'Холболтын алдаа', variant: 'destructive' });
-  //   }
-  //   toast({
-  //     title: 'Мэдээлэл амжилттай шинэчлэгдлээ',
-  //     // description: `Сүүлд засагдсан огноо ${data?.date}`,
-  //   });
-  // };
-
+  
   if (postsData.length === 0) {
     return (
       <div className="flex justify-center items-center min-h-screen">

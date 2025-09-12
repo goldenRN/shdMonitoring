@@ -11,19 +11,19 @@ interface Category {
 
 const categories: Category[] = [
   {
-    icon: <School className="w-10 h-10 text-blue-600" />,
+    icon: <School className="w-10 h-10 text-orange-600" />,
     name: "Сургууль, цэцэрлэг",
     subCategories: [
       "Сургууль", "цэцэрлэг"
     ],
   },
   {
-    icon: <Car className="w-10 h-10 text-orange-600" />,
+    icon: <Car className="w-10 h-10 text-blue-600" />,
     name: "Авто зам болон зогсоол",
     subCategories: ["Авто зам", "Авто зогсоол"],
   },
   {
-    icon: <Building2 className="w-10 h-10 text-green-600" />,
+    icon: <Building2 className="w-10 h-10 text-red-600" />,
     name: "Барилга байгууламж",
     subCategories: [
       "Хорооны цогцолбор",
@@ -32,15 +32,16 @@ const categories: Category[] = [
       "Дээвэр засвар",
     ],
   },
-  {
-    icon: <Cable className="w-10 h-10 text-purple-600" />,
-    name: "Инженерийн шугам сүлжээ",
-    subCategories: ["Цахилгаан хангамж", "Гэрэлтүүлэг", "Камер"],
-  },
+
   {
     icon: <Trees className="w-10 h-10 text-emerald-600" />,
     name: "Тохижилт, ногоон байгууламж",
     subCategories: ["Тоглоомын талбай", "Явган зам", "Ногоон зам"],
+  },
+  {
+    icon: <Cable className="w-10 h-10 text-purple-600" />,
+    name: "Инженерийн шугам сүлжээ",
+    subCategories: ["Цахилгаан хангамж", "Гэрэлтүүлэг", "Камер"],
   },
 ]
 interface Classes {
@@ -67,19 +68,21 @@ export default function CategoriesGrid() {
   return (
     <>
       <main className=" py-12">
-        <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-5 gap-6 max-w-7xl mx-auto px-4">
+        <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-5 gap-6 min-w-7xl mx-auto px-4">
           {categories.map((cat, idx) => (
-            <Link href={`/news/${idx}?icon=${cat.icon}&name=${cat.name}&desc=${cat.subCategories}`}>
+            <Link
+              key={idx + 1}
+              href={`/news/${idx + 1}?icon=${cat.icon}&name=${cat.name}&desc=${cat.subCategories}`}>
 
               <div
-                key={idx}
-                className=" rounded-xl border-red-100 shadow hover:shadow-xl hover:scale-[1.02] transition duration-300 p-5 min-h-[360px] flex flex-col items-center justify-center text-center"
+
+                className=" rounded-xl border-red-100 shadow hover:shadow-xl hover:scale-[1.02] transition duration-300 p-5 min-h-[450px] flex flex-col items-center justify-center text-center"
               >
 
-                <div className="p-4 rounded-full bg-blue-50 mb-4">
+                <div className="p-4 rounded-full bg-blue-50 mb-10">
                   {cat.icon}
                 </div>
-                <h3 className="text-lg font-semibold mb-2">{cat.name}</h3>
+                <h3 className="text-lg font-semibold mb-5">{cat.name}</h3>
 
                 {cat.subCategories.length > 0 ? (
                   <ul className="mt-2 text-sm text-gray-600 list-disc list-inside text-left">

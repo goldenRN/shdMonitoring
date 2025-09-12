@@ -24,14 +24,54 @@ router.post('/', async (req, res) => {
           n.totalcost AS totalCost,
           n.branch AS branch,
           n.createdat AS createdAt,
+          n.class_id AS class_id,
           n.updatedat AS updatedAt,
           JSON_AGG(JSON_BUILD_OBJECT('id', k.khid, 'name', k.khname)) AS khoroos
         FROM news n
         LEFT JOIN news_khids nk ON nk.news_id = n.newsid
         LEFT JOIN khoroo k ON k.khid = nk.khoroo_id
-        GROUP BY n.newsid WHERE n.class_id=$1
+        WHERE n.class_id=$1
+        GROUP BY n.newsid 
         ORDER BY n.newsid DESC
       `, [id]);
+
+        res.json({
+            data: result.rows,
+            total: result.rowCount
+        });
+    } catch (err) {
+        console.error('Fetch news error:', err);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+// post posts
+router.get('/', async (req, res) => {
+    try {
+        const result = await pool.query(`
+        SELECT
+          n.newsid AS newsId,
+          n.title AS title,
+          n.ordernum AS orderNum,
+          n.contractor AS contractor,
+          n.contractcost AS contractCost,
+          n.supervisor AS engener,
+          n.startdate AS startDate,
+          n.enddate AS endDate,
+          n.impphase AS impPhase,
+          n.imppercent AS impPercent,
+          n.sources AS source,
+          n.totalcost AS totalCost,
+          n.branch AS branch,
+          n.createdat AS createdAt,
+          n.class_id AS class_id,
+          n.updatedat AS updatedAt,
+          JSON_AGG(JSON_BUILD_OBJECT('id', k.khid, 'name', k.khname)) AS khoroos
+        FROM news n
+        LEFT JOIN news_khids nk ON nk.news_id = n.newsid
+        LEFT JOIN khoroo k ON k.khid = nk.khoroo_id
+        GROUP BY n.newsid 
+        ORDER BY n.newsid DESC
+      `);
 
         res.json({
             data: result.rows,
@@ -63,6 +103,7 @@ router.post('/detail', async (req, res) => {
           n.news AS news,
           n.branch AS branch,
           n.createdat AS createdAt,
+          n.class_id AS class_id,
           n.updatedat AS updatedAt,
           JSON_AGG(JSON_BUILD_OBJECT('id', k.khid, 'name', k.khname)) AS khoroos
         FROM news n
@@ -371,6 +412,7 @@ router.post('/search', async (req, res) => {
         n.sources AS source,
         n.totalcost AS totalCost,
         n.branch AS branch,
+        n.class_id AS class_id,
         n.createdat AS createdAt,
         n.updatedat AS updatedAt,
         ARRAY_AGG(k.khname) AS khoroo
