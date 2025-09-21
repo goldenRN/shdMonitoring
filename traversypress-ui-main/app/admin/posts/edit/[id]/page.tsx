@@ -44,7 +44,7 @@ const formSchema = z.object({
   supervisor: z.string().min(1, { message: 'Хариуцсан инженер' }),
   title: z.string().min(1, { message: 'Гарчиг' }),
   body: z.string().min(1, { message: 'Агуулга' }),
-  class: z.string().min(1, { message: 'Салбар оруулна уу' }),
+  class: z.number().min(1, { message: 'Салбар оруулна уу' }),
   khoroo: z.array(z.string()).min(1, { message: 'Хороо сонгоно уу' }),
   startDate: z.string().min(1, { message: 'Огноо' }),
   endDate: z.string().min(1, { message: 'Огноо' }),
@@ -88,7 +88,7 @@ interface WorkProgres {
 interface Classes {
   class_id: number;
   class_name: string;
-  desc: string;
+  description: string;
 }
 interface Posts {
   newsid: number
@@ -144,7 +144,7 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
       khoroo: [],
       startDate: '',
       endDate: '',
-      class: '',
+      class: 0,
       branch: '',
       stage: '',
       precent: 0,
@@ -178,14 +178,17 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
         const clss = await classRes.json();
 
         // Set khoroos BEFORE reset
+        await setClasses(clss);
         setKhoroos(khData);
         setBranch(branch);
         setSource(source);
         setWorkProgres(wp);
         setSupervisor(superv);
-        setClasses(clss);
-        // console.log("post.class_id", post)
-        // const clssname=classes.find((cl) => cl.class_id === post.class_id)?.class_name
+
+
+        // console.log("post.class_id", post.class_id)
+        // console.log("post.class_id", classes)
+        //  const clssname=await classes.find((cl) => cl.class_id == post.class_id)?.class_name
         // console.log("clssname",clssname)
         form.reset({
           order: post.ordernum || '',
@@ -213,7 +216,7 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
           stage: post.impphase || '',
           precent: post.imppercent || 0,
           branch: post.branch || '',
-          class: classes.find((cl) => cl.class_id === post.class_id)?.class_name||''
+          class: post.class_id ||'',
         });
 
         setPostsData(post);
@@ -240,7 +243,7 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
     const source_id = source.find((sc) => sc.sc_name.toLowerCase() === data.source.toLowerCase())?.sc_id;
     const branch_id = branch.find((b) => b.b_name.toLowerCase() === data.branch.toLowerCase())?.b_id;
     const khorooId = khoroos.filter((kh) => data.khoroo.includes(kh.name)).map((kh) => kh.id);
-    const class_id = classes.find((cl) => cl.class_name === data.class)?.class_id;
+    // const class_id = classes.find((cl) => cl.class_name === data.class)?.class_id;
     const formattedsdate = new Date(data.startDate).toISOString();
     const formattededate = new Date(data.endDate).toISOString();
 
@@ -262,7 +265,7 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
       branch_id,
       totalCost: data.budget,
       news: data.body,
-      class_id: class_id,
+      class_id: data.class,
       khoroo: khorooId,
       newsId: Number(id),
     };
@@ -290,7 +293,7 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
       toast({ title: 'Холболтын алдаа', variant: 'destructive' });
     }
   };
-  
+
   if (postsData.length === 0) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -722,8 +725,12 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
                           <Button variant="outline" role="combobox" className="w-[360px] justify-between">
                             <span className="truncate">
                               {field.value
-                                ? field.value
+                                ? classes.find((cl) => cl.class_id === Number(field.value))
+                                  ?.class_name || 'Бүлэг олдсонгүй'
                                 : 'Бүлэг сонгох'}
+                              {/* {field.value
+                                ? field.value
+                                : 'Бүлэг сонгох'} */}
                             </span>
                             <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
                           </Button>
@@ -739,7 +746,7 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
                                     <CommandItem
                                       value={cl.class_name}
                                       onSelect={() => {
-                                        form.setValue('class', cl.class_name); // ID хадгална
+                                        form.setValue('class', cl.class_id); // ID хадгална
                                         setClassOpen(false);
                                       }}
                                       className={cn(

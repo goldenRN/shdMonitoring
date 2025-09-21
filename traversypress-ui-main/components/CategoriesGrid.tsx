@@ -2,28 +2,40 @@
 import { useEffect, useState } from 'react'
 import { School, Building2, Car, Cable, Trees, Grid3x3 } from "lucide-react"
 import { Card } from './ui/card'
+import barilga from '../img/barilga2.jpg';
+import tsetserleg from '../img/tsetserleg.jpg';
+import ingener from '../img/ingener.jpg';
+import zam from '../img/zam.jpg';
+import tohjilt from '../img/tohijilt.jpg';
 import Link from 'next/link'
+import Image from 'next/image';
+import { StaticImageData } from "next/image";
 interface Category {
   icon: React.ReactNode
+  image: StaticImageData
   name: string
   subCategories: string[]
 }
 
 const categories: Category[] = [
+
   {
-    icon: <School className="w-10 h-10 text-orange-600" />,
+    icon: <Car className="w-5 h-5 text-blue-600" />,
+    image: zam,
+    name: "Авто зам болон зогсоол",
+    subCategories: ["Авто зам", "Авто зогсоол"],
+  },
+  {
+    icon: <School className="w-5 h-5 text-orange-600" />,
+    image: tsetserleg,
     name: "Сургууль, цэцэрлэг",
     subCategories: [
       "Сургууль", "цэцэрлэг"
     ],
   },
   {
-    icon: <Car className="w-10 h-10 text-blue-600" />,
-    name: "Авто зам болон зогсоол",
-    subCategories: ["Авто зам", "Авто зогсоол"],
-  },
-  {
-    icon: <Building2 className="w-10 h-10 text-red-600" />,
+    icon: <Building2 className="w-5 h-5 text-red-600" />,
+    image: barilga,
     name: "Барилга байгууламж",
     subCategories: [
       "Хорооны цогцолбор",
@@ -34,12 +46,14 @@ const categories: Category[] = [
   },
 
   {
-    icon: <Trees className="w-10 h-10 text-emerald-600" />,
+    icon: <Trees className="w-5 h-5 text-emerald-600" />,
+    image: tohjilt,
     name: "Тохижилт, ногоон байгууламж",
     subCategories: ["Тоглоомын талбай", "Явган зам", "Ногоон зам"],
   },
   {
-    icon: <Cable className="w-10 h-10 text-purple-600" />,
+    icon: <Cable className="w-5 h-5 text-purple-600" />,
+    image: ingener,
     name: "Инженерийн шугам сүлжээ",
     subCategories: ["Цахилгаан хангамж", "Гэрэлтүүлэг", "Камер"],
   },
@@ -67,47 +81,61 @@ export default function CategoriesGrid() {
   },)
   return (
     <>
-      <main className=" py-12">
+      <main className="py-12">
         <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-5 gap-6 min-w-7xl mx-auto px-4">
           {categories.map((cat, idx) => (
             <Link
               key={idx + 1}
-              href={`/news/${idx + 1}?icon=${cat.icon}&name=${cat.name}&desc=${cat.subCategories}`}>
+              href={`/news/${idx + 1}?icon=${cat.icon}&name=${cat.name}&desc=${cat.subCategories}`}
+            >
 
-              <div
+              <div className="rounded-xl border border-gray-200 shadow hover:shadow-xl hover:scale-[1.02] transition duration-300 min-h-[450px] flex flex-col">
 
-                className=" rounded-xl border-red-100 shadow hover:shadow-xl hover:scale-[1.02] transition duration-300 p-5 min-h-[450px] flex flex-col items-center justify-center text-center"
-              >
-
-                <div className="p-4 rounded-full bg-blue-50 mb-10">
-                  {cat.icon}
+                {/* Зураг */}
+                <div className="w-full h-1/2 mb-6 p-1">
+                  <Image
+                    src={cat.image}
+                    alt={cat.name}
+                    width={450}
+                    height={300}
+                    className="w-full h-full object-cover rounded-lg"
+                  />
                 </div>
-                <h3 className="text-lg font-semibold mb-5">{cat.name}</h3>
+                <div className='p-5'>{/* Дээрх текст хэсэг */}
+                  <h3 className="text-lg font-bold mb-3 text-gray-800">{cat.name}</h3>
 
-                {cat.subCategories.length > 0 ? (
-                  <ul className="mt-2 text-sm text-gray-600 list-disc list-inside text-left">
-                    {cat.subCategories.map((sub, subIdx) => (
-                      <li key={subIdx}>{sub}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p className="mt-2 text-sm italic text-gray-400">
-                    { }
-                  </p>
-                )}
+                  {cat.subCategories.length > 0 && (
+                    <ul className="space-y-1 mb-6 text-sm text-gray-600 list-disc list-inside">
+                      {cat.subCategories.map((sub, subIdx) => (
+                        <li key={subIdx}>{sub}</li>
+                      ))}
+                    </ul>
+                  )}</div>
 
-                {/* <div className="w-full mb-4 flex items-center justify-between">
-                  <span className="text-xs text-blue/80">12 мэдээлэл</span>
-                  <span className="inline-flex items-center gap-2 text-sm font-medium text-blue/90">
-                  </span>
-                </div> */}
+
+                {/* {/* Доод icon + link хэсэг */}
+                <div className="mt-auto flex items-center justify-between px-5 pb-4">
+                  {/* Icon */}
+                  <div className="p-2 rounded-full ">
+                    {/* {cat.icon} */}
+                  </div>
+                  {/* Дэлгэрэнгүй */}
+                  <div
+
+                    className="text-xs font-medium text-blue-600 hover:text-blue-800 transition"
+                  >
+                    Дэлгэрэнгүй →
+                  </div>
+                </div>
 
               </div>
-            </Link>
 
+            </Link>
           ))}
         </div>
       </main>
+
+
     </>
   )
 }

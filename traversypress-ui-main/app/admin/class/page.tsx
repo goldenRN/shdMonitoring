@@ -11,7 +11,7 @@ const ClassPage = () => {
         {/* Top bar: always visible */}
         <div className="flex justify-between items-center px-4 py-2 bg-white  sticky top-0 z-10">
           <BackButton text="Буцах" link="/admin/dashboard" />
-          <Link href="/admin/class/new">
+          {/* <Link href="/admin/class/new">
 
             <button className="bg-green-200 hover:bg-green-500 text-slate-800 font-bold py-2 px-4 rounded text-xs">
               <div className='flex justify-between'>
@@ -23,7 +23,7 @@ const ClassPage = () => {
                   </div>
               </div>
             </button>
-          </Link>
+          </Link> */}
         </div>
 
         {/* Scrollable table area */}

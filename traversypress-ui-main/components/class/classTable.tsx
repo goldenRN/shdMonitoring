@@ -75,7 +75,7 @@ const ClassTable = ({ limit, title }: ClassTableProps) => {
           <TableRow>
             <TableHead >Бүлэг</TableHead>
             <TableHead >Тайлбар</TableHead>
-            <TableHead>Үйлдэл</TableHead>
+            {/* <TableHead>Үйлдэл</TableHead> */}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -84,7 +84,7 @@ const ClassTable = ({ limit, title }: ClassTableProps) => {
               <TableRow key={classes.class_id}>
                 <TableCell>{classes.class_name}</TableCell>
                 <TableCell>{classes.description}</TableCell>
-                <TableCell>
+                {/* <TableCell>
                   <div className='flex justify'><div>
                     <Link href={`/admin/class/edit/${classes.class_id}?class_name=${classes.class_name}&description=${classes.description}`}>
 
@@ -104,7 +104,7 @@ const ClassTable = ({ limit, title }: ClassTableProps) => {
                       </button>
                     </div>
                   </div>
-                </TableCell>
+                </TableCell> */}
               </TableRow>
             ))
           ) : (
