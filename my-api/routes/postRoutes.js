@@ -539,11 +539,7 @@ router.get('/archive', async (req, res) => {
     SELECT 
       n.*,
       COALESCE(
-        json_agg(
-          DISTINCT jsonb_build_object(
-            'khid', k.khid,
-            'khoroo_name', k.khoroo_name
-          )
+        JSON_AGG(JSON_BUILD_OBJECT('id', k.khid, 'name', k.khname)) AS khoroos
         ) FILTER (WHERE k.khid IS NOT NULL),
         '[]'
       ) AS khoroos
