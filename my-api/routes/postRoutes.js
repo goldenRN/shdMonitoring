@@ -540,9 +540,6 @@ router.get('/archive', async (req, res) => {
       n.*,
       COALESCE(
         JSON_AGG(JSON_BUILD_OBJECT('id', k.khid, 'name', k.khname)) AS khoroos
-        ) FILTER (WHERE k.khid IS NOT NULL),
-        '[]'
-      ) AS khoroos
     FROM news n
     LEFT JOIN news_khids nk ON nk.news_id = n.newsid
     LEFT JOIN khoroo k ON k.khid = nk.khoroo_id
