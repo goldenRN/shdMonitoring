@@ -6,9 +6,9 @@ const path = require('path');
 
 // get posts
 router.post('/', async (req, res) => {
-   const { id } = req.body;
-    try {
-        const result = await pool.query(`
+  const { id } = req.body;
+  try {
+    const result = await pool.query(`
         SELECT
           n.newsid AS newsId,
           n.title AS title,
@@ -30,24 +30,24 @@ router.post('/', async (req, res) => {
         FROM news n
         LEFT JOIN news_khids nk ON nk.news_id = n.newsid
         LEFT JOIN khoroo k ON k.khid = nk.khoroo_id
-        WHERE n.class_id=$1
+        WHERE n.class_id=$1 AND n.is_archived = false
         GROUP BY n.newsid 
         ORDER BY n.newsid DESC
       `, [id]);
 
-        res.json({
-            data: result.rows,
-            total: result.rowCount
-        });
-    } catch (err) {
-        console.error('Fetch news error:', err);
-        res.status(500).json({ error: 'Server error' });
-    }
+    res.json({
+      data: result.rows,
+      total: result.rowCount
+    });
+  } catch (err) {
+    console.error('Fetch news error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 // post posts
 router.get('/', async (req, res) => {
-    try {
-        const result = await pool.query(`
+  try {
+    const result = await pool.query(`
         SELECT
           n.newsid AS newsId,
           n.title AS title,
@@ -68,25 +68,25 @@ router.get('/', async (req, res) => {
           JSON_AGG(JSON_BUILD_OBJECT('id', k.khid, 'name', k.khname)) AS khoroos
         FROM news n
         LEFT JOIN news_khids nk ON nk.news_id = n.newsid
-        LEFT JOIN khoroo k ON k.khid = nk.khoroo_id
+        LEFT JOIN khoroo k ON k.khid = nk.khoroo_id WHERE n.is_archived = false
         GROUP BY n.newsid 
         ORDER BY n.newsid DESC
       `);
 
-        res.json({
-            data: result.rows,
-            total: result.rowCount
-        });
-    } catch (err) {
-        console.error('Fetch news error:', err);
-        res.status(500).json({ error: 'Server error' });
-    }
+    res.json({
+      data: result.rows,
+      total: result.rowCount
+    });
+  } catch (err) {
+    console.error('Fetch news error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 //posts detail
 router.post('/detail', async (req, res) => {
-    const { id } = req.body;
-    try {
-        const result = await pool.query(`
+  const { id } = req.body;
+  try {
+    const result = await pool.query(`
         SELECT
           n.newsid AS newsId,
           n.title AS title,
@@ -109,28 +109,60 @@ router.post('/detail', async (req, res) => {
         FROM news n
         LEFT JOIN news_khids nk ON nk.news_id = n.newsid
         LEFT JOIN khoroo k ON k.khid = nk.khoroo_id
-        WHERE n.newsid = $1
+        WHERE n.newsid = $1 AND n.is_archived = false
         GROUP BY n.newsid
         ORDER BY n.newsid DESC
       `, [id]);
 
-        if (result.rows.length === 0) {
-            return res.status(404).json({ error: 'Мэдээлэл олдсонгүй' });
-        }
-
-        res.json({
-            data: result.rows[0]
-        });
-    } catch (err) {
-        console.error('Fetch news error:', err);
-        res.status(500).json({ error: 'Server error' });
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Мэдээлэл олдсонгүй' });
     }
+
+    res.json({
+      data: result.rows[0]
+    });
+  } catch (err) {
+    console.error('Fetch news error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 
 // news create 
 router.post('/create', async (req, res) => {
-    const {
+  const {
+    title,
+    orderNum,
+    contractor,
+    contractCost,
+    supervisor,
+    supervisor_id,
+    startDate,
+    endDate,
+    impPhase,
+    impPhase_id,
+    impPercent,
+    source,
+    source_id,
+    branch,
+    branch_id,
+    totalCost,
+    news,
+    class_id,
+    khoroo, // энэ нь [1, 2, 3] гэх мэт array гэж үзнэ
+  } = req.body;
+
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN');
+
+    const insertNewsResult = await client.query(
+      `INSERT INTO news
+          (title, ordernum, contractor, contractcost, supervisor, supervisor_id, startdate, enddate, impphase, impphase_id, imppercent, sources, source_id, branch, branch_id, totalcost, news, class_id)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,$15,$16,$17, $18)
+         RETURNING newsid`,
+      [
         title,
         orderNum,
         contractor,
@@ -148,59 +180,27 @@ router.post('/create', async (req, res) => {
         branch_id,
         totalCost,
         news,
-        class_id,
-        khoroo, // энэ нь [1, 2, 3] гэх мэт array гэж үзнэ
-    } = req.body;
+        class_id
+      ]
+    );
 
-    const client = await pool.connect();
+    const newsId = insertNewsResult.rows[0].newsid;
 
-    try {
-        await client.query('BEGIN');
-
-        const insertNewsResult = await client.query(
-            `INSERT INTO news
-          (title, ordernum, contractor, contractcost, supervisor, supervisor_id, startdate, enddate, impphase, impphase_id, imppercent, sources, source_id, branch, branch_id, totalcost, news, class_id)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,$15,$16,$17, $18)
-         RETURNING newsid`,
-            [
-                title,
-                orderNum,
-                contractor,
-                contractCost,
-                supervisor,
-                supervisor_id,
-                startDate,
-                endDate,
-                impPhase,
-                impPhase_id,
-                impPercent,
-                source,
-                source_id,
-                branch,
-                branch_id,
-                totalCost,
-                news,
-                class_id
-            ]
-        );
-
-        const newsId = insertNewsResult.rows[0].newsid;
-
-        if (Array.isArray(khoroo)) {
-            const insertKhorooValues = khoroo.map((khid) => `(${newsId}, ${khid})`).join(',');
-            await client.query(`INSERT INTO news_khids (news_id, khoroo_id) VALUES ${insertKhorooValues}`);
-        }
-
-        await client.query('COMMIT');
-
-        res.json({ message: 'Амжилттай хадгалагдлаа', newsId });
-    } catch (err) {
-        await client.query('ROLLBACK');
-        console.error('Insert error:', err);
-        res.status(500).json({ error: 'Server error' });
-    } finally {
-        client.release();
+    if (Array.isArray(khoroo)) {
+      const insertKhorooValues = khoroo.map((khid) => `(${newsId}, ${khid})`).join(',');
+      await client.query(`INSERT INTO news_khids (news_id, khoroo_id) VALUES ${insertKhorooValues}`);
     }
+
+    await client.query('COMMIT');
+
+    res.json({ message: 'Амжилттай хадгалагдлаа', newsId });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Insert error:', err);
+    res.status(500).json({ error: 'Server error' });
+  } finally {
+    client.release();
+  }
 });
 // edit
 
@@ -395,9 +395,9 @@ router.delete('/delete/:id', async (req, res) => {
 
 // хайлт хийх 
 router.post('/search', async (req, res) => {
-    const { title } = req.body;
+  const { title } = req.body;
 
-    let query = `
+  let query = (`
       SELECT
         n.newsid AS newsId,
         n.title AS title,
@@ -416,55 +416,79 @@ router.post('/search', async (req, res) => {
         n.createdat AS createdAt,
         n.updatedat AS updatedAt,
         ARRAY_AGG(k.khname) AS khoroo
-      FROM news n
+      FROM news n WHERE n.is_archived = false AND n.title ILIKE $1
       LEFT JOIN news_khids nk ON nk.news_id = n.newsid
       LEFT JOIN khoroo k ON k.khid = nk.khoroo_id
-    `;
+    `, [title]);
 
-    const conditions = [];
-    const values = [];
+  const conditions = [];
+  const values = [];
 
-    if (title) {
-        values.push(`%${title}%`);
-        conditions.push(`n.title ILIKE $${values.length}`);
-    }
+  if (title) {
+    values.push(`%${title}%`);
+    conditions.push(`n.title ILIKE $${values.length}`);
+  }
 
-    if (conditions.length > 0) {
-        query += ' WHERE ' + conditions.join(' AND ');
-    }
+  if (conditions.length > 0) {
+    query += ' WHERE ' + conditions.join(' AND ');
+  }
 
-    query += `
+  query += `
       GROUP BY n.newsid
       ORDER BY n.newsid DESC
     `;
 
-    try {
-        const result = await pool.query(query, values);
+  try {
+    const result = await pool.query(query, values);
 
-        if (result.rows.length === 0) {
-            return res.status(404).json({ error: 'Мэдээлэл олдсонгүй' });
-        }
-
-        res.json({
-            data: result.rows,
-            total: result.rowCount,
-        });
-    } catch (err) {
-        console.error('Search error:', err);
-        res.status(500).json({ error: 'Server error' });
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Мэдээлэл олдсонгүй' });
     }
+
+    res.json({
+      data: result.rows,
+      total: result.rowCount,
+    });
+  } catch (err) {
+    console.error('Search error:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
-// GET /api/posts/count
-router.get('/count', async (req, res) => {
-    try {
-        const result = await pool.query('SELECT COUNT(*) FROM news');
-        const count = parseInt(result.rows[0].count, 10);
-        res.json({ totalPosts: count });
-    } catch (err) {
-        console.error('Posts count error:', err.message);
-        res.status(500).json({ error: 'Мэдээний тоог авахад алдаа гарлаа' });
-    }
+// GET /api/posts/count/all
+router.get('/count/all', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT COUNT(*) FROM news');
+    const count = parseInt(result.rows[0].count, 10);
+    res.json({ totalPosts: count });
+  } catch (err) {
+    console.error('Posts count error:', err.message);
+    res.status(500).json({ error: 'Мэдээний тоог авахад алдаа гарлаа' });
+  }
+});
+
+// GET /api/posts/count/archived
+router.get('/count/all', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT COUNT(*) FROM news');
+    const count = parseInt(result.rows[0].count, 10);
+    res.json({ totalPosts: count });
+  } catch (err) {
+    console.error('Posts count error:', err.message);
+    res.status(500).json({ error: 'Мэдээний тоог авахад алдаа гарлаа' });
+  }
+});
+
+// GET /api/posts/count/active
+router.get('/count/all', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT COUNT(*) FROM news');
+    const count = parseInt(result.rows[0].count, 10);
+    res.json({ totalPosts: count });
+  } catch (err) {
+    console.error('Posts count error:', err.message);
+    res.status(500).json({ error: 'Мэдээний тоог авахад алдаа гарлаа' });
+  }
 });
 
 router.get('/source-news-count', async (req, res) => {
@@ -502,12 +526,21 @@ router.get('/source-average-precent', async (req, res) => {
       ORDER BY 
         s.sc_status
     `);
-    
+
     res.json(result.rows);
   } catch (err) {
     console.error('Алдаа:', err.message);
     res.status(500).json({ error: 'Серверийн алдаа' });
   }
+});
+//archive postnuud avah
+router.get('/archive', async (req, res) => {
+  const result = await pool.query(`
+    SELECT * FROM news
+    WHERE is_archived = true
+    ORDER BY updatedat DESC
+  `);
+  res.json(result.rows);
 });
 
 module.exports = router;
