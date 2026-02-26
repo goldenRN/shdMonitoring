@@ -539,13 +539,13 @@ router.get('/archive', async (req, res) => {
     SELECT 
       n.*,
       COALESCE(
-        JSON_AGG(
-          DISTINCT JSON_BUILD_OBJECT(
+        JSONB_AGG(
+          DISTINCT JSONB_BUILD_OBJECT(
             'id', k.khid,
             'name', k.khname
           )
         ) FILTER (WHERE k.khid IS NOT NULL),
-        '[]'
+        '[]'::jsonb
       ) AS khoroos
     FROM news n
     LEFT JOIN news_khids nk ON nk.news_id = n.newsid
