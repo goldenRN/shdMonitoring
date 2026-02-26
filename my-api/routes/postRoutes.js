@@ -536,10 +536,25 @@ router.get('/source-average-precent', async (req, res) => {
 //archive postnuud avah
 router.get('/archive', async (req, res) => {
   const result = await pool.query(`
-    SELECT * FROM news
-    WHERE is_archived = true
-    ORDER BY updatedat DESC
+    SELECT 
+      n.*,
+      COALESCE(
+        json_agg(
+          DISTINCT jsonb_build_object(
+            'khid', k.khid,
+            'khoroo_name', k.khoroo_name
+          )
+        ) FILTER (WHERE k.khid IS NOT NULL),
+        '[]'
+      ) AS khoroos
+    FROM news n
+    LEFT JOIN news_khids nk ON nk.news_id = n.newsid
+    LEFT JOIN khoroo k ON k.khid = nk.khoroo_id
+    WHERE n.is_archived = true
+    GROUP BY n.newsid
+    ORDER BY n.updatedat DESC
   `);
+
   res.json(result.rows);
 });
 
