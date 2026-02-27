@@ -11,7 +11,7 @@ const PostsPage = () => {
       {/* <div className="w-[calc(100vw-300px)]"> */}
       <div className='overflow-x-auto'>
         {/* Top bar: always visible */}
-        <div className="w-[calc(100vw-300px)] flex justify-between items-center px-4 py-2 bg-white  sticky top-0 z-10">
+        {/* <div className="w-[calc(100vw-300px)] flex justify-between items-center px-4 py-2 bg-white  sticky top-0 z-10">
           <BackButton text="Буцах" link="/admin/dashboard" />
           <Link href="/admin/posts/new">
 
@@ -26,7 +26,7 @@ const PostsPage = () => {
               </div>
             </button>
           </Link>
-        </div>
+        </div> */}
 
         {/* Scrollable table area */}
         <div className="overflow-x-auto">
