@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { format } from 'date-fns';
 import ImageUploadModal from './ImageUploadmodal';
+import QrViewerModal from './QrViewerModal'
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -28,20 +29,23 @@ interface Posts {
   imppercent: number
   source: string
   totalcost: number
+  qr_code: string
   branch: string
   createdat: Date
   updatedat: Date
   khoroos: { name: string }[];
 }
-import { Pencil, Trash, ImagePlus } from 'lucide-react';
+import { Pencil, Trash, ImagePlus, QrCode } from 'lucide-react';
 import { toast } from '../ui/use-toast';
 
 const PostsTable = () => {
   const [postsData, setPostsData] = useState<Posts[]>([])
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+  const [QrModalOpen, setQrModalOpen] = useState(false)
+  const [selectedQr, setSelectedQr] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
-  const [selectedNewsId, setSelectedNewsId] = useState<number | null>(null);
+  const [selectedNewsId, setSelectedNewsId] = useState<number | 0>(0);
   const [search, setSearch] = useState('')
   const [percentFilter, setPercentFilter] = useState('all')
   const [sortField, setSortField] = useState<keyof Posts>("title");
@@ -122,8 +126,6 @@ const PostsTable = () => {
     console.log('Зураг файл:', file);
     // API-р илгээх бол энд бичнэ
   };
-
-
   return (
     <div >
       <CardHeader className="flex flex-col md:flex-row justify-between items-center gap-4">
@@ -154,12 +156,9 @@ const PostsTable = () => {
           </Link>
         </div>
       </CardHeader>
-
       <Card>
-
         <CardContent className="overflow-auto">
           <Table>
-
             <thead>
               <tr className="bg-blue-500 text-left text-white">
                 {[
@@ -225,17 +224,14 @@ const PostsTable = () => {
                             <ImagePlus className='text-slate-800' size={16} />
                           </button>
                           {/* <ImageUploadModal open={open} onClose={() => setOpen(false)} onUpload={handleUpload} /> */}
+                        </div>
 
-                          {/* <ImageUploadModal
-                        open={open}
-                        onClose={() => {
-                          setOpen(false);
-                          setSelectedNewsId(null);
-                        }}
-                        newsId={selectedNewsId}
-                      />
-                     */}
-
+                        <div className='ml-3'>
+                          <button className="bg-green-200 hover:bg-blue-500 text-white font-bold py-2 px-2 rounded text-xs"
+                            onClick={() => { setSelectedQr(p.qr_code); setQrModalOpen(true); setSelectedNewsId(p.newsid) }}>
+                            <QrCode className='text-slate-800' size={16} />
+                          </button>
+                          {/* <ImageUploadModal open={open} onClose={() => setOpen(false)} onUpload={handleUpload} /> */}
                         </div>
 
                         <div className='ml-3'>
@@ -267,11 +263,21 @@ const PostsTable = () => {
               open={open}
               onClose={() => {
                 setOpen(false);
-                setSelectedNewsId(null);
+                setSelectedNewsId(0);
               }}
               newsId={selectedNewsId}
             />
 
+            <QrViewerModal
+              open={QrModalOpen}
+              onClose={() => {
+                setQrModalOpen(false);
+                setSelectedQr(null);
+                setSelectedNewsId(0);
+              }}
+              qrCode={selectedQr}
+              newsId ={selectedNewsId}
+            />
 
           </Table>
         </CardContent>

@@ -122,6 +122,7 @@ const PostNewPage = ({ params }: PostNewPageProps) => {
         console.error('Алдаа:', err);
       }
     }
+    fetchKhoroos()
     const fetchClass = async () => {
       try {
         const res = await fetch('https://shdmonitoring.ub.gov.mn/api/class');
