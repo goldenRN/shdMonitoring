@@ -3,6 +3,7 @@ const router = express.Router();
 const pool = require('../db');
 const fs = require('fs');
 const path = require('path');
+const QRCode = require("qrcode");
 
 // get posts
 router.post('/', async (req, res) => {
@@ -185,7 +186,18 @@ router.post('/create', async (req, res) => {
     );
 
     const newsId = insertNewsResult.rows[0].newsid;
+    // QR URL (public page)
+    const qrUrl = `https://shdmonitoring.ub.gov.mn/post/${newsId}`;
 
+    // QR generate (base64 image)
+    const qrImage = await QRCode.toDataURL(qrUrl);
+
+    //  DB-д хадгалах
+    await client.query(
+      `UPDATE news SET qr_code = $1 WHERE newsid = $2`,
+      [qrImage, newsId]
+    );
+    // khoroo insert
     if (Array.isArray(khoroo)) {
       const insertKhorooValues = khoroo.map((khid) => `(${newsId}, ${khid})`).join(',');
       await client.query(`INSERT INTO news_khids (news_id, khoroo_id) VALUES ${insertKhorooValues}`);
