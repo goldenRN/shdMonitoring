@@ -65,6 +65,7 @@ router.get('/', async (req, res) => {
           n.branch AS branch,
           n.createdat AS createdAt,
           n.class_id AS class_id,
+          n.qr_code AS qr_code,
           n.updatedat AS updatedAt,
           JSON_AGG(JSON_BUILD_OBJECT('id', k.khid, 'name', k.khname)) AS khoroos
         FROM news n
@@ -105,6 +106,7 @@ router.post('/detail', async (req, res) => {
           n.branch AS branch,
           n.createdat AS createdAt,
           n.class_id AS class_id,
+          n.qr_code AS qr_code,
           n.updatedat AS updatedAt,
           JSON_AGG(JSON_BUILD_OBJECT('id', k.khid, 'name', k.khname)) AS khoroos
         FROM news n
