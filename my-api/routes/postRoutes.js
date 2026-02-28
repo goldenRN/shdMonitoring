@@ -42,7 +42,7 @@ router.post('/', async (req, res) => {
     });
   } catch (err) {
     console.error('Fetch news error:', err);
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: 'Server error', err });
   }
 });
 // post posts
@@ -164,7 +164,7 @@ router.post('/create', async (req, res) => {
       `INSERT INTO news
           (title, ordernum, contractor, contractcost, supervisor, supervisor_id, startdate, enddate, impphase, impphase_id, imppercent, sources, source_id, branch, branch_id, totalcost, news, class_id)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,$15,$16,$17, $18)
-         RETURNING `,
+         RETURNING newsid`,
       [
         title,
         orderNum,
