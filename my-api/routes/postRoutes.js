@@ -164,7 +164,7 @@ router.post('/create', async (req, res) => {
       `INSERT INTO news
           (title, ordernum, contractor, contractcost, supervisor, supervisor_id, startdate, enddate, impphase, impphase_id, imppercent, sources, source_id, branch, branch_id, totalcost, news, class_id)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14,$15,$16,$17, $18)
-         RETURNING newsid`,
+         RETURNING `,
       [
         title,
         orderNum,
@@ -189,7 +189,7 @@ router.post('/create', async (req, res) => {
 
     const newsId = insertNewsResult.rows[0].newsid;
     // QR URL (public page)
-    const qrUrl = `https://shdmonitoring.ub.gov.mn/post/${newsId}`;
+    const qrUrl = `https://shdmonitoring.ub.gov.mn/detail/${newsId}`;
 
     // QR generate (base64 image)
     const qrImage = await QRCode.toDataURL(qrUrl);
