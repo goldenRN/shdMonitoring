@@ -21,9 +21,9 @@ const QrViewerModal: React.FC<QrViewerModalProps> = ({ open, onClose, qrCode, ne
   };
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent>
         <DialogHeader>
-          <DialogTitle>Ажлын QR </DialogTitle>
+          {/* <DialogTitle>Ажлын QR </DialogTitle> */}
         </DialogHeader>
         {/* {qrCode! ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
@@ -34,11 +34,11 @@ const QrViewerModal: React.FC<QrViewerModalProps> = ({ open, onClose, qrCode, ne
         )} */}
 
         {qrCode && (
-          <div className="flex flex-col items-center gap-2">
-            <img src={qrCode} alt="QR Code" className="w-24 h-24" />
+          <div className="flex flex-col items-center">
+            <img src={qrCode} alt="QR Code" className="w-50 h-50" />
 
             <Button
-              size="sm"
+              size="lg"
               onClick={() => downloadQR(qrCode, newsId)}
               className="bg-black text-white text-xs"
             >
