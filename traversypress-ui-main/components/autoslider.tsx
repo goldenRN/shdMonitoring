@@ -40,7 +40,7 @@ export default function AutoImageSlider({ images, isLoaded }: Props) {
   }, [images]);
 
   return (
-    <div className="relative w-full h-[400px] overflow-hidden rounded-lg shadow group">
+    <div className="relative w-full h-[320px] md:h-[460px] overflow-hidden rounded-lg shadow group bg-slate-900">
       {!isLoaded && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
           <span className="text-gray-400">Loading image...</span>
@@ -56,7 +56,9 @@ export default function AutoImageSlider({ images, isLoaded }: Props) {
                 key={img.imageid}
                 src={`https://shdmonitoring.ub.gov.mn/${img.imagepath}`}
                 alt="uploaded"
-                className={`absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-2000 ease-in-out ${
+                loading={index === currentIndex ? 'eager' : 'lazy'}
+                decoding="async"
+                className={`absolute top-0 left-0 w-full h-full object-contain transition-opacity duration-500 ease-in-out ${
                   index === currentIndex ? 'opacity-100 z-0' : 'opacity-0 z-[-1]'
                 }`}
               />

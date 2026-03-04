@@ -1,17 +1,14 @@
 'use client';
 import {
   Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  TableCaption,
 } from '@/components/ui/table';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardContent } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Plus, RefreshCcw } from 'lucide-react'
 
 interface Khoroo {
   id: number;
@@ -28,42 +25,42 @@ interface Posts {
   enddate: Date
   impphase: string
   imppercent: number
-  source: string
+  sources: string
   totalcost: number
   branch: string
   createdat: Date
   updatedat: Date
   khoroos: { name: string }[];
 }
-import { Pencil, Trash, ImagePlus } from 'lucide-react';
+import { Pencil, Trash, ImagePlus, QrCode } from 'lucide-react';
 import { toast } from '../ui/use-toast';
 
-const ArchiveTable = () => {
+const PostsTable = () => {
   const [postsData, setPostsData] = useState<Posts[]>([])
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+  const [selectedQr, setSelectedQr] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
-  const [selectedNewsId, setSelectedNewsId] = useState<number | null>(null);
+  const [selectedNewsId, setSelectedNewsId] = useState<number | 0>(0);
+  const [search, setSearch] = useState('')
+  const [percentFilter, setPercentFilter] = useState('all')
+  const [sortField, setSortField] = useState<keyof Posts>("title");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     const fetchPosts = async () => {
       try {
         const res = await fetch(`https://shdmonitoring.ub.gov.mn/api/posts/archive`)
         const json = await res.json()
         console.log("json", json)
-        setPostsData(json)
+        setPostsData(Array.isArray(json) ? json : json.data ?? [])
+        setTotalPages(json.total ?? 1)
       } catch (err) {
         console.error('Алдаа:', err)
       }
     }
     fetchPosts()
   }, [page])
-  // Sort posts in dec order based on date
-  // const sortedPosts: postsData[] = [...posts].sort(
-  //   (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  // );
-
-  // Filter posts to limit
-  // const filteredPosts = limit ? sortedPosts.slice(0, limit) : sortedPosts;
   const deletePost = async (id: number) => {
     try {
       const res = await fetch(`https://shdmonitoring.ub.gov.mn/api/posts/delete/${id}`, {
@@ -85,137 +82,147 @@ const ArchiveTable = () => {
     }
   };
 
+  const filteredPosts = (postsData ?? []).filter(post => {
+    const keyword = search.toLowerCase()
+
+    const title = post?.title?.toLowerCase?.() ?? ''
+    const contractor = post?.contractor?.toLowerCase?.() ?? ''
+
+    return title.includes(keyword) || contractor.includes(keyword)
+  })
+  const sortedPosts = [...filteredPosts].sort((a, b) => {
+    const aVal = a[sortField]
+    const bVal = b[sortField]
+
+    if (aVal == null) return 1
+    if (bVal == null) return -1
+
+    // String
+    if (typeof aVal === "string" && typeof bVal === "string") {
+      return sortOrder === "asc"
+        ? aVal.localeCompare(bVal)
+        : bVal.localeCompare(aVal)
+    }
+
+    // Number / Date
+    if (aVal > bVal) return sortOrder === "asc" ? 1 : -1
+    if (aVal < bVal) return sortOrder === "asc" ? -1 : 1
+
+    return 0
+  })
+  const handleSort = (field: keyof Posts) => {
+    if (sortField === field) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortOrder("asc");
+    }
+  };
+  const handleUpload = (file: File) => {
+    console.log('Зураг файл:', file);
+    // API-р илгээх бол энд бичнэ
+  };
   return (
     <div >
-      <div >
-        <h3 className='text-2xl mb-4 font-semibold'>Архив</h3>
-      </div>
-      <Table>
-        <TableCaption>Сүүлд нэмэгдсэн</TableCaption>
-        <TableHeader>
-          <TableRow>
-            {/* <TableHead>Захирамжын дугаар</TableHead> */}
-            <TableHead>№</TableHead>
-            <TableHead>Гарчиг</TableHead>
-            {/* <TableHead>Агуулга</TableHead> */}
-            <TableHead className='w-[200px]'>Хороо</TableHead>
-            <TableHead>Хяналтын байгууллага</TableHead>
-            <TableHead>Гүйцэтгэгч</TableHead>
-            {/* <TableHead>Гэрээний дүн</TableHead> */}
-            <TableHead>Эх үүсвэр</TableHead>
-            {/* <TableHead>Төсөвт дүн</TableHead> */}
-            {/* <TableHead>Ажлын явц</TableHead> */}
-            <TableHead>Хувь</TableHead>
-            <TableHead>Салбар</TableHead>
-            <TableHead>Шинэчлэгдсэн огноо</TableHead>
-            {/* <TableHead className='hidden md:table-cell text-right'>
-              Гэрээний хугацаа
-            </TableHead> */}
-            <TableHead>Үйлдэл</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {Array.isArray(postsData) && postsData.length > 0 ? (
-            postsData.map((post, index) =>
-            (
+      <CardHeader className="flex flex-col md:flex-row justify-between items-center gap-4">
+        <h2 className="text-xl font-semibold text-gray-800">Мэдээллийн жагсаалт</h2>
+        <div className="flex gap-2 w-full md:w-auto">
+          <Input
+            placeholder="Гарчиг, гүйцэтгэгч..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="max-w-xs"
+          />
 
+          {/* 🔄 Refresh */}
+          <Button
+            variant="outline"
+            className="bg-blue-900 text-white"
+            onClick={() => window.location.reload()}
+          >
+            <RefreshCcw size={16} />
+          </Button>
+        </div>
+      </CardHeader>
+      <Card>
+        <CardContent className="overflow-auto">
+          <Table>
+            <thead>
+              <tr className="bg-blue-500 text-left text-white">
+                {[
+                  { key: "newsid", label: "№" },
+                  { key: "title", label: "Гарчиг" },
+                  { key: "khoroos", label: "Хороо" },
+                  { key: "engener", label: "Хяналтын байгууллага" },
+                  { key: "contractor", label: "Гүйцэтгэгч" },
+                  { key: "source", label: "Эх үүсвэр" },
+                  { key: "imppercent", label: "Хувь" },
+                  { key: "branch", label: "Салбар" },
+                  { key: "updatedat", label: "Шинэчлэгдсэн огноо" },
+                ].map((col) => (
+                  <th
+                    key={col.key}
+                    onClick={() => handleSort(col.key as keyof Posts)}
+                    className="py-3 px-4 cursor-pointer hover:bg-blue-400 whitespace-nowrap text-xs"
+                  >
+                    {col.label}{" "}
+                    {sortField === col.key && (sortOrder === "asc" ? "▲" : "▼")}
+                  </th>
+                ))}
+                <th className="py-3 px-4 text-center text-xs">Үйлдэл</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sortedPosts.length > 0 ? (
+                sortedPosts.map((p, index) => (
+                  <tr key={p.newsid} className="border-b hover:bg-gray-50">
+                    <td className="py-2 px-4 text-xs">{index + 1}</td>
+                    <td className="pt-2 px-4 line-clamp-4 text-xs">{p.title}</td>
+                    <td className="py-2 px-4 text-xs">
+                      {Array.isArray(p.khoroos) && p.khoroos.length > 0 ? (
+                        p.khoroos.map((khr, index) => (
+                          <div key={index}>{khr.name}</div>
+                        ))
+                      ) : (
+                        <div className="text-gray-500 text-xs">Хороо байхгүй</div>
+                      )}</td>
+                    <td className="py-2 px-4 text-xs">{p.supervisor}</td>
+                    <td className="pt-2 px-4 line-clamp-4 text-xs">{p.contractor}</td>
+                    <td className="py-2 px-4 text-xs">{p.sources}</td>
+                    <td className="py-2 px-4 text-xs"> {p.imppercent.toLocaleString()}%</td>
+                    <td className="py-2 px-4 text-xs">{p.branch}</td>
+                    <td className="py-2 px-4 text-xs">
+                      {new Date(p.updatedat).toLocaleDateString()}
+                    </td>
 
-              <TableRow key={post.newsid}>
-                <TableCell>{index + 1}</TableCell>
-                {/* <TableCell>{post.ordernum}</TableCell>//Захирамжийн дугаар */}
-                <TableCell className="max-w-[500px] line-clamp-2 text-sm font-medium">
-                  {post.title}
-                </TableCell>
-                {/* <TableCell className="max-w-[250px] truncate font-semibold text-sm">
-                  {post.news}
-                </TableCell> */}
-                <TableCell className="w-[200px] overflow-x-auto whitespace-nowrap">
-                  {Array.isArray(post.khoroos) && post.khoroos.length > 0 ? (
-                    post.khoroos.map((khr, index) => (
-                      <div key={index}>{khr.name}</div>
-                    ))
-                  ) : (
-                    <div className="text-gray-500 text-xs">Хороо байхгүй</div>
-                  )}
-                </TableCell> {/*Хороо*/}
-                <TableCell>{post.supervisor}</TableCell>  {/*Захиалагчын хяналтын байгууллага*/}
+                    <td className="py-2 px-2 text-center">
+                      <div className="flex justify-center gap-2">
+                        <div className='ml-2'>
+                          <button className="bg-red-200 hover:bg-red-500 text-white font-bold py-2 px-2 rounded text-xs"
+                            onClick={async () => {
+                              const confirmed = window.confirm(`Та "${p.title}" мэдээллийг устгахдаа итгэлтэй байна уу?`);
+                              if (!confirmed) return;
+                              deletePost(p.newsid)
+                            }}>
+                            <Trash className='text-slate-800' size={16} />
+                          </button>
+                        </div>
 
-                <TableCell className="max-w-[500px] line-clamp-2 text-sm font-medium">{post.contractor}</TableCell>{/*Гүйцэтгэгч*/}
-                {/* <TableCell>{Number(post.totalcost).toLocaleString() + '₮'}</TableCell>//Гэрээний дүн */}
-                <TableCell>{post.source}</TableCell> {/*Хөрөнгө оруулалтын эх үүсвэр*/}
-                {/* <TableCell>{Number(post.contractcost).toLocaleString() + '₮'}</TableCell>//Төсөвт дүн */}
-
-                {/* <TableCell>{post.impphase}</TableCell>  Ажлын явц*/}
-                <TableCell className="text-right hidden md:table-cell">
-                  {post.imppercent}%
-                </TableCell> {/*Гүйцэтгэл хувь*/}
-                <TableCell className="text-right hidden md:table-cell">
-                  {post.branch}
-                </TableCell> {/*Салбар*/}
-                <TableCell>{format(new Date(post.updatedat), 'yyyy-MM-dd')} </TableCell> {/*Сүүлд шинэчлэгдсэн огноо*/}
-                {/* <TableCell className="max-w-[250px] text-right hidden md:table-cell">
-                  {post.startdate && post.enddate
-                    ? `${format(new Date(post.startdate), 'yyyy-MM-dd')} 
-                    - ${format(new Date(post.enddate), 'yyyy-MM-dd')}`
-                    : 'Огноо байхгүй'}
-                </TableCell> */}
-                <TableCell>
-                  <div className='flex justify-between'>
-                    {/* <div>
-                      <Link href={`/admin/posts/edit/${post.newsid}`}>
-                        <button className="bg-orange-200 hover:bg-orange-500 text-white font-bold py-2 px-4 rounded text-xs">
-                          {<Pencil className='text-slate-800' size={20} />}
-                        </button>
-                      </Link>
-                    </div> */}
-
-                    {/* <div className='ml-5'>
-                      <button className="bg-blue-200 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded text-xs"
-                        onClick={() => { setSelectedNewsId(post.newsid); setOpen(true) }}>
-                        <ImagePlus className='text-slate-800' size={20} />
-                      </button> */}
-                    {/* <ImageUploadModal open={open} onClose={() => setOpen(false)} onUpload={handleUpload} /> */}
-
-                    {/* <ImageUploadModal
-                        open={open}
-                        onClose={() => {
-                          setOpen(false);
-                          setSelectedNewsId(null);
-                        }}
-                        newsId={selectedNewsId}
-                      />
-                     */}
-
-                    {/* </div> */}
-
-                    <div className='ml-5'>
-                      <button className="bg-red-200 hover:bg-red-500 text-white font-bold py-2 px-4 rounded text-xs"
-                        onClick={async () => {
-                          const confirmed = window.confirm(`Та "${post.title}" мэдээллийг устгахдаа итгэлтэй байна уу?`);
-                          if (!confirmed) return;
-                          deletePost(post.newsid)
-                        }}>
-                        <Trash className='text-slate-800' size={20} />
-                      </button>
-                    </div>
-
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={14} className="text-center">
-                Мэдээлэл алга байна.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-        {/* ✅ Ганц л modal - always mounted */}
-
-
-      </Table>
-
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={11} className="text-center py-6 text-gray-500">
+                    {loading ? "Уншиж байна..." : "Мэдээлэл олдсонгүй."}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </Table>
+        </CardContent>
+      </Card>
 
     </div>
   );
@@ -223,5 +230,7 @@ const ArchiveTable = () => {
 };
 
 
-export default ArchiveTable;
+export default PostsTable;
+
+
 

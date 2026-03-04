@@ -31,11 +31,19 @@ const formSchema = z.object({
   source: z.string().min(1, { message: 'Эх үүсвэр' }),
   executor: z.string().min(1, { message: 'Гүйцэтгэгч' }),
   budget: z.preprocess(
-    (val) => val === '' ? undefined : Number(val),
+    (val) => {
+      if (val === '' || val === undefined || val === null) return undefined;
+      if (typeof val === 'string') return Number(val.replace(/,/g, ''));
+      return Number(val);
+    },
     z.number().min(1, { message: ' 1-с бага байж болохгүй' })
   ),
   contractValue: z.preprocess(
-    (val) => val === '' ? undefined : Number(val),
+    (val) => {
+      if (val === '' || val === undefined || val === null) return undefined;
+      if (typeof val === 'string') return Number(val.replace(/,/g, ''));
+      return Number(val);
+    },
     z.number().min(1, { message: 'Гэрээний дүн 1-с бага байж болохгүй' })
   ),
   supervisor: z.string().min(1, { message: 'Захиалагчын хяналтын байгууллага' }),
@@ -93,6 +101,14 @@ interface Classes {
   class_name: string;
   desc:string;
 }
+
+const formatWithCommas = (value: number | string | undefined) => {
+  if (value === undefined || value === null || value === '' || Number.isNaN(value)) return '';
+  const numeric = typeof value === 'number' ? value : Number(String(value).replace(/,/g, ''));
+  if (Number.isNaN(numeric)) return '';
+  return numeric.toLocaleString('en-US');
+};
+
 const PostNewPage = ({ params }: PostNewPageProps) => {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
@@ -484,11 +500,28 @@ const PostNewPage = ({ params }: PostNewPageProps) => {
                         }[name]}
                       </FormLabel>
                       <FormControl>
-                        <Input className='bg-slate-100 dark:bg-slate-500 text-black dark:text-white' {...field}
-                          type={'number'}
-                          min={name === 'precent' ? 1 : undefined}
-                          max={name === 'precent' ? 100 : undefined}
-                          step={name === 'precent' ? 1 : undefined} />
+                        {name === 'precent' ? (
+                          <Input
+                            className='bg-slate-100 dark:bg-slate-500 text-black dark:text-white'
+                            {...field}
+                            type='number'
+                            min={1}
+                            max={100}
+                            step={1}
+                          />
+                        ) : (
+                          <Input
+                            className='bg-slate-100 dark:bg-slate-500 text-black dark:text-white'
+                            type='text'
+                            inputMode='numeric'
+                            placeholder='0'
+                            value={formatWithCommas(field.value as number | string | undefined)}
+                            onChange={(e) => {
+                              const digitsOnly = e.target.value.replace(/[^\d]/g, '');
+                              field.onChange(digitsOnly === '' ? '' : Number(digitsOnly));
+                            }}
+                          />
+                        )}
                       </FormControl>
                       <FormMessage />
                     </FormItem>

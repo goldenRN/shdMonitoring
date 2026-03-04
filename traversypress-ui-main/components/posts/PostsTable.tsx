@@ -199,7 +199,7 @@ const PostsTable = () => {
                         <div className="text-gray-500 text-xs">Хороо байхгүй</div>
                       )}</td>
                     <td className="py-2 px-4 text-xs">{p.engener}</td>
-                    <td className="py-2 px-4 text-xs">{p.contractor}</td>
+                    <td className="pt-2 px-4 line-clamp-4 text-xs">{p.contractor}</td>
                     <td className="py-2 px-4 text-xs">{p.source}</td>
                     <td className="py-2 px-4 text-xs"> {p.imppercent.toLocaleString()}%</td>
                     <td className="py-2 px-4 text-xs">{p.branch}</td>
@@ -218,7 +218,7 @@ const PostsTable = () => {
                           </Link>
                         </div>
 
-                        <div className='ml-3'>
+                        <div className='ml-2'>
                           <button className="bg-blue-200 hover:bg-blue-500 text-white font-bold py-2 px-2 rounded text-xs"
                             onClick={() => { setSelectedNewsId(p.newsid); setOpen(true) }}>
                             <ImagePlus className='text-slate-800' size={16} />
@@ -226,7 +226,7 @@ const PostsTable = () => {
                           {/* <ImageUploadModal open={open} onClose={() => setOpen(false)} onUpload={handleUpload} /> */}
                         </div>
 
-                        <div className='ml-3'>
+                        <div className='ml-2'>
                           <button className="bg-green-200 hover:bg-blue-500 text-white font-bold py-2 px-2 rounded text-xs"
                             onClick={() => { setSelectedQr(p.qr_code); setQrModalOpen(true); setSelectedNewsId(p.newsid) }}>
                             <QrCode className='text-slate-800' size={16} />
@@ -234,7 +234,7 @@ const PostsTable = () => {
                           {/* <ImageUploadModal open={open} onClose={() => setOpen(false)} onUpload={handleUpload} /> */}
                         </div>
 
-                        <div className='ml-3'>
+                        <div className='ml-2'>
                           <button className="bg-red-200 hover:bg-red-500 text-white font-bold py-2 px-2 rounded text-xs"
                             onClick={async () => {
                               const confirmed = window.confirm(`Та "${p.title}" мэдээллийг устгахдаа итгэлтэй байна уу?`);

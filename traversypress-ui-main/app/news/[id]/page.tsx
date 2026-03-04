@@ -1,196 +1,241 @@
 
 'use client';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle
-} from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { useEffect, useState } from 'react'
-import { useToast } from '@/components/ui/use-toast'
-import Image from 'next/image'
-import AutoImageSlider from '@/components/autoslider';
+
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-interface Posts {
-  newsid: number
-  title: string
-  ordernum: string
-  contractor: string
-  contractcost: number
-  engener: string
-  startdate: Date
-  enddate: Date
-  impphase: string
-  imppercent: number
-  source: string
-  totalcost: number
-  news: String
-  branch: string
-  createdat: Date
-  updatedat: Date
+
+interface RawPostItem {
+  newsid?: number;
+  newsId?: number;
+  title?: string;
+  ordernum?: string;
+  orderNum?: string;
+  contractor?: string;
+  contractcost?: number | string;
+  contractCost?: number | string;
+  engener?: string;
+  supervisor?: string;
+  startdate?: string;
+  startDate?: string;
+  enddate?: string;
+  endDate?: string;
+  impphase?: string;
+  impPhase?: string;
+  imppercent?: number | string;
+  impPercent?: number | string;
+  source?: string;
+  totalcost?: number | string;
+  totalCost?: number | string;
+  branch?: string;
+  createdat?: string;
+  createdAt?: string;
+  updatedat?: string | null;
+  updatedAt?: string | null;
+  khoroos?: { name?: string }[];
+}
+
+interface PostItem {
+  newsid: number;
+  title: string;
+  ordernum: string;
+  contractor: string;
+  contractcost: number;
+  engener: string;
+  startdate: string;
+  enddate: string;
+  impphase: string;
+  imppercent: number;
+  source: string;
+  totalcost: number;
+  branch: string;
+  createdat: string;
+  updatedat: string | null;
   khoroos: { name: string }[];
 }
 
+const toNumber = (value: unknown) => {
+  if (typeof value === 'number') return value;
+  if (typeof value === 'string') {
+    const parsed = Number(value);
+    return Number.isNaN(parsed) ? 0 : parsed;
+  }
+  return 0;
+};
 
-const Detail = ({ params }: { params: { id: string } }) => {
-  const { toast } = useToast();
-  const id = params.id
+const normalizePost = (raw: RawPostItem): PostItem => ({
+  newsid: raw.newsid ?? raw.newsId ?? 0,
+  title: raw.title ?? '',
+  ordernum: raw.ordernum ?? raw.orderNum ?? '',
+  contractor: raw.contractor ?? '',
+  contractcost: toNumber(raw.contractcost ?? raw.contractCost),
+  engener: raw.engener ?? raw.supervisor ?? '',
+  startdate: raw.startdate ?? raw.startDate ?? '',
+  enddate: raw.enddate ?? raw.endDate ?? '',
+  impphase: raw.impphase ?? raw.impPhase ?? '',
+  imppercent: toNumber(raw.imppercent ?? raw.impPercent),
+  source: raw.source ?? '',
+  totalcost: toNumber(raw.totalcost ?? raw.totalCost),
+  branch: raw.branch ?? '',
+  createdat: raw.createdat ?? raw.createdAt ?? '',
+  updatedat: raw.updatedat ?? raw.updatedAt ?? null,
+  khoroos: Array.isArray(raw.khoroos)
+    ? raw.khoroos.map((item) => ({ name: item?.name ?? '-' }))
+    : [],
+});
+
+const formatDate = (value?: string | null) => {
+  if (!value) return '-';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '-';
+  return date.toLocaleDateString('mn-MN');
+};
+
+const formatMoney = (value?: number | null) => {
+  if (typeof value !== 'number' || Number.isNaN(value)) return '-';
+  return `${value.toLocaleString('mn-MN')}₮`;
+};
+
+const getProgressColor = (percent: number) => {
+  if (percent < 50) return 'bg-red-500';
+  if (percent < 80) return 'bg-amber-500';
+  return 'bg-emerald-500';
+};
+
+export default function NewsListPage({ params }: { params: { id: string } }) {
+  const id = params.id;
   const searchParams = useSearchParams();
-  const name = searchParams.get('name');
-  const desc = searchParams.get('desc');
+  const name = searchParams.get('name') ?? 'Төслийн жагсаалт';
+  const descRaw = searchParams.get('desc') ?? '';
+  const descItems = useMemo(
+    () => descRaw.split(',').map((item) => item.trim()).filter(Boolean),
+    [descRaw]
+  );
 
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [postsData, setPostsData] = useState<Posts[]>([])
-  const getProgressColor = (percent: number) => {
-    if (percent < 50) return 'bg-red-500';
-    if (percent < 80) return 'bg-yellow-500';
-    return 'bg-green-500';
-  };
-  // let imageUrl = ''; // API image URL
+  const [postsData, setPostsData] = useState<PostItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const res = await fetch(`https://shdmonitoring.ub.gov.mn/api/posts`, {
+        setLoading(true);
+        setError(null);
+        const res = await fetch('https://shdmonitoring.ub.gov.mn/api/posts', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json; charset=utf-8',
-          },
+          headers: { 'Content-Type': 'application/json; charset=utf-8' },
           body: JSON.stringify({ id }),
-        })
-        const json = await res.json()
-        console.log("json", json)
-        setPostsData(json.data)
-        // setTotalPages(json.total)
+        });
+
+        if (!res.ok) {
+          throw new Error('Мэдээлэл татах үед алдаа гарлаа.');
+        }
+
+        const json = await res.json();
+        const normalized = Array.isArray(json.data)
+          ? json.data.map((item: RawPostItem) => normalizePost(item))
+          : [];
+        setPostsData(normalized);
       } catch (err) {
-        console.error('Алдаа:', err)
+        setError(err instanceof Error ? err.message : 'Серверийн алдаа.');
+      } finally {
+        setLoading(false);
       }
-    }
-    fetchPosts()
-  }, [])
+    };
+
+    fetchPosts();
+  }, [id]);
 
   return (
-    <>
-      <main className="p-6 bg-gray-50 min-h-screen">
-        <div className='flex'>
-          <h3 className="text-lg font-semibold mb-10">{name}</h3>
-          <ul className="ml-5 mt-1 text-sm text-gray-600 text-left">
-            /{desc}/
-          </ul>
+    <main className='min-h-screen bg-slate-50 p-4 md:p-6'>
+      <div className='mx-auto max-w-7xl space-y-6'>
+        <div className='rounded-2xl border border-slate-200 bg-white p-5 shadow-sm'>
+          <h1 className='text-xl md:text-2xl font-bold text-slate-800'>{name}</h1>
+          {descItems.length > 0 && (
+            <div className='mt-3 flex flex-wrap gap-2'>
+              {descItems.map((item) => (
+                <span key={item} className='rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600'>
+                  {item}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-          {Array.isArray(postsData) && postsData.length > 0 ? (
-            postsData.map(post => (
-              <Card key={post.newsid} className="bg-white border border-gray-200 rounded-xl shadow-sm 
-             hover:shadow-lg hover:scale-[1.02] hover:border-blue-500 
-             transition-all duration-300 ease-in-out 
-             flex flex-col justify-between cursor-pointer">
+
+        {loading && (
+          <div className='rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-500'>
+            Ачаалж байна...
+          </div>
+        )}
+
+        {error && (
+          <div className='rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-700'>{error}</div>
+        )}
+
+        {!loading && !error && (
+          <div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5'>
+            {postsData.map((post) => (
+              <Card key={post.newsid} className='border-slate-200 bg-white shadow-sm transition hover:shadow-md'>
                 <Link href={`/detail/${post.newsid}`}>
-                  <CardHeader className="pb-2 border-b border-gray-100">
-                    <CardTitle className="text-base font-semibold text-blue-800">
-                      {post.title}
-                    </CardTitle>
-                    <CardDescription className="text-sm text-gray-500 text-right">
-                      {post.updatedat == null
-                        ? `Бүртгэсэн огноо: ${new Date(post.createdat).toLocaleDateString()}`
-                        : `Шинэчилсэн: ${new Date(post.updatedat).toLocaleDateString()}`}
+                  <CardHeader className='border-b border-slate-100 pb-3'>
+                    <CardTitle className='text-base leading-snug text-slate-800'>{post.title}</CardTitle>
+                    <CardDescription className='text-xs text-slate-500'>
+                      {post.updatedat
+                        ? `Сүүлд шинэчилсэн: ${formatDate(post.updatedat)}`
+                        : `Бүртгэсэн огноо: ${formatDate(post.createdat)}`}
                     </CardDescription>
                   </CardHeader>
 
-                  <CardContent className="divide-y divide-gray-100 text-sm text-gray-700">
-                    <div className="py-2 flex justify-between">
-                      <span className="font-medium text-gray-600  ">Захирамж №</span>
-                      <span className='text-right'>{post.ordernum}</span>
-                    </div>
-                    <div className="py-2 flex justify-between">
-                      <span className="font-medium text-gray-600">Хөрөнгө оруулалтын эх үүсвэр</span>
-                      <span className='text-right'>{post.source}</span>
-                    </div>
-                    <div className="py-2 flex justify-between">
-                      <span className="font-medium text-gray-600">Хороо</span>
-                      <span className='text-right'>
-                        {Array.isArray(post.khoroos) && post.khoroos.length > 0 ? (
-                          post.khoroos.map((khr, index) => (
-                            <div key={index}>{khr.name}</div>
-                          ))
-                        ) : (
-                          <div className="text-gray-500 text-xs">Хороо байхгүй</div>
-                        )}
-                      </span>
-                    </div>
-                    <div className="py-2 flex justify-between">
-                      <span className="font-medium text-gray-600">Төсөвт өртөг</span>
-                      <span className='text-right'>{Number(post.totalcost).toLocaleString()}₮</span>
-                    </div>
-                    <div className="py-2 flex justify-between">
-                      <span className="font-medium text-gray-600 ">Гүйцэтгэгч</span>
-                      <span className=" text-gray-600 text-right  break-words">{post.contractor}</span>
-                    </div>
-                    <div className="py-2 flex justify-between">
-                      <span className="font-medium text-gray-600">Гэрээний дүн</span>
-                      <span>{Number(post.contractcost).toLocaleString()}₮</span>
-                    </div>
-                    <div className="py-2 flex justify-between">
-                      <span className="font-medium text-gray-600">Захиалагчийн хяналтын байгууллага</span>
-                      <span className='text-right'>{post.engener}</span>
-                    </div>
-                    <div className="py-2 flex justify-between">
-                      <span className="font-medium text-gray-600">Хугацаа</span>
-                      <span className='text-right'>
-                        {new Date(post.startdate).toLocaleDateString('ja-JP')} - {new Date(post.enddate).toLocaleDateString('ja-JP')}
-                      </span>
-                    </div>
-                    <div className="py-2 flex justify-between">
-                      <span className="font-medium text-gray-600">Ажлын явц</span>
-                      <span className='text-right'>{post.impphase}</span>
-                    </div>
-                    <div className="py-2 flex justify-between">
-                      <span className="font-medium text-gray-600">Салбар</span>
-                      <span className='text-right'>{post.branch}</span>
-                    </div>
-                    <div className="py-2 flex justify-between">
-                      <span className="font-medium text-gray-600">Гүйцэтгэлийн хувь</span>
-                      <span className='text-right'>{post.imppercent}%</span>
-                    </div>
-                    <div className="mt-3 relative w-full bg-gray-300 rounded-full h-2">
+                  <CardContent className='space-y-3 pt-4 text-sm'>
+                    <InfoRow label='Захирамж №' value={post.ordernum || '-'} />
+                    <InfoRow label='Эх үүсвэр' value={post.source || '-'} />
+                    <InfoRow
+                      label='Хороо'
+                      value={
+                        post.khoroos?.length
+                          ? post.khoroos.map((k) => k.name).join(', ')
+                          : 'Хороо байхгүй'
+                      }
+                    />
+                    <InfoRow label='Төсөвт өртөг' value={formatMoney(post.totalcost)} />
+                    <InfoRow label='Гэрээний дүн' value={formatMoney(post.contractcost)} />
+                    <InfoRow
+                      label='Хугацаа'
+                      value={`${formatDate(post.startdate)} - ${formatDate(post.enddate)}`}
+                    />
+                    <InfoRow label='Ажлын явц' value={post.impphase || '-'} />
+                    <InfoRow label='Гүйцэтгэл' value={`${post.imppercent ?? 0}%`} />
+                    <div className='h-2 w-full rounded-full bg-slate-200'>
                       <div
-                        className={`absolute top-0 left-0 h-2 rounded-full ${getProgressColor(post.imppercent)}`}
-                        style={{ width: `${post.imppercent}%` }}
-                      ></div>
+                        className={`h-2 rounded-full ${getProgressColor(post.imppercent ?? 0)}`}
+                        style={{ width: `${Math.max(0, Math.min(100, post.imppercent ?? 0))}%` }}
+                      />
                     </div>
                   </CardContent>
 
-                  <CardFooter className="flex justify-end p-4 pt-2 border-t border-gray-100">
-
-                    <span className="text-sm font-medium text-blue-700 hover:underline hover:text-blue-900">
-                      Дэлгэрэнгүй →
-                    </span>
-
+                  <CardFooter className='justify-end border-t border-slate-100 pt-3 text-sm font-semibold text-blue-700'>
+                    Дэлгэрэнгүй →
                   </CardFooter>
                 </Link>
               </Card>
-            ))
+            ))}
+          </div>
+        )}
 
-          ) : (
-            <></>
-          )}
-        </div>
-      </main>
-    </>
+        {!loading && !error && postsData.length === 0 && (
+          <div className='rounded-xl border border-slate-200 bg-white p-6 text-sm text-slate-500'>
+            Мэдээлэл олдсонгүй.
+          </div>
+        )}
+      </div>
+    </main>
   );
 }
 
-const InfoItem = ({ label, value }: { label: string; value?: React.ReactNode }) => (
-
-  <div className="flex justify-between items-center p-2 border rounded-lg bg-gray-100">
-    <span className="text-sm font-medium text-blue-600 ">{label}</span>
-    <span className='text-right'>{value}</span>
-
+const InfoRow = ({ label, value }: { label: string; value: string }) => (
+  <div className='flex items-start justify-between gap-3 rounded-md bg-slate-50 px-3 py-2'>
+    <span className='text-xs text-slate-500'>{label}</span>
+    <span className='text-right text-xs font-medium text-slate-700'>{value}</span>
   </div>
 );
-
-export default Detail;

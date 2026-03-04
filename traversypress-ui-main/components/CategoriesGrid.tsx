@@ -1,7 +1,5 @@
 "use client"
-import { useEffect, useState } from 'react'
-import { School, Building2, Car, Cable, Trees, Grid3x3 } from "lucide-react"
-import { Card } from './ui/card'
+import { School, Building2, Car, Cable, Trees } from "lucide-react"
 import barilga from '../img/barilga2.jpg';
 import tsetserleg from '../img/tsetserleg.jpg';
 import ingener from '../img/ingener.jpg';
@@ -58,31 +56,12 @@ const categories: Category[] = [
     subCategories: ["Цахилгаан хангамж", "Гэрэлтүүлэг", "Камер"],
   },
 ]
-interface Classes {
-  class_id: number
-  class_name: string
-  description: string
-}
 export default function CategoriesGrid() {
-  const [classData, setClassData] = useState<Classes[]>([])
-  useEffect(() => {
-    const fetchClasses = async () => {
-      try {
-        const res = await fetch(`https://shdmonitoring.ub.gov.mn/api/class`)
-        const json = await res.json()
-        console.log("classsss", json)
-        setClassData(json)
-        // setTotalPages(json.total)
-      } catch (err) {
-        console.error('Алдаа:', err)
-      }
-    }
-    fetchClasses()
-  },)
   return (
     <>
       <main className="py-12">
-        <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-5 gap-6 min-w-7xl mx-auto px-4">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
           {categories.map((cat, idx) => (
             <Link
               key={idx + 1}
@@ -132,6 +111,7 @@ export default function CategoriesGrid() {
 
             </Link>
           ))}
+          </div>
         </div>
       </main>
 

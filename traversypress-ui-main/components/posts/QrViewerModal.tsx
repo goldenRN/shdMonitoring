@@ -35,7 +35,7 @@ const QrViewerModal: React.FC<QrViewerModalProps> = ({ open, onClose, qrCode, ne
 
         {qrCode && (
           <div className="flex flex-col items-center">
-            <img src={qrCode} alt="QR Code" className="w-50 h-50" />
+            <img src={qrCode} alt="QR Code" className="w-60 h-60" />
 
             <Button
               size="lg"
