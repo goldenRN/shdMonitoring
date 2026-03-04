@@ -31,7 +31,7 @@ router.post('/', async (req, res) => {
         FROM news n
         LEFT JOIN news_khids nk ON nk.news_id = n.newsid
         LEFT JOIN khoroo k ON k.khid = nk.khoroo_id
-        WHERE n.class_id=$1 AND n.is_archived = false
+        WHERE n.class_id=$1 
         GROUP BY n.newsid 
         ORDER BY n.newsid DESC
       `, [id]);
@@ -476,32 +476,32 @@ router.get('/count/all', async (req, res) => {
     const count = parseInt(result.rows[0].count, 10);
     res.json({ totalPosts: count });
   } catch (err) {
-    console.error('Posts count error:', err.message);
-    res.status(500).json({ error: 'Мэдээний тоог авахад алдаа гарлаа' });
-  }
-});
-
-// GET /api/posts/count/archived
-router.get('/count/all', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT COUNT(*) FROM news');
-    const count = parseInt(result.rows[0].count, 10);
-    res.json({ totalPosts: count });
-  } catch (err) {
-    console.error('Posts count error:', err.message);
-    res.status(500).json({ error: 'Мэдээний тоог авахад алдаа гарлаа' });
+    console.error('Posts count error (all):', err.message);
+    res.status(500).json({ error: 'Нийт мэдээний тоог авахад алдаа гарлаа' });
   }
 });
 
 // GET /api/posts/count/active
-router.get('/count/all', async (req, res) => {
+router.get('/count/active', async (req, res) => {
   try {
-    const result = await pool.query('SELECT COUNT(*) FROM news');
+    const result = await pool.query('SELECT COUNT(*) FROM news WHERE is_archived = false');
     const count = parseInt(result.rows[0].count, 10);
     res.json({ totalPosts: count });
   } catch (err) {
-    console.error('Posts count error:', err.message);
-    res.status(500).json({ error: 'Мэдээний тоог авахад алдаа гарлаа' });
+    console.error('Posts count error (active):', err.message);
+    res.status(500).json({ error: 'Идэвхтэй мэдээний тоог авахад алдаа гарлаа' });
+  }
+});
+
+// GET /api/posts/count/archive
+router.get('/count/archive', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT COUNT(*) FROM news WHERE is_archived = true');
+    const count = parseInt(result.rows[0].count, 10);
+    res.json({ totalPosts: count });
+  } catch (err) {
+    console.error('Posts count error (archive):', err.message);
+    res.status(500).json({ error: 'Архив мэдээний тоог авахад алдаа гарлаа' });
   }
 });
 
