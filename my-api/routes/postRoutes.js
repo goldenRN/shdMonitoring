@@ -410,29 +410,29 @@ router.delete('/delete/:id', async (req, res) => {
 router.post('/search', async (req, res) => {
   const { title } = req.body;
 
-  let query = (`
-      SELECT
-        n.newsid AS newsId,
-        n.title AS title,
-        n.ordernum AS orderNum,
-        n.contractor AS contractor,
-        n.contractcost AS contractCost,
-        n.supervisor AS engener,
-        n.startdate AS startDate,
-        n.enddate AS endDate,
-        n.impphase AS impPhase,
-        n.imppercent AS impPercent,
-        n.sources AS source,
-        n.totalcost AS totalCost,
-        n.branch AS branch,
-        n.class_id AS class_id,
-        n.createdat AS createdAt,
-        n.updatedat AS updatedAt,
-        ARRAY_AGG(k.khname) AS khoroo
-      FROM news n WHERE n.title ILIKE $1
-      LEFT JOIN news_khids nk ON nk.news_id = n.newsid
-      LEFT JOIN khoroo k ON k.khid = nk.khoroo_id
-    `, [title]);
+  let query = `
+    SELECT
+      n.newsid AS "newsId",
+      n.title AS "title",
+      n.ordernum AS "orderNum",
+      n.contractor AS "contractor",
+      n.contractcost AS "contractCost",
+      n.supervisor AS "engener",
+      n.startdate AS "startDate",
+      n.enddate AS "endDate",
+      n.impphase AS "impPhase",
+      n.imppercent AS "impPercent",
+      n.sources AS "source",
+      n.totalcost AS "totalCost",
+      n.branch AS "branch",
+      n.class_id AS "class_id",
+      n.createdat AS "createdAt",
+      n.updatedat AS "updatedAt",
+      ARRAY_AGG(k.khname) AS "khoroo"
+    FROM news n
+    LEFT JOIN news_khids nk ON nk.news_id = n.newsid
+    LEFT JOIN khoroo k ON k.khid = nk.khoroo_id
+  `;
 
   const conditions = [];
   const values = [];
@@ -447,26 +447,22 @@ router.post('/search', async (req, res) => {
   }
 
   query += `
-      GROUP BY n.newsid
-      ORDER BY n.newsid DESC
-    `;
+    GROUP BY n.newsid
+    ORDER BY n.newsid DESC
+  `;
 
   try {
     const result = await pool.query(query, values);
-
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Мэдээлэл олдсонгүй' });
     }
-
-    res.json({
-      data: result.rows,
-      total: result.rowCount,
-    });
+    res.json({ data: result.rows, total: result.rowCount });
   } catch (err) {
     console.error('Search error:', err);
     res.status(500).json({ error: 'Server error' });
   }
 });
+
 
 // GET /api/posts/count/all
 router.get('/count/all', async (req, res) => {
