@@ -429,7 +429,7 @@ router.post('/search', async (req, res) => {
         n.createdat AS createdAt,
         n.updatedat AS updatedAt,
         ARRAY_AGG(k.khname) AS khoroo
-      FROM news n WHERE n.is_archived = false AND n.title ILIKE $1
+      FROM news n WHERE n.title ILIKE $1
       LEFT JOIN news_khids nk ON nk.news_id = n.newsid
       LEFT JOIN khoroo k ON k.khid = nk.khoroo_id
     `, [title]);
