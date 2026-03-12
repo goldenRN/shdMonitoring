@@ -112,7 +112,7 @@ router.post('/detail', async (req, res) => {
         FROM news n
         LEFT JOIN news_khids nk ON nk.news_id = n.newsid
         LEFT JOIN khoroo k ON k.khid = nk.khoroo_id
-        WHERE n.newsid = $1 AND n.is_archived = false
+        WHERE n.newsid = $1
         GROUP BY n.newsid
         ORDER BY n.newsid DESC
       `, [id]);
@@ -190,7 +190,6 @@ router.post('/create', async (req, res) => {
     const newsId = insertNewsResult.rows[0].newsid;
     // QR URL (public page)
     const qrUrl = `https://shdmonitoring.ub.gov.mn/detail/${newsId}`;
-
     // QR generate (base64 image)
     const qrImage = await QRCode.toDataURL(qrUrl);
 
