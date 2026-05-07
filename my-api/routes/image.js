@@ -5,6 +5,21 @@ const router = express.Router();
 const pool = require('../db');
 const fs = require('fs');
 
+const ALLOWED_IMAGE_MIME_TYPES = new Set([
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/gif',
+]);
+
+const ALLOWED_IMAGE_EXTENSIONS = new Set([
+  '.jpg',
+  '.jpeg',
+  '.png',
+  '.webp',
+  '.gif',
+  '.jfif', // browsers often treat this as jpeg
+]);
 
 // Зураг хадгалах тохиргоо
 const storage = multer.diskStorage({
@@ -13,11 +28,29 @@ const storage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + path.extname(file.originalname)); // давхардалгүй нэр
+    const ext = path.extname(file.originalname).toLowerCase();
+    // fileFilter дээр аль хэдийн шалгадаг, гэхдээ энд дахин хамгаалалт болгож үлдээе.
+    cb(null, uniqueSuffix + (ALLOWED_IMAGE_EXTENSIONS.has(ext) ? ext : '.jpg'));
   },
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({
+  storage,
+  limits: {
+    // нэг файл 10MB, олон файл нийт хэмжээ серверээс хамаарч нэмэгдүүлж болно
+    fileSize: 10 * 1024 * 1024,
+    files: 10,
+  },
+  fileFilter: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    const mimeOk = ALLOWED_IMAGE_MIME_TYPES.has(file.mimetype);
+    const extOk = ALLOWED_IMAGE_EXTENSIONS.has(ext);
+    if (!mimeOk || !extOk) {
+      return cb(new Error('Зөвхөн зураг файл (jpg/jpeg/png/webp/gif) зөвшөөрнө.'));
+    }
+    return cb(null, true);
+  },
+});
 
 // Олон зураг хүлээж авах route
 router.post('/upload', upload.array('images'), async (req, res) => {
@@ -29,6 +62,10 @@ router.post('/upload', upload.array('images'), async (req, res) => {
   }
 
   try {
+    if (!newsid) {
+      return res.status(400).json({ error: 'newsid байхгүй байна' });
+    }
+
     // Файлуудын замыг хадгалах
     const inserted = [];
 

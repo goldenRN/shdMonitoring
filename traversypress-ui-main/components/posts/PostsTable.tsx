@@ -33,7 +33,8 @@ interface Posts {
   branch: string
   createdat: Date
   updatedat: Date
-  khoroos: { name: string }[];
+  khoroos?: { name?: string }[] | string[];
+  khoroo?: string[] | string;
 }
 import { Pencil, Trash, ImagePlus, QrCode } from 'lucide-react';
 import { toast } from '../ui/use-toast';
@@ -87,12 +88,14 @@ const PostsTable = () => {
     }
   };
 
-  const filteredPosts = postsData.filter(post => {
+  const filteredPosts = (postsData ?? []).filter((post) => {
+    const keyword = (search ?? '').toLowerCase()
 
-    const matchesSearch =
-      post.title.toLowerCase().includes(search.toLowerCase()) ||
-      post.contractor.toLowerCase().includes(search.toLowerCase())
-    return matchesSearch
+    // Зарим мөр дээр title/contractor null байдаг тул toLowerCase дээр унахаас хамгаална
+    const title = post?.title?.toLowerCase?.() ?? ''
+    const contractor = post?.contractor?.toLowerCase?.() ?? ''
+
+    return title.includes(keyword) || contractor.includes(keyword)
   })
   const sortedPosts = [...filteredPosts].sort((a, b) => {
     const aVal = a[sortField]
@@ -193,11 +196,18 @@ const PostsTable = () => {
                     <td className="py-2 px-4 text-xs">
                       {Array.isArray(p.khoroos) && p.khoroos.length > 0 ? (
                         p.khoroos.map((khr, index) => (
-                          <div key={index}>{khr.name}</div>
+                          <div key={index}>{typeof khr === 'string' ? khr : khr.name}</div>
                         ))
+                      ) : Array.isArray(p.khoroo) && p.khoroo.length > 0 ? (
+                        p.khoroo.map((khr, index) => (
+                          <div key={index}>{khr}</div>
+                        ))
+                      ) : p.khoroo ? (
+                        <div>{p.khoroo}</div>
                       ) : (
                         <div className="text-gray-500 text-xs">Хороо байхгүй</div>
-                      )}</td>
+                      )}
+                    </td>
                     <td className="py-2 px-4 text-xs">{p.engener}</td>
                     <td className="pt-2 px-4 line-clamp-4 text-xs">{p.contractor}</td>
                     <td className="py-2 px-4 text-xs">{p.source}</td>
@@ -290,6 +300,4 @@ const PostsTable = () => {
 
 
 export default PostsTable;
-
-
 

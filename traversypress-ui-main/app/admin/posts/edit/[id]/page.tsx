@@ -246,11 +246,16 @@ const PostEditPage = ({ params }: PostEditPageProps) => {
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
     console.log('[DEV LOG] submit Амжилттай үүсгэгдлээ');
 
-    const supervisor_id = supervisor.find((s) => s.s_name.toLowerCase() === data.supervisor.toLowerCase())?.s_id;
-    const impPhase_id = WorkProgres.find((wp) => wp.wp_name.toLowerCase() === data.stage.toLowerCase())?.wp_id;
+    const supervisorName = data?.supervisor?.toLowerCase?.() ?? '';
+    const stageName = data?.stage?.toLowerCase?.() ?? '';
+    const sourceName = data?.source?.toLowerCase?.() ?? '';
+    const branchName = data?.branch?.toLowerCase?.() ?? '';
+
+    const supervisor_id = supervisor.find((s) => (s?.s_name?.toLowerCase?.() ?? '') === supervisorName)?.s_id;
+    const impPhase_id = WorkProgres.find((wp) => (wp?.wp_name?.toLowerCase?.() ?? '') === stageName)?.wp_id;
     // const source_id = source.find((sc) => sc.sc_name === data.source)?.sc_id;
-    const source_id = source.find((sc) => sc.sc_name.toLowerCase() === data.source.toLowerCase())?.sc_id;
-    const branch_id = branch.find((b) => b.b_name.toLowerCase() === data.branch.toLowerCase())?.b_id;
+    const source_id = source.find((sc) => (sc?.sc_name?.toLowerCase?.() ?? '') === sourceName)?.sc_id;
+    const branch_id = branch.find((b) => (b?.b_name?.toLowerCase?.() ?? '') === branchName)?.b_id;
     const khorooId = khoroos.filter((kh) => data.khoroo.includes(kh.name)).map((kh) => kh.id);
     // const class_id = classes.find((cl) => cl.class_name === data.class)?.class_id;
     const formattedsdate = new Date(data.startDate).toISOString();

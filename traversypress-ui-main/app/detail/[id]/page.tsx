@@ -51,6 +51,7 @@ interface RawPostData {
   updatedat?: string | null;
   updatedAt?: string | null;
   khoroos?: { name?: string }[];
+  khoroo?: string[] | string;
   news?: string;
 }
 interface Image {
@@ -87,7 +88,11 @@ const normalizePost = (raw: RawPostData): PostData => ({
   updatedat: raw.updatedat ?? raw.updatedAt ?? null,
   khoroos: Array.isArray(raw.khoroos)
     ? raw.khoroos.map((item) => ({ name: item?.name ?? '-' }))
-    : [],
+    : Array.isArray(raw.khoroo)
+      ? raw.khoroo.map((item) => ({ name: item ?? '-' }))
+      : raw.khoroo
+        ? [{ name: raw.khoroo }]
+        : [],
 });
 
 const formatDate = (value?: string | null) => {

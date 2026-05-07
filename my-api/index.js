@@ -15,7 +15,17 @@ require('dotenv').config();
 // UTF-8 charset-ийг автоматаар дэмжинэ
 app.use(express.json({ type: 'application/json' }));
 app.use(express.urlencoded({ extended: true }));
-app.use('/uploads', express.static('/home/ndc-user/image'));
+app.use(
+  '/uploads',
+  express.static('/home/ndc-user/image', {
+    setHeaders: (res) => {
+      // upload-аар орж ирсэн файлууд дээр sniff хийхээс хамгаална
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      // зөвхөн зураг гэж үзээд ажиллах хамгийн энгийн бодлого
+      res.setHeader('Content-Security-Policy', "default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'");
+    },
+  })
+);
 const cors = require('cors');
 app.use(cors()); // бүх origin зөвшөөрнө
 

@@ -30,7 +30,8 @@ interface Posts {
   branch: string
   createdat: Date
   updatedat: Date
-  khoroos: { name: string }[];
+  khoroos?: { name?: string }[] | string[];
+  khoroo?: string[] | string;
 }
 import { Pencil, Trash, ImagePlus, QrCode } from 'lucide-react';
 import { toast } from '../ui/use-toast';
@@ -181,11 +182,18 @@ const PostsTable = () => {
                     <td className="py-2 px-4 text-xs">
                       {Array.isArray(p.khoroos) && p.khoroos.length > 0 ? (
                         p.khoroos.map((khr, index) => (
-                          <div key={index}>{khr.name}</div>
+                          <div key={index}>{typeof khr === 'string' ? khr : khr.name}</div>
                         ))
+                      ) : Array.isArray(p.khoroo) && p.khoroo.length > 0 ? (
+                        p.khoroo.map((khr, index) => (
+                          <div key={index}>{khr}</div>
+                        ))
+                      ) : p.khoroo ? (
+                        <div>{p.khoroo}</div>
                       ) : (
                         <div className="text-gray-500 text-xs">Хороо байхгүй</div>
-                      )}</td>
+                      )}
+                    </td>
                     <td className="py-2 px-4 text-xs">{p.supervisor}</td>
                     <td className="pt-2 px-4 line-clamp-4 text-xs">{p.contractor}</td>
                     <td className="py-2 px-4 text-xs">{p.sources}</td>
@@ -231,6 +239,5 @@ const PostsTable = () => {
 
 
 export default PostsTable;
-
 
 

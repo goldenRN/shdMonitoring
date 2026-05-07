@@ -503,7 +503,7 @@ router.get('/source-news-count', async (req, res) => {
     const result = await pool.query(`
       SELECT 
         s.sc_status,
-        COUNT(n.*) AS news_count
+        COUNT(n.newsid) AS news_count
       FROM source s
       JOIN news n ON n.source_id = s.sc_id
       GROUP BY s.sc_status
@@ -522,12 +522,21 @@ router.get('/source-average-precent', async (req, res) => {
     const result = await pool.query(`
       SELECT 
         s.sc_status,
-        ROUND(AVG(p.imppercent), 2) AS average_precent,
-        COUNT(p.newsid) AS news
+        ROUND(
+          AVG(
+            CASE
+              -- imppercent нь text байж болно (зарим мөр дээр хоосон/тоон биш утга байвал CAST алдаанаас хамгаална)
+              WHEN (n.imppercent::text) ~ '^[0-9]+(\\.[0-9]+)?$' THEN n.imppercent::numeric
+              ELSE NULL
+            END
+          ),
+          2
+        ) AS average_precent,
+        COUNT(n.newsid) AS total_posts
       FROM 
         source s
       JOIN 
-        news p ON p.source = s.sc_name
+        news n ON n.source_id = s.sc_id
       GROUP BY 
         s.sc_status
       ORDER BY 

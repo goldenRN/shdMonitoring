@@ -1,13 +1,17 @@
 
 
 import './globals.css'
-import { Inter } from 'next/font/google'
+import { Noto_Sans } from 'next/font/google'
 import type { Metadata } from 'next'
 import ClientLayout from '@/components/client-layout'
 import { Toaster } from '@/components/ui/toaster'
 import { AuthProvider } from './context/AuthContext'
 
-const inter = Inter({ subsets: ['latin'] })
+const notoSans = Noto_Sans({
+  subsets: ['latin', 'cyrillic'],
+  display: 'swap',
+  variable: '--font-sans',
+})
 
 export const metadata: Metadata = {
   title: 'shdMonitoring',
@@ -23,8 +27,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="mn">
-      <body className={inter.className}>
+    <html lang="mn" className={notoSans.variable}>
+      <body className="font-sans">
         <AuthProvider>
           <Toaster />
           <ClientLayout>{children}</ClientLayout>
@@ -33,5 +37,3 @@ export default function RootLayout({
     </html>
   )
 }
-
-

@@ -1,0 +1,6 @@
+# macOS
+.DS_Store
+
+# build/package artifacts
+traversypress-ui-main/app.tar.gz
+
