@@ -24,7 +24,7 @@ interface Posts {
   startdate: Date
   enddate: Date
   impphase: string
-  imppercent: number
+  imppercent: number | string | null
   sources: string
   totalcost: number
   branch: string
@@ -48,6 +48,13 @@ const PostsTable = () => {
   const [sortField, setSortField] = useState<keyof Posts>("title");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [loading, setLoading] = useState(false);
+
+  const formatPercent = (value: unknown) => {
+    if (value == null) return '-';
+    const n = typeof value === 'number' ? value : Number(value);
+    if (Number.isNaN(n)) return '-';
+    return `${n.toLocaleString('mn-MN')}%`;
+  };
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -197,7 +204,7 @@ const PostsTable = () => {
                     <td className="py-2 px-4 text-xs">{p.supervisor}</td>
                     <td className="pt-2 px-4 line-clamp-4 text-xs">{p.contractor}</td>
                     <td className="py-2 px-4 text-xs">{p.sources}</td>
-                    <td className="py-2 px-4 text-xs"> {p.imppercent.toLocaleString()}%</td>
+                    <td className="py-2 px-4 text-xs">{formatPercent(p.imppercent)}</td>
                     <td className="py-2 px-4 text-xs">{p.branch}</td>
                     <td className="py-2 px-4 text-xs">
                       {new Date(p.updatedat).toLocaleDateString()}
@@ -239,5 +246,4 @@ const PostsTable = () => {
 
 
 export default PostsTable;
-
 
