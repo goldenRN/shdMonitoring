@@ -41,6 +41,8 @@ export default function ClassTable({ limit, title }: ClassTableProps) {
   const { toast } = useToast();
   const [categories, setCategories] = useState<CategoryItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const maxCategoryCount = 10;
+  const canCreateCategory = categories.length < maxCategoryCount;
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -87,11 +89,14 @@ export default function ClassTable({ limit, title }: ClassTableProps) {
   return (
     <Card className='border-slate-200 shadow-sm'>
       <CardHeader className='flex flex-row items-center justify-between'>
-        <CardTitle className='text-xl text-slate-800'>{title ?? 'Нүүр хуудасны ангиллууд'}</CardTitle>
-        <Link href='/admin/class/new'>
-          <Button className='gap-2 bg-blue-600 hover:bg-blue-700'>
+        <div className='space-y-1'>
+          <CardTitle className='text-xl text-slate-800'>{title ?? 'Нүүр хуудасны ангиллууд'}</CardTitle>
+          <p className='text-sm text-slate-500'>Одоогоор {categories.length}/{maxCategoryCount} ангилал бүртгэлтэй байна.</p>
+        </div>
+        <Link href={canCreateCategory ? '/admin/class/new' : '#'} aria-disabled={!canCreateCategory}>
+          <Button className='gap-2 bg-blue-600 hover:bg-blue-700' disabled={!canCreateCategory}>
             <Plus className='h-4 w-4' />
-            Ангилал нэмэх
+            {canCreateCategory ? 'Ангилал нэмэх' : 'Дээд хязгаарт хүрсэн'}
           </Button>
         </Link>
       </CardHeader>
