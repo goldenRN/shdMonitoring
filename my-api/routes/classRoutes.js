@@ -19,6 +19,7 @@ const ALLOWED_IMAGE_EXTENSIONS = new Set([
   '.gif',
   '.jfif',
 ]);
+const MAX_CATEGORY_COUNT = 10;
 
 let schemaPromise = null;
 
@@ -247,6 +248,14 @@ router.post('/create', async (req, res) => {
   try {
     await ensureSchema();
     await client.query('BEGIN');
+
+    const countResult = await client.query('SELECT COUNT(*) FROM classes');
+    const totalClasses = Number(countResult.rows[0]?.count ?? 0);
+
+    if (totalClasses >= MAX_CATEGORY_COUNT) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: `Нүүр ангилал хамгийн ихдээ ${MAX_CATEGORY_COUNT} байна.` });
+    }
 
     const existing = await client.query(
       'SELECT class_id FROM classes WHERE LOWER(class_name) = LOWER($1)',

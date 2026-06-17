@@ -92,7 +92,7 @@ export default function CategoriesGrid() {
 
           <div className="flex flex-1 flex-col p-6">
             <div className="mb-4">
-              <h3 className="line-clamp-2 text-[1.45rem] font-semibold leading-[1.2] tracking-[-0.03em] text-slate-900 sm:text-[1.55rem] xl:text-[1.4rem]">
+              <h3 className="line-clamp-2 text-[1.28rem] font-semibold leading-[1.15] tracking-[-0.03em] text-slate-900 sm:text-[1.36rem] xl:text-[1.22rem]">
                 {category.class_name}
               </h3>
             </div>
