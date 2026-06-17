@@ -49,6 +49,111 @@ interface CategoryResponse {
 }
 
 const API_BASE = 'https://shdmonitoring.ub.gov.mn';
+const MAX_UPLOAD_BYTES = 900 * 1024;
+const IMAGE_DIMENSION_STEPS = [1800, 1600, 1400, 1200, 960];
+const IMAGE_QUALITY_STEPS = [0.86, 0.78, 0.7, 0.62, 0.54, 0.46];
+
+function formatFileSize(bytes: number) {
+  if (bytes < 1024 * 1024) {
+    return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+  }
+
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function replaceExtension(fileName: string, nextExtension: string) {
+  return fileName.replace(/\.[^.]+$/, '') + nextExtension;
+}
+
+function loadImageElement(file: File) {
+  return new Promise<HTMLImageElement>((resolve, reject) => {
+    const objectUrl = URL.createObjectURL(file);
+    const image = new window.Image();
+
+    image.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      resolve(image);
+    };
+
+    image.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error('Зургийг уншиж чадсангүй'));
+    };
+
+    image.src = objectUrl;
+  });
+}
+
+function canvasToBlob(canvas: HTMLCanvasElement, quality: number) {
+  return new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob(
+      (blob) => {
+        if (!blob) {
+          reject(new Error('Зургийг боловсруулахад алдаа гарлаа'));
+          return;
+        }
+
+        resolve(blob);
+      },
+      'image/webp',
+      quality
+    );
+  });
+}
+
+async function optimizeImageForUpload(file: File) {
+  if (!file.type.startsWith('image/')) {
+    throw new Error('Зөвхөн зураг файл сонгоно уу');
+  }
+
+  if (file.size <= MAX_UPLOAD_BYTES) {
+    return file;
+  }
+
+  if (file.type === 'image/gif') {
+    throw new Error('GIF зураг хэт том байна. 900 KB-аас бага зураг сонгоно уу.');
+  }
+
+  const image = await loadImageElement(file);
+  let smallestCandidate: File | null = null;
+
+  for (const maxDimension of IMAGE_DIMENSION_STEPS) {
+    const scale = Math.min(1, maxDimension / Math.max(image.naturalWidth, image.naturalHeight));
+    const width = Math.max(1, Math.round(image.naturalWidth * scale));
+    const height = Math.max(1, Math.round(image.naturalHeight * scale));
+
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+
+    const context = canvas.getContext('2d');
+    if (!context) {
+      throw new Error('Зургийг боловсруулахад алдаа гарлаа');
+    }
+
+    context.drawImage(image, 0, 0, width, height);
+
+    for (const quality of IMAGE_QUALITY_STEPS) {
+      const blob = await canvasToBlob(canvas, quality);
+      const candidate = new File([blob], replaceExtension(file.name, '.webp'), {
+        type: 'image/webp',
+        lastModified: Date.now(),
+      });
+
+      if (!smallestCandidate || candidate.size < smallestCandidate.size) {
+        smallestCandidate = candidate;
+      }
+
+      if (candidate.size <= MAX_UPLOAD_BYTES) {
+        return candidate;
+      }
+    }
+  }
+
+  throw new Error(
+    `Зураг хэт том байна. ${formatFileSize(MAX_UPLOAD_BYTES)}-аас бага зураг сонгоод дахин оролдоно уу.`
+  );
+}
 
 function toFormValues(data: CategoryResponse): CategoryFormValues {
   return {
@@ -68,6 +173,7 @@ export default function ClassForm({ mode = 'create', classId }: ClassFormProps) 
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(mode === 'edit');
+  const [isPreparingImage, setIsPreparingImage] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState('');
 
@@ -146,12 +252,40 @@ export default function ClassForm({ mode = 'create', classId }: ClassFormProps) 
     };
   }, [selectedImage]);
 
-  const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] ?? null;
-    setSelectedImage(file);
+    event.target.value = '';
 
-    if (!file && !form.getValues('image_path')) {
-      setPreviewUrl('');
+    if (!file) {
+      setSelectedImage(null);
+
+      if (!form.getValues('image_path')) {
+        setPreviewUrl('');
+      }
+
+      return;
+    }
+
+    try {
+      setIsPreparingImage(true);
+      const preparedFile = await optimizeImageForUpload(file);
+      setSelectedImage(preparedFile);
+
+      if (preparedFile !== file) {
+        toast({
+          title: 'Зураг автоматаар шахагдлаа',
+          description: `${formatFileSize(file.size)} -> ${formatFileSize(preparedFile.size)}`,
+        });
+      }
+    } catch (error) {
+      setSelectedImage(null);
+      setPreviewUrl(form.getValues('image_path') ? `${API_BASE}/${form.getValues('image_path')}` : '');
+      toast({
+        title: error instanceof Error ? error.message : 'Зураг боловсруулахад алдаа гарлаа',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsPreparingImage(false);
     }
   };
 
@@ -163,12 +297,22 @@ export default function ClassForm({ mode = 'create', classId }: ClassFormProps) 
     const imageFormData = new FormData();
     imageFormData.append('image', selectedImage);
 
-    const uploadRes = await fetch(`${API_BASE}/api/class/upload-image`, {
-      method: 'POST',
-      body: imageFormData,
-    });
+    let uploadRes: Response;
+
+    try {
+      uploadRes = await fetch(`${API_BASE}/api/class/upload-image`, {
+        method: 'POST',
+        body: imageFormData,
+      });
+    } catch (_error) {
+      throw new Error('Зураг upload хийх үед сүлжээний алдаа гарлаа. Зургийн хэмжээг багасгаад дахин оролдоно уу.');
+    }
 
     if (!uploadRes.ok) {
+      if (uploadRes.status === 413) {
+        throw new Error(`Зураг хэт том байна. ${formatFileSize(MAX_UPLOAD_BYTES)}-аас бага зураг сонгоно уу.`);
+      }
+
       const errorText = await uploadRes.text();
       throw new Error(errorText || 'Зураг upload хийхэд алдаа гарлаа');
     }
@@ -303,9 +447,10 @@ export default function ClassForm({ mode = 'create', classId }: ClassFormProps) 
                     <FormLabel>Категорийн зураг</FormLabel>
                     <label className='flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-slate-300 bg-white px-4 py-6 text-sm text-slate-600 transition hover:border-blue-400 hover:text-blue-700'>
                       <ImagePlus className='h-4 w-4' />
-                      <span>Зураг сонгох</span>
+                      <span>{isPreparingImage ? 'Зураг бэлдэж байна...' : 'Зураг сонгох'}</span>
                       <input type='file' accept='image/*' className='hidden' onChange={handleImageChange} />
                     </label>
+                    <p className='text-xs text-slate-500'>Том зураг автоматаар шахагдана. 900 KB-аас бага байхад хадгалалт тогтвортой байна.</p>
                   </div>
 
                   {previewUrl ? (
@@ -379,9 +524,13 @@ export default function ClassForm({ mode = 'create', classId }: ClassFormProps) 
                 </div>
               </div>
 
-              <Button className='w-full gap-2 bg-blue-600 hover:bg-blue-700' disabled={isSubmitting}>
-                {isSubmitting && <Loader2 className='h-4 w-4 animate-spin' />}
-                {mode === 'edit' ? 'Өөрчлөлт хадгалах' : 'Ангилал хадгалах'}
+              <Button className='w-full gap-2 bg-blue-600 hover:bg-blue-700' disabled={isSubmitting || isPreparingImage}>
+                {(isSubmitting || isPreparingImage) && <Loader2 className='h-4 w-4 animate-spin' />}
+                {isPreparingImage
+                  ? 'Зураг бэлдэж байна...'
+                  : mode === 'edit'
+                    ? 'Өөрчлөлт хадгалах'
+                    : 'Ангилал хадгалах'}
               </Button>
             </form>
           </Form>

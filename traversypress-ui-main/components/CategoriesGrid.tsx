@@ -43,13 +43,19 @@ export default function CategoriesGrid() {
     fetchCategories();
   }, []);
 
+  const useThreeColumnLayout = categories.length > 5;
+  const gridClassName = useThreeColumnLayout
+    ? 'grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3'
+    : 'grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-5';
+  const containerClassName = useThreeColumnLayout ? 'mx-auto max-w-6xl px-4 sm:px-6 lg:px-8' : 'mx-auto max-w-7xl px-4 sm:px-6 lg:px-8';
+
   if (loading) {
     return (
       <main className="py-12">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
+        <div className={containerClassName}>
+          <div className={gridClassName}>
             {Array.from({ length: 5 }).map((_, index) => (
-              <div key={index} className="min-h-[430px] animate-pulse rounded-2xl border border-slate-200 bg-white" />
+              <div key={index} className="min-h-[360px] animate-pulse rounded-[28px] border border-slate-200/80 bg-white" />
             ))}
           </div>
         </div>
@@ -59,8 +65,8 @@ export default function CategoriesGrid() {
 
   return (
     <main className="py-12">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
+      <div className={containerClassName}>
+        <div className={gridClassName}>
           {categories.map((category) => {
             const subcategories = Array.isArray(category.subcategories) ? category.subcategories : [];
             const desc = subcategories.map((item) => item.name).join(',');
@@ -77,42 +83,49 @@ export default function CategoriesGrid() {
                   },
                 }}
               >
-                <div className="group flex min-h-[450px] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
+                <div className="group flex h-full min-h-[360px] flex-col overflow-hidden rounded-[28px] border border-slate-200/80 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.06)] transition duration-300 hover:-translate-y-1.5 hover:border-blue-200 hover:shadow-[0_24px_50px_rgba(37,99,235,0.12)]">
                   {imageUrl ? (
-                    <div className="relative h-56 overflow-hidden">
+                    <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
                       <Image
                         src={imageUrl}
                         alt={category.class_name}
                         fill
-                        sizes="(max-width: 1024px) 100vw, 20vw"
+                        sizes={useThreeColumnLayout ? '(max-width: 1280px) 50vw, 33vw' : '(max-width: 1280px) 50vw, 20vw'}
                         className="object-cover transition duration-500 group-hover:scale-105"
                       />
+                      <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-slate-950/20 to-transparent" />
                     </div>
                   ) : (
-                    <div className="flex h-56 items-center justify-center bg-gradient-to-br from-slate-100 via-slate-50 to-blue-50 text-sm text-slate-400">
+                    <div className="flex aspect-[4/3] items-center justify-center bg-gradient-to-br from-slate-100 via-white to-blue-50 px-6 text-center text-sm font-medium text-slate-400">
                       Зураг оруулаагүй байна
                     </div>
                   )}
 
-                  <div className="flex flex-1 flex-col p-5">
-                    <h3 className="mb-3 text-lg font-bold text-slate-800">{category.class_name}</h3>
+                  <div className="flex flex-1 flex-col p-6">
+                    <div className="mb-4">
+                      <h3 className="line-clamp-2 text-[1.45rem] font-semibold leading-[1.2] tracking-[-0.03em] text-slate-900 sm:text-[1.55rem] xl:text-[1.4rem]">
+                        {category.class_name}
+                      </h3>
+                    </div>
 
                     {subcategories.length > 0 ? (
-                      <ul className="space-y-1 text-sm text-slate-600">
+                      <ul className="space-y-2 text-[15px] leading-6 text-slate-600">
                         {subcategories.map((subcategory, index) => (
-                          <li key={`${category.class_id}-${subcategory.subcategory_id ?? index}`} className="line-clamp-1">
-                            • {subcategory.name}
+                          <li
+                            key={`${category.class_id}-${subcategory.subcategory_id ?? index}`}
+                            className="line-clamp-2 flex items-start gap-2"
+                          >
+                            <span className="mt-2 h-1.5 w-1.5 rounded-full bg-blue-500/80" />
+                            <span>{subcategory.name}</span>
                           </li>
                         ))}
                       </ul>
-                    ) : (
-                      <p className="text-sm text-slate-400">Дэд ангилал оруулаагүй байна</p>
-                    )}
+                    ) : null}
 
-                    <div className="mt-auto pt-6">
-                      <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-blue-600 transition group-hover:gap-3">
+                    <div className="mt-auto flex justify-end pt-8">
+                      <div className="inline-flex items-center gap-1.5 text-[13px] font-semibold tracking-[0.04em] text-blue-600 transition-all duration-200 group-hover:gap-2.5 group-hover:text-blue-700">
                         Дэлгэрэнгүй
-                        <ArrowRight className="h-4 w-4" />
+                        <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
                       </div>
                     </div>
                   </div>
