@@ -1,5 +1,3 @@
-
-
 import BackButton from '@/components/BackButton';
 import dynamic from 'next/dynamic';
 
@@ -9,10 +7,9 @@ const ClassForm = dynamic(() => import('@/components/class/classForm'), {
 
 export default function ClassNewPage() {
   return (
-    <div className='p-4'>
+    <div className='space-y-4 p-1'>
       <BackButton text='Буцах' link='/admin/class' />
-      <h3 className='text-2xl mb-4'> Нэмэх</h3>
-      <ClassForm />
+      <ClassForm mode='create' />
     </div>
   );
 }

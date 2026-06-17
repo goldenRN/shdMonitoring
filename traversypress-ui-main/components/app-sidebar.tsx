@@ -44,6 +44,7 @@ import {
   ClipboardPen,
   Settings,
   LogOut,
+  PanelsTopLeft,
 } from 'lucide-react';
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -95,8 +96,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <Link href='/admin/workprogres'>Ажлын явц</Link>
               </CommandItem>
               <CommandItem className={isActive('/admin/class') ? 'bg-muted text-blue-600' : ''}>
-                <ClipboardPen className='mr-2 h-8 w-4' />
-                <Link href='/admin/class'>Бүлэг бүртгэл</Link>
+                <PanelsTopLeft className='mr-2 h-8 w-4' />
+                <Link href='/admin/class'>Нүүр ангилал</Link>
               </CommandItem>
               <CommandItem className={isActive('/admin/source') ? 'bg-muted text-blue-600' : ''}>
                 <Wallet className='mr-2 h-8 w-4' />

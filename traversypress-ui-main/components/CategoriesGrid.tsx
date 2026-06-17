@@ -1,121 +1,133 @@
-"use client"
-import { School, Building2, Car, Cable, Trees } from "lucide-react"
-import barilga from '../img/barilga2.jpg';
-import tsetserleg from '../img/tsetserleg.jpg';
-import ingener from '../img/ingener.jpg';
-import zam from '../img/zam.jpg';
-import tohjilt from '../img/tohijilt.jpg';
-import Link from 'next/link'
+"use client";
+
+import Link from 'next/link';
 import Image from 'next/image';
-import { StaticImageData } from "next/image";
-interface Category {
-  icon: React.ReactNode
-  image: StaticImageData
-  name: string
-  subCategories: string[]
+import { useEffect, useState } from 'react';
+import { ArrowRight } from 'lucide-react';
+
+interface CategorySubcategory {
+  subcategory_id?: number;
+  name: string;
+  sort_order?: number;
 }
 
-const categories: Category[] = [
+interface Category {
+  class_id: number;
+  class_name: string;
+  description?: string;
+  image_path?: string;
+  sort_order?: number;
+  subcategories?: CategorySubcategory[];
+}
 
-  {
-    icon: <Car className="w-5 h-5 text-blue-600" />,
-    image: zam,
-    name: "Авто зам болон зогсоол",
-    subCategories: ["Авто зам", "Авто зогсоол"],
-  },
-  {
-    icon: <School className="w-5 h-5 text-orange-600" />,
-    image: tsetserleg,
-    name: "Сургууль, цэцэрлэг",
-    subCategories: [
-      "Сургууль", "цэцэрлэг"
-    ],
-  },
-  {
-    icon: <Building2 className="w-5 h-5 text-red-600" />,
-    image: barilga,
-    name: "Барилга байгууламж",
-    subCategories: [
-      "Хорооны цогцолбор",
-      "Худаг",
-      "Фасад засвар",
-      "Дээвэр засвар",
-    ],
-  },
+const API_BASE = 'https://shdmonitoring.ub.gov.mn';
 
-  {
-    icon: <Trees className="w-5 h-5 text-emerald-600" />,
-    image: tohjilt,
-    name: "Тохижилт, ногоон байгууламж",
-    subCategories: ["Тоглоомын талбай", "Явган зам", "Ногоон зам"],
-  },
-  {
-    icon: <Cable className="w-5 h-5 text-purple-600" />,
-    image: ingener,
-    name: "Инженерийн шугам сүлжээ",
-    subCategories: ["Цахилгаан хангамж", "Гэрэлтүүлэг", "Камер"],
-  },
-]
 export default function CategoriesGrid() {
-  return (
-    <>
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/class`);
+        const data = await res.json();
+        setCategories(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error('Categories fetch error:', error);
+        setCategories([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  if (loading) {
+    return (
       <main className="py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-          {categories.map((cat, idx) => (
-            <Link
-              key={idx + 1}
-              href={`/news/${idx + 1}?icon=${cat.icon}&name=${cat.name}&desc=${cat.subCategories}`}
-            >
-
-              <div className="rounded-xl border border-gray-200 shadow hover:shadow-xl hover:scale-[1.02] transition duration-300 min-h-[450px] flex flex-col">
-
-                {/* Зураг */}
-                <div className="w-full h-1/2 mb-6 p-1">
-                  <Image
-                    src={cat.image}
-                    alt={cat.name}
-                    width={450}
-                    height={300}
-                    className="w-full h-full object-cover rounded-lg"
-                  />
-                </div>
-                <div className='p-5'>{/* Дээрх текст хэсэг */}
-                  <h3 className="text-lg font-bold mb-3 text-gray-800">{cat.name}</h3>
-
-                  {cat.subCategories.length > 0 && (
-                    <ul className="space-y-1 mb-6 text-sm text-gray-600 list-disc list-inside">
-                      {cat.subCategories.map((sub, subIdx) => (
-                        <li key={subIdx}>{sub}</li>
-                      ))}
-                    </ul>
-                  )}</div>
-
-
-                {/* {/* Доод icon + link хэсэг */}
-                <div className="mt-auto flex items-center justify-between px-5 pb-4">
-                  {/* Icon */}
-                  <div className="p-2 rounded-full ">
-                    {/* {cat.icon} */}
-                  </div>
-                  {/* Дэлгэрэнгүй */}
-                  <div
-
-                    className="text-xs font-medium text-blue-600 hover:text-blue-800 transition"
-                  >
-                    Дэлгэрэнгүй →
-                  </div>
-                </div>
-
-              </div>
-
-            </Link>
-          ))}
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
+            {Array.from({ length: 5 }).map((_, index) => (
+              <div key={index} className="min-h-[430px] animate-pulse rounded-2xl border border-slate-200 bg-white" />
+            ))}
           </div>
         </div>
       </main>
+    );
+  }
 
+  return (
+    <main className="py-12">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
+          {categories.map((category) => {
+            const subcategories = Array.isArray(category.subcategories) ? category.subcategories : [];
+            const desc = subcategories.map((item) => item.name).join(',');
+            const imageUrl = category.image_path ? `${API_BASE}/${category.image_path}` : '';
 
-    </>
-  )
+            return (
+              <Link
+                key={category.class_id}
+                href={{
+                  pathname: `/news/${category.class_id}`,
+                  query: {
+                    name: category.class_name,
+                    desc,
+                  },
+                }}
+              >
+                <div className="group flex min-h-[450px] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
+                  {imageUrl ? (
+                    <div className="relative h-56 overflow-hidden">
+                      <Image
+                        src={imageUrl}
+                        alt={category.class_name}
+                        fill
+                        sizes="(max-width: 1024px) 100vw, 20vw"
+                        className="object-cover transition duration-500 group-hover:scale-105"
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex h-56 items-center justify-center bg-gradient-to-br from-slate-100 via-slate-50 to-blue-50 text-sm text-slate-400">
+                      Зураг оруулаагүй байна
+                    </div>
+                  )}
+
+                  <div className="flex flex-1 flex-col p-5">
+                    <h3 className="mb-3 text-lg font-bold text-slate-800">{category.class_name}</h3>
+
+                    {subcategories.length > 0 ? (
+                      <ul className="space-y-1 text-sm text-slate-600">
+                        {subcategories.map((subcategory, index) => (
+                          <li key={`${category.class_id}-${subcategory.subcategory_id ?? index}`} className="line-clamp-1">
+                            • {subcategory.name}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-sm text-slate-400">Дэд ангилал оруулаагүй байна</p>
+                    )}
+
+                    <div className="mt-auto pt-6">
+                      <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-blue-600 transition group-hover:gap-3">
+                        Дэлгэрэнгүй
+                        <ArrowRight className="h-4 w-4" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+
+        {!loading && categories.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center text-sm text-slate-500">
+            Нүүр хуудасны ангилал бүртгэгдээгүй байна.
+          </div>
+        ) : null}
+      </div>
+    </main>
+  );
 }
